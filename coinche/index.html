@@ -81,7 +81,7 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .bidp{position:absolute;left:0;right:0;bottom:0;background:#071a10f2;border-top:2px solid var(--gold);padding:8px;display:flex;flex-direction:column;gap:6px;z-index:5}
 .vals{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px}.vals button{flex:0 0 auto;min-width:46px;padding:7px 8px;font-weight:800;background:var(--panel);border:2px solid var(--edge);border-radius:9px}
 .vals .on,.suits .on{background:var(--gold);color:#0b2a1a}.vals button:disabled{opacity:.3}
-.suits{display:flex;gap:8px}.suits button{flex:1;font-size:30px;padding:2px 0;background:var(--panel);border:2px solid var(--edge);border-radius:10px;font-weight:900}.suits .on.rd{color:#c0182a}.suits .on.bk{color:#000}
+.suits{display:flex;gap:6px}.suits button.wd{font-size:12px;line-height:1.1;font-weight:800}.suits button{flex:1;font-size:30px;padding:2px 0;background:var(--panel);border:2px solid var(--edge);border-radius:10px;font-weight:900}.suits .on.rd{color:#c0182a}.suits .on.bk{color:#000}
 .acts{display:flex;gap:6px;flex-wrap:wrap}.acts .ob{padding:9px;font-size:16px;flex:1 1 40%;max-width:none}
 .lt{position:relative;width:240px;height:260px}.lts{position:absolute;text-align:center}.lts small{display:block}
 .lts.q0{left:50%;bottom:0;transform:translateX(-50%)}.lts.q2{left:50%;top:0;transform:translateX(-50%)}.lts.q1{left:0;top:50%;transform:translateY(-50%)}.lts.q3{right:0;top:50%;transform:translateY(-50%)}
@@ -116,29 +116,31 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 <script>
 'use strict';
 /* ---------- Cartes : id = couleur*8 + rang ---------- */
-const SUITS=['♠','♥\uFE0E','♦','♣'],SUITN=['Pique','Cœur','Carreau','Trèfle'],RANKS=['7','8','9','10','V','D','R','A'];
+const SUITS=['♠','♥\uFE0E','♦','♣','Tout atout','Sans atout'],SUITN=['Pique','Cœur','Carreau','Trèfle'],RANKS=['7','8','9','10','V','D','R','A'];
 const ORD_NT=[0,1,2,4,5,6,3,7],ORD_T=[0,1,5,6,3,7,2,4];          /* du plus faible au plus fort */
-const PT_NT=[0,0,0,10,2,3,4,11],PT_T=[0,0,14,10,20,3,4,11];
+const PT_SA=[0,0,0,10,2,3,4,19],PT_NT=[0,0,0,10,2,3,4,11],PT_T=[0,0,14,10,20,3,4,11];
 const POS_NT=[],POS_T=[];ORD_NT.forEach((r,i)=>POS_NT[r]=i);ORD_T.forEach((r,i)=>POS_T[r]=i);
 const cs=id=>id>>3,cr=id=>id&7;
-const cpts=(id,tr)=>cs(id)===tr?PT_T[cr(id)]:PT_NT[cr(id)];
-const cstr=(id,tr)=>cs(id)===tr?POS_T[cr(id)]:POS_NT[cr(id)];
-function beats(a,b,tr){const at=cs(a)===tr,bt=cs(b)===tr;if(at!==bt)return at;if(cs(a)!==cs(b))return false;return cstr(a,tr)>cstr(b,tr);}
+const isTr=(s,tr)=>tr===4||s===tr;
+const cpts=(id,tr)=>isTr(cs(id),tr)?PT_T[cr(id)]:tr===5?PT_SA[cr(id)]:PT_NT[cr(id)];
+const cstr=(id,tr)=>isTr(cs(id),tr)?POS_T[cr(id)]:POS_NT[cr(id)];
+function beats(a,b,tr){const at=isTr(cs(a),tr),bt=isTr(cs(b),tr);if(at!==bt)return at;if(cs(a)!==cs(b))return false;return cstr(a,tr)>cstr(b,tr);}
 function trickWinner(trick,tr){let w=trick[0];for(let i=1;i<trick.length;i++)if(beats(trick[i].card,w.card,tr))w=trick[i];return w;}
 function legalMoves(hand,trick,tr,seat){
   if(!trick.length)return hand.slice();
   const ls=cs(trick[0].card),w=trickWinner(trick,tr);
-  const follow=hand.filter(c=>cs(c)===ls),trumps=hand.filter(c=>cs(c)===tr);
-  const mt=()=>Math.max(-1,...trick.filter(t=>cs(t.card)===tr).map(t=>cstr(t.card,tr)));
-  if(ls===tr){if(!follow.length)return hand.slice();const h=follow.filter(c=>cstr(c,tr)>mt());return h.length?h:follow;}
+  const follow=hand.filter(c=>cs(c)===ls),trumps=tr<4?hand.filter(c=>cs(c)===tr):[];
+  const ms=tr===4?ls:tr;
+  const mt=()=>Math.max(-1,...trick.filter(t=>cs(t.card)===ms).map(t=>cstr(t.card,tr)));
+  if(isTr(ls,tr)){if(!follow.length)return hand.slice();const h=follow.filter(c=>cstr(c,tr)>mt());return h.length?h:follow;}
   if(follow.length)return follow;
-  if(w.seat%2===seat%2)return hand.slice();
+  if(tr>=4||w.seat%2===seat%2)return hand.slice();
   if(!trumps.length)return hand.slice();
   const h=trumps.filter(c=>cstr(c,tr)>mt());return h.length?h:trumps;
 }
 const SUIT_SHOW=[0,1,3,2];                                         /* alterne noir / rouge */
 function sortHand(h,tr){return h.slice().sort((a,b)=>{const sa=SUIT_SHOW.indexOf(cs(a)),sb=SUIT_SHOW.indexOf(cs(b));
-  if(tr!=null&&tr>=0){const ta=cs(a)===tr?-1:0,tb=cs(b)===tr?-1:0;if(ta!==tb)return ta-tb;}
+  if(tr!=null&&tr>=0&&tr<4){const ta=cs(a)===tr?-1:0,tb=cs(b)===tr?-1:0;if(ta!==tb)return ta-tb;}
   return sa!==sb?sa-sb:cstr(b,tr)-cstr(a,tr);});}
 const rnd=(a,b)=>a+((Math.random()*(b-a+1))|0);
 const round10=x=>Math.round(x/10)*10;
@@ -164,7 +166,10 @@ function annCmp(a,b,trump){const x=annKey(a,trump),y=annKey(b,trump);for(let i=0
 function annDesc(a){return a.k==='carre'?'carré de '+(a.high===4?'valets':a.high===2?'9':a.high===7?'as':a.high===3?'10':a.high===6?'rois':'dames'):a.label+' '+SUITS[a.suit]+' au '+RANKS[a.high];}
 
 /* ---------- Robots ---------- */
+let TAK=0.8,TAB=-14,SAK=1.1,SAA=4,SAB=-8;
 function estimate(hand,suit){
+  if(suit===4){let p=0,j=0,n9=0;for(const c of hand){p+=PT_T[cr(c)];if(cr(c)===4)j++;if(cr(c)===2)n9++;}return p*TAK+j*6+n9*2+TAB;}
+  if(suit===5){let p=0,a=0;for(const c of hand){p+=PT_SA[cr(c)];if(cr(c)===7)a++;}return p*SAK+a*SAA+SAB;}
   let e=0;const tr=hand.filter(c=>cs(c)===suit);
   for(const c of tr)e+=PT_T[cr(c)];
   if(tr.length>3)e+=(tr.length-3)*8;if(!tr.length)e-=20;
@@ -176,13 +181,15 @@ function estimate(hand,suit){
 function botBidAction(g,seat){
   const hand=g.hands[seat],cb=g.cb;
   if(cb&&cb.coinche===1&&cb.seat===seat){return estimate(hand,cb.suit)>=cb.val+35?{a:'sur'}:{a:'pass'};}
-  let best=-1,bs=0;for(let s=0;s<4;s++){const e=estimate(hand,s)+rnd(-4,4);if(e>best){best=e;bs=s;}}
+  let best=-1,bs=0;for(let s=0;s<6;s++){const e=estimate(hand,s)+rnd(-4,4);if(e>best){best=e;bs=s;}}
   if(cb&&cb.seat%2!==seat%2&&cb.coinche===0){
+    if(cb.suit>=4){if(cb.val>=100&&estimate(hand,cb.suit)>=cb.val+10&&Math.random()<.5)return {a:'coinche'};}
+    else{
     const tr=hand.filter(c=>cs(c)===cb.suit),jn=tr.some(c=>cr(c)===4),n9=tr.some(c=>cr(c)===2);
     const aces=hand.filter(c=>cs(c)!==cb.suit&&cr(c)===7).length;
     if(cb.val>=100&&tr.length>=3&&(jn||n9)&&aces>=1&&Math.random()<.55)return {a:'coinche'};
     if(cb.val>=140&&tr.length>=2&&(jn||n9)&&Math.random()<.3)return {a:'coinche'};
-  }
+  }}
   let want=Math.floor((best+6)/10)*10;if(want>160)want=160;
   if(cb&&cb.seat%2===seat%2){if(want>=cb.val+20&&bs===cb.suit)return {a:'bid',val:Math.min(160,cb.val+10),suit:cb.suit};return {a:'pass'};}
   const min=cb?cb.val+10:80;
@@ -194,7 +201,7 @@ function botPlayCard(g,seat){
   if(L.length===1)return L[0];
   const played=new Set(g.played),mine=new Set(hand);
   const higherLeft=c=>{for(let r=0;r<8;r++){const id=cs(c)*8+r;if(id!==c&&cstr(id,tr)>cstr(c,tr)&&!played.has(id)&&!mine.has(id))return true;}return false;};
-  const trumpLeft=()=>{let n=0;for(let r=0;r<8;r++){const id=tr*8+r;if(!played.has(id)&&!mine.has(id))n++;}return n;};
+  const trumpLeft=()=>{if(tr>=4)return 0;let n=0;for(let r=0;r<8;r++){const id=tr*8+r;if(!played.has(id)&&!mine.has(id))n++;}return n;};
   const byLow=(a,b)=>cpts(a,tr)-cpts(b,tr)||cstr(a,tr)-cstr(b,tr);
   const att=g.cb.seat%2===seat%2;
   if(!g.trick.length){
@@ -228,10 +235,10 @@ class Game{
   constructor(target){
     this.target=target||1000;this.scores=[0,0];this.names=['Moi','Léa','Max','Zoé'];this.kinds=['human','bot','bot','bot'];
     this.sink=[null,null,null,null];this.phase='lobby';this.handNo=0;this.dealer=(Math.random()*4)|0;this.timer=0;this.rt=0;
-    this.ready=[true,true,true,true];this.msg='';this.result=null;this.lastTrick=null;this.fast=false;this.log=[];
+    this.ready=[true,true,true,true];this.msg='';this.result=null;this.lastTrick=null;this.fast=false;this.pace=.6;this.log=[];
   }
   isBot(s){return this.kinds[s]!=='human';}
-  later(fn,ms){clearTimeout(this.timer);this.timer=setTimeout(fn,this.fast?0:ms);}
+  later(fn,ms){clearTimeout(this.timer);this.timer=setTimeout(fn,this.fast?0:ms*this.pace);}
   start(){this.scores=[0,0];this.handNo=0;this.nextHand();}
   nextHand(){
     this.handNo++;this.dealer=(this.dealer+1)%4;
@@ -246,7 +253,7 @@ class Game{
   pump(){
     clearTimeout(this.rt);
     if((this.phase==='bidding'||this.phase==='play')&&this.isBot(this.turn)){
-      this.rt=setTimeout(()=>this.botMove(),this.fast?0:rnd(750,1350));
+      this.rt=setTimeout(()=>this.botMove(),this.fast?0:rnd(750,1350)*this.pace);
     }
   }
   botMove(){
@@ -255,7 +262,7 @@ class Game{
     if(this.phase==='bidding')this.act(s,botBidAction(this,s));
     else this.act(s,{a:'play',card:botPlayCard(this,s)});
   }
-  minBid(){return this.cb?(this.cb.val>=160?250:this.cb.val+10):80;}
+  minBid(){return this.cb?(this.cb.val>=200?250:this.cb.val+10):80;}
   act(seat,a){
     if(this.phase==='handEnd'&&a.a==='ready'){this.ready[seat]=true;this.checkReady();return '';}
     if(this.phase==='bidding'){
@@ -272,8 +279,8 @@ class Game{
       if(a.a==='bid'){
         if(cb&&cb.coinche>0)return 'coinché';
         const v=a.val,su=a.suit;
-        if(!(su>=0&&su<=3))return 'couleur';
-        if(!((v>=80&&v<=160&&v%10===0)||v===250))return 'valeur';
+        if(!(su>=0&&su<=5))return 'couleur';
+        if(!((v>=80&&v<=200&&v%10===0)||v===250))return 'valeur';
         if(v<this.minBid()&&!(v===250&&(!cb||cb.val<250)))return 'trop bas';
         if(cb&&v<=cb.val)return 'trop bas';
         this.cb={seat,val:v,suit:su,coinche:0};this.passes=0;this.bids.push({seat,k:'bid',val:v,suit:su});
@@ -331,7 +338,7 @@ class Game{
     this.trump=this.cb.suit;this.phase='play';this.turn=(this.dealer+1)%4;
     this.hands=this.hands.map(h=>sortHand(h,this.trump));
     this.ann=[0,1,2,3].map(i=>findAnnonces(this.hands[i],i));this.annDecl=[false,false,false,false];this.annTxt=[];this.annRes=null;this.annPts=[0,0];this.tricksDone=0;
-    for(let s=0;s<4;s++){const h=this.hands[s];if(h.includes(this.trump*8+5)&&h.includes(this.trump*8+6))this.bel={seat:s,n:0};}
+    if(this.trump<4)for(let s=0;s<4;s++){const h=this.hands[s];if(h.includes(this.trump*8+5)&&h.includes(this.trump*8+6))this.bel={seat:s,n:0};}
     this.push();
   }
   endHand(){
@@ -436,7 +443,7 @@ function sendAct(a){audio();if(G)G.act(0,a);else if(conn)conn.send({t:'act',a});
 /* ---------- accueil ---------- */
 function showHome(){
   leave(true);show('home');
-  $('home').innerHTML='<div class="logo">'+SUITS.join(' ')+'</div><h1>Coinche entre amis</h1><p class="muted">Sans publicité, sans compte. Joue contre des robots ou avec ceux qui saisissent ton code.</p>'+
+  $('home').innerHTML='<div class="logo">'+SUITS.slice(0,4).join(' ')+'</div><h1>Coinche entre amis</h1><p class="muted">Sans publicité, sans compte. Joue contre des robots ou avec ceux qui saisissent ton code.</p>'+
    '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'" aria-label="Ton prénom">'+
    '<button class="ob" id="solo">🤖 Jouer contre des robots</button>'+
    '<button class="ob alt" id="host">🎴 Créer une partie en ligne</button>'+
@@ -450,21 +457,21 @@ function showHome(){
 }
 function showRules(){
   openOv('<h2>Règles</h2><div class="rules"><p><b>Équipes :</b> toi et ton partenaire (face à face) contre les deux autres.</p>'+
-   '<p><b>Enchères :</b> chacun son tour annonce un contrat (80 à 160, ou Capot) dans une couleur, ou passe. Un adversaire peut <b>coincher</b> (points ×2), l’équipe peut <b>surcoincher</b> (×4).</p>'+
+   '<p><b>Enchères :</b> chacun son tour annonce un contrat (80 à 200, ou Capot) dans une couleur, en <b>Tout atout</b> ou en <b>Sans atout</b>, ou passe. Un adversaire peut <b>coincher</b> (points ×2), l’équipe peut <b>surcoincher</b> (×4).</p>'+
    '<p><b>Jeu :</b> on fournit la couleur demandée. Sinon on coupe à l’atout (sauf si le partenaire est maître) et on surcoupe si on peut.</p>'+
    '<p><b>Valeur à l’atout :</b> Valet 20 · 9 14 · As 11 · 10 10 · Roi 4 · Dame 3.<br><b>Hors atout :</b> As 11 · 10 10 · Roi 4 · Dame 3 · Valet 2.</p>'+
-   '<p><b>Dix de der</b> +10. <b>Belote-rebelote</b> (Roi + Dame d’atout) +20.</p>'+
+   '<p><b>Tout atout :</b> chaque couleur est de l’atout (Valet 20, 9 14, As 11, 10 10, Roi 4, Dame 3 ; 258 points au total) : on monte toujours si on peut. <b>Sans atout :</b> pas d’atout, pas de coupe (As 19, 10 10, Roi 4, Dame 3, Valet 2 ; 162 points). Pas de belote dans ces deux contrats.</p><p><b>Dix de der</b> +10. <b>Belote-rebelote</b> (Roi + Dame d’atout) +20.</p>'+
    '<p><b>Annonces</b> (déclarées automatiquement au premier pli) : tierce 20 · cinquante 50 · cent 100 · carré de valets 200, de 9 150, d’as, 10, rois ou dames 100. Seule l’équipe qui a la meilleure annonce marque toutes les siennes.</p>'+
    '<p><b>Score :</b> contrat réussi : ses points + le contrat ; chuté : l’adversaire marque 160 + le contrat. Coinché : (160 + contrat) × 2 ou × 4.</p></div><button class="ob" id="x">Fermer</button>');
   $('x').onclick=closeOv;
 }
 /* ---------- solo ---------- */
 function startSolo(name){
-  leave(true);G=new Game(P.target);G.names=[name,'Léa','Max','Zoé'];G.sink[0]=onView;me=0;show('game');G.start();
+  leave(true);G=new Game(P.target);G.pace=P.pace||.6;G.names=[name,'Léa','Max','Zoé'];G.sink[0]=onView;me=0;show('game');G.start();
 }
 /* ---------- hôte en ligne ---------- */
 function hostOnline(name){
-  leave(true);G=new Game(P.target);G.names=[name,'Léa','Max','Zoé'];G.gone=[false,false,false,false];G.sink[0]=onView;me=0;
+  leave(true);G=new Game(P.target);G.pace=P.pace||.6;G.names=[name,'Léa','Max','Zoé'];G.gone=[false,false,false,false];G.sink[0]=onView;me=0;
   roomCode=genCode();show('lobby');$('lobby').innerHTML='<h2>Création de la partie…</h2>';
   const open=(tries)=>{
     try{peer=mkPeer('coinche-'+roomCode);}catch(e){toast(e.message,5000);return showHome();}
@@ -553,7 +560,7 @@ function onView(v){
   render();
   if(P.auto!==false&&v.phase==='play'&&v.legal&&v.legal.length===1){
     const id=v.legal[0],key=lastTurnKey;
-    setTimeout(()=>{if(view&&view.phase==='play'&&view.legal&&view.legal.length===1&&view.legal[0]===id&&lastTurnKey===key&&!dragging){sel=-1;toast('Carte jouée automatiquement : c’était la seule possible.',1800);sendAct({a:'play',card:id});}},1000);
+    setTimeout(()=>{if(view&&view.phase==='play'&&view.legal&&view.legal.length===1&&view.legal[0]===id&&lastTurnKey===key&&!dragging){sel=-1;toast('Carte jouée automatiquement : c’était la seule possible.',1800);sendAct({a:'play',card:id});}},450);
   }
 }
 const rel=s=>(s-me+4)%4;
@@ -585,7 +592,7 @@ function render(){
   h+='</div>';
   h+=aidsHtml(v);
   h+='<div class="me'+((v.phase==='play'||v.phase==='bidding')&&v.turn===me?' on':'')+'">'+(v.dealer===me?'<i class="dl">D</i>':'')+esc(v.names[me])+'</div>';
-  h+='<div class="hand">'+v.hand.map(c=>{const ok=!v.legal||v.legal.includes(c),isT=v.trump!=null&&cs(c)===v.trump;return cardEl(c,(v.legal&&!ok?'no ':'')+(c===sel?'sel ':'')+(advice&&advice.card===c?'adv ':'')+(isT?'tr':''));}).join('')+'</div>';
+  h+='<div class="hand">'+v.hand.map(c=>{const ok=!v.legal||v.legal.includes(c),isT=v.trump!=null&&v.trump<4&&cs(c)===v.trump;return cardEl(c,(v.legal&&!ok?'no ':'')+(c===sel?'sel ':'')+(advice&&advice.card===c?'adv ':'')+(isT?'tr':''));}).join('')+'</div>';
   $('game').innerHTML=h;
   $('menuB').onclick=showMenu;$('lastB').onclick=showLast;
   $('game').querySelectorAll('.hand .card').forEach(el=>{
@@ -610,11 +617,11 @@ function render(){
 function bidPanel(v){
   const o=v.opts;if(o.locked&&!o.canSur)return '';
   if(bidVal<o.min)bidVal=o.min;
-  const vals=[80,90,100,110,120,130,140,150,160,250];
+  const vals=[80,90,100,110,120,130,140,150,160,170,180,190,200,250];
   let h='<div class="bidp">'+(P.aids?bidHint(v):'');
   if(!o.locked){
     h+='<div class="vals">'+vals.map(x=>'<button data-v="'+x+'" class="'+(x===bidVal?'on':'')+'" '+(x<o.min||(x===250&&false)?'disabled':'')+'>'+(x===250?'Capot':x)+'</button>').join('')+'</div>';
-    h+='<div class="suits">'+[0,1,3,2].map(s=>'<button data-s="'+s+'" class="'+(s===bidSuit?'on ':'')+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</button>').join('')+'</div>';
+    h+='<div class="suits">'+[0,1,3,2,4,5].map(s=>'<button data-s="'+s+'" class="'+(s===bidSuit?'on ':'')+(s===1||s===2?'rd':s>3?'bk wd':'bk')+'">'+(s>3?SUITS[s].replace(' atout','<br>atout'):SUITS[s])+'</button>').join('')+'</div>';
     h+='<div class="acts"><button class="ob" id="bidB" '+(bidSuit<0?'disabled':'')+'>'+(bidSuit<0?'Choisis une couleur':'Annoncer '+(bidVal===250?'Capot':bidVal)+' '+SUITS[bidSuit])+'</button>';
   }else h+='<div class="acts">';
   h+='<button class="ob alt" id="passB">'+(o.canSur?'Pas de surcoinche':'Passer')+'</button>';
@@ -638,9 +645,10 @@ function showLast(){
   $('x').onclick=closeOv;
 }
 function showMenu(){
-  openOv('<h2>Menu</h2><button class="sw" id="snd"><span>Sons</span><span>'+(P.mute?'🔇 Coupés':'🔊 Activés')+'</span></button><button class="sw" id="aid"><span>Aides de jeu</span><span>'+(P.aids?'💡 Activées':'Désactivées')+'</span></button><button class="sw" id="aut"><span>Jouer seul la carte obligatoire</span><span>'+(P.auto===false?'Non':'✓ Oui')+'</span></button><button class="ob alt" id="ru">Règles et points</button><button class="ob alt" id="q">Quitter la partie</button><button class="ob" id="x">Retour au jeu</button>');
+  openOv('<h2>Menu</h2><button class="sw" id="snd"><span>Sons</span><span>'+(P.mute?'🔇 Coupés':'🔊 Activés')+'</span></button><button class="sw" id="aid"><span>Aides de jeu</span><span>'+(P.aids?'💡 Activées':'Désactivées')+'</span></button><button class="sw" id="aut"><span>Jouer seul la carte obligatoire</span><span>'+(P.auto===false?'Non':'✓ Oui')+'</span></button>'+(G?'<button class="sw" id="pc"><span>Rythme des robots</span><span>'+((P.pace||.6)>.7?'Normal':(P.pace||.6)>.4?'Rapide':'Éclair')+'</span></button>':'')+'<button class="ob alt" id="ru">Règles et points</button><button class="ob alt" id="q">Quitter la partie</button><button class="ob" id="x">Retour au jeu</button>');
   $('x').onclick=closeOv;$('ru').onclick=()=>{showRules();$('x').onclick=showMenu;};
   $('snd').onclick=()=>{P.mute=!P.mute;saveP();showMenu();};
+  if($('pc'))$('pc').onclick=()=>{const c=P.pace||.6;P.pace=c>.7?.6:c>.4?.3:1;if(G)G.pace=P.pace;saveP();showMenu();};
   $('aut').onclick=()=>{P.auto=P.auto===false;saveP();showMenu();};
   $('aid').onclick=()=>{P.aids=!P.aids;advice=null;saveP();showMenu();render();};
   $('q').onclick=()=>{openOv('<h2>Quitter ?</h2><p>'+(G&&seatConn.some(Boolean)?'Les joueurs en ligne seront déconnectés.':'La partie sera perdue.')+'</p><button class="ob" id="y">Oui, quitter</button><button class="ob alt" id="n">Non</button>');$('y').onclick=showHome;$('n').onclick=closeOv;};
@@ -710,11 +718,11 @@ function trumpsLeft(v){const out=[];for(let r=7;r>=0;r--){}
 function aidsHtml(v){
   if(!P.aids||!(v.phase==='play'||v.phase==='trickEnd'||v.phase==='bidding'))return '';
   let info='';
-  if((v.phase==='play'||v.phase==='trickEnd')&&v.trump!=null){
+  if((v.phase==='play'||v.phase==='trickEnd')&&v.trump!=null){const ext=v.trump<4;
     if(v.trick.length){const pts=v.trick.reduce((s,t)=>s+cpts(t.card,v.trump),0),w=trickWinner(v.trick,v.trump);
       info+='<span>Pli : <b>'+pts+' pt'+(pts>1?'s':'')+'</b> · '+(w.seat===me?'<b class="gd">tu gagnes</b>':w.seat%2===me%2?'<b class="gd">'+esc(v.names[w.seat])+' (ton partenaire) gagne</b>':'<b class="bd">'+esc(v.names[w.seat])+' gagne</b>')+'</span>';}
-    const tl=trumpsLeft(v);
-    info+='<span>Atouts '+suitHtml(v.trump)+' restants : '+(tl.length?tl.map(c=>'<b class="tk">'+RANKS[cr(c)]+'</b>').join(''):'<b>aucun</b>')+'</span>';
+    const tl=ext?trumpsLeft(v):[];
+    if(ext)info+='<span>Atouts '+suitHtml(v.trump)+' restants : '+(tl.length?tl.map(c=>'<b class="tk">'+RANKS[cr(c)]+'</b>').join(''):'<b>aucun</b>')+'</span>';
   }
   if(advice&&advice.why&&v.phase!=='bidding')info+='<span class="adv-t">💡 '+advice.why+'</span>';
   const tools=(v.phase==='play'||v.phase==='bidding'?'<button id="advB" '+(v.turn===me&&(v.legal||v.opts)?'':'disabled')+'>💡 Conseil</button>':'')+(v.phase!=='bidding'?'<button id="memB">📋 Cartes jouées</button>':'');
@@ -743,23 +751,26 @@ function computeAdvice(v){
 }
 function bidAnalysis(v){
   const hand=v.hand,g=pseudoGame(v),a=botBidAction(g,me);
-  let best=-1,bs=0;for(let s=0;s<4;s++){const e=estimate(hand,s);if(e>best){best=e;bs=s;}}
-  const suit=a.a==='bid'?a.suit:bs,tr=hand.filter(c=>cs(c)===suit).sort((x,y)=>cstr(y,suit)-cstr(x,suit));
+  let best=-1,bs=0;for(let s=0;s<6;s++){const e=estimate(hand,s);if(e>best){best=e;bs=s;}}
+  const suit=a.a==='bid'?a.suit:bs,special=suit>=4,nJ=hand.filter(c=>cr(c)===4).length,n9a=hand.filter(c=>cr(c)===2).length,nA=hand.filter(c=>cr(c)===7).length,tr=hand.filter(c=>cs(c)===suit).sort((x,y)=>cstr(y,suit)-cstr(x,suit));
   const hasJ=tr.some(c=>cr(c)===4),has9=tr.some(c=>cr(c)===2),hasA=tr.some(c=>cr(c)===7),n=tr.length;
-  const aces=hand.filter(c=>cs(c)!==suit&&cr(c)===7).length,est=Math.round(estimate(hand,suit)/10)*10;
+  const aces=special?nA:hand.filter(c=>cs(c)!==suit&&cr(c)===7).length,est=Math.round(estimate(hand,suit)/10)*10;
   const cb=v.cb,partnerBid=cb&&cb.seat%2===me%2;
   const L=[];let title,bid=null;
   if(a.a==='bid'){
     bid={val:a.val,suit:a.suit};title='✅ Prends : '+(a.val===250?'Capot':a.val)+' '+SUITS[a.suit];
+    if(suit===4){L.push('Tout atout : toutes les couleurs sont de l’atout. Tu as '+nJ+' Valet(s) (20 pts chacun) et '+n9a+' neuf(s) (14 pts).');L.push('Chaque Valet est maître de sa couleur : il fera le pli.');}
+    else if(suit===5){L.push('Sans atout : pas de coupe, l’As vaut 19 points. Tu as '+nA+' As.');L.push('Les As et les 10 qui les suivent font des plis presque sûrs.');}
+    else{
     if(hasJ&&has9)L.push('Tu as le Valet et le 9 d’atout, les deux meilleures cartes (34 points à eux deux).');
     else if(hasJ)L.push('Tu as le Valet d’atout : c’est la carte la plus forte.');
     else if(has9)L.push('Tu as le 9 d’atout, la deuxième meilleure carte.');
     if(n>=4)L.push('Tu as '+n+' atouts : tu contrôles la couleur et tu pourras faire tomber ceux des adversaires.');
     else if(n===3)L.push('Tu as 3 atouts, c’est un bon début.');
     if(hasA&&!hasJ)L.push('Tu as l’As d’atout.');
-    if(aces)L.push('Tu as '+aces+' As hors atout : ce sont des plis presque sûrs.');
+    if(aces)L.push('Tu as '+aces+' As hors atout : ce sont des plis presque sûrs.');}
     if(partnerBid)L.push('Ton partenaire a annoncé '+cb.val+' : tu le soutiens en montant, ton jeu complète le sien.');
-    L.push('Ta main vaut environ '+est+' points. Avec l’aide de ton partenaire, '+a.val+' est atteignable (il faut ≥ '+a.val+' points sur 162).');
+    L.push('Ta main vaut environ '+est+' points. Avec l’aide de ton partenaire, '+a.val+' est atteignable (il faut ≥ '+a.val+' points sur '+(suit===4?258:162)+').');
   }else if(a.a==='coinche'){
     title='⚔️ Tu peux coincher';L.push('Tu as '+tr.length+' atout(s) dans la couleur adverse'+(cb?' ('+SUITS[cb.suit]+')':'')+' dont le Valet ou le 9 : ils risquent de chuter.');L.push('Attention : si tu te trompes, ils marquent le double.');
     const t2=hand.filter(c=>cs(c)===cb.suit);L.length=0;L.push('Tu as '+t2.length+' atout(s) de leur couleur '+SUITS[cb.suit]+', dont le Valet ou le 9 : ils auront du mal à faire leur contrat.');L.push('Attention : si tu te trompes, ils marquent le double.');
@@ -767,10 +778,11 @@ function bidAnalysis(v){
   else{
     title='✋ Passe';
     if(partnerBid)L.push('Ton partenaire a déjà annoncé '+cb.val+' '+SUITS[cb.suit]+' : laisse-le jouer.');
-    if(!hasJ&&!has9)L.push('Dans ta meilleure couleur ('+SUITS[bs]+'), tu n’as ni le Valet ni le 9 d’atout : sans eux, ton atout est fragile.');
+    if(special){L.push(suit===4?'En Tout atout, il faut des Valets et des 9 : tu n’en as que '+nJ+' et '+n9a+'.':'En Sans atout, il faut des As : tu n’en as que '+nA+'.');}
+    else if(!hasJ&&!has9)L.push('Dans ta meilleure couleur ('+SUITS[bs]+'), tu n’as ni le Valet ni le 9 d’atout : sans eux, ton atout est fragile.');
     else if(!hasJ)L.push('Tu n’as pas le Valet d’atout, la carte maîtresse.');
-    if(n<3)L.push('Tu n’as que '+n+' atout(s) dans ta meilleure couleur : trop peu pour la contrôler.');
-    if(!aces)L.push('Tu n’as aucun As hors atout pour faire des plis.');
+    if(!special&&n<3)L.push('Tu n’as que '+n+' atout(s) dans ta meilleure couleur : trop peu pour la contrôler.');
+    if(!special&&!aces)L.push('Tu n’as aucun As hors atout pour faire des plis.');
     if(cb&&!partnerBid)L.push('Pour monter au-dessus de '+cb.val+', il faudrait une main qui vaut plus : la tienne vaut environ '+est+'.');
     if(!cb)L.push('Ta main vaut environ '+est+' points : il en faut environ 90 pour annoncer 80 en sécurité.');
   }
@@ -783,9 +795,9 @@ function showMemo(){
   $('x').onclick=closeOv;
 }
 function bidHint(v){
-  let best=0,bs=0;for(let s=0;s<4;s++){const e=estimate(v.hand,s);if(e>best){best=e;bs=s;}}
-  const tr=v.hand.filter(c=>cs(c)===bs).sort((x,y)=>cstr(y,bs)-cstr(x,bs));
-  let h='<div class="hint">Meilleure couleur : '+suitHtml(bs)+' ('+tr.map(c=>RANKS[cr(c)]).join(' ')+') · valeur ≈ <b>'+Math.round(best/10)*10+'</b>';
+  let best=0,bs=0;for(let s=0;s<6;s++){const e=estimate(v.hand,s);if(e>best){best=e;bs=s;}}
+  const tr=bs>3?[]:v.hand.filter(c=>cs(c)===bs).sort((x,y)=>cstr(y,bs)-cstr(x,bs));
+  let h='<div class="hint">Meilleur contrat : '+suitHtml(bs)+(bs>3?'':' ('+tr.map(c=>RANKS[cr(c)]).join(' ')+')')+' · valeur ≈ <b>'+Math.round(best/10)*10+'</b>';
   if(advice&&advice.lines)h+='<div class="why2"><b>'+advice.title+'</b><ul>'+advice.lines.map(l=>'<li>'+l+'</li>').join('')+'</ul></div>';
   return h+'</div>';
 }
