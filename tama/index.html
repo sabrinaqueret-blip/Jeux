@@ -114,6 +114,7 @@ canvas.mini{width:100%;max-width:420px;aspect-ratio:16/10;border:3px solid var(-
 .opt{padding:14px 6px;font-size:20px;font-weight:800;background:var(--panel);border:3px solid var(--edge);border-radius:12px;box-shadow:0 3px 0 var(--edge);color:var(--ink)}
 .opt.good{background:#2f8a4c}.opt.bad{background:#a02a4a}.opt:disabled{opacity:1}
 .qtxt{font-size:30px;font-weight:800;line-height:1.2}.qtxt.sen{font-size:22px}
+.why{width:100%;max-width:360px;text-align:left;background:var(--panel);border:2px solid var(--pink);border-radius:12px;padding:10px 12px}.why p{margin:6px 0 0;font-size:15px;line-height:1.4}
 </style>
 
 <main class="game" id="game">
@@ -742,32 +743,117 @@ const ORTHO={
   ['Ces règles, nous les avons ___.','apprises','appris','apprise'],['Elles se sont ___ hier.','parlé','parlées','parlés'],['Il faut que nous ___ ce soir.','finissions','finissons','finirons']
  ]
 };
+
+/* ---------- Explications (orthographe) ---------- */
+const EXW={
+ 'est':'« est » est le verbe être : on peut le remplacer par « était ». (« et » relie deux mots, et on peut dire « et puis ».)',
+ 'et':'« et » relie deux mots ou deux groupes : on peut dire « et puis ». On ne peut pas le remplacer par « était ».',
+ 'a':'« a » est le verbe avoir : on peut dire « avait ». (« à » est une préposition : on ne peut pas dire « avait ».)',
+ 'à':'« à » avec accent est une préposition (à l’école, à Paris). Test : on ne peut pas le remplacer par « avait ».',
+ 'ces':'« ces » désigne des choses qu’on montre (ces oiseaux = les oiseaux que je montre). Test : remplace par « ceux-ci ».',
+ 'ses':'« ses » = à lui / à elle (ses amis = les amis à elle). Test : remplace par « mes » en parlant de moi.',
+ 'ont':'« ont » est le verbe avoir au pluriel : on peut dire « avaient ». (« on » = quelqu’un, remplaçable par « il ».)',
+ 'on':'« on » peut se remplacer par « il » ou « nous » (On mange = il mange). « ont » est le verbe avoir (ils ont = ils avaient).',
+ 'mais':'« mais » exprime une opposition (je voulais, mais…). « mes » est un déterminant : mes jouets = les jouets à moi.',
+ 'mes':'« mes » est le pluriel de « mon / ma » : mes jouets = les jouets à moi. Il se met devant un nom.',
+ 'quelle':'« quelle » s’accorde avec un nom féminin : l’heure → quelle heure. (Masculin : quel.)',
+ 'où':'« où » avec accent indique un lieu ou un moment. Test : on peut le remplacer par « à quel endroit ».',
+ 'ou':'« ou » sans accent propose un choix. Test : on peut dire « ou bien ». (« où » indique un lieu.)',
+ 'fait':'« il fait » : avec « il / elle / on », le verbe faire s’écrit « fait », avec un t.',
+ 'fais':'« tu fais » : avec « je » et « tu », le verbe faire s’écrit « fais », avec un s.',
+ 'sommes':'« nous sommes » : à la 1re personne du pluriel, le verbe être donne « sommes ».',
+ 'sont':'« sont » est le verbe être au pluriel : on peut dire « étaient ». (« son » = à lui, devant un nom.)',
+ 'son':'« son » = à lui / à elle, devant un nom : son cahier = le cahier à lui. On peut le remplacer par « mon ».',
+ 'suis':'« je suis » : avec « je », le verbe être donne « suis » (et le verbe suivre aussi). Ici, c’est être : je suis content.',
+ 'suit':'« il suit » : verbe suivre à la 3e personne. Test : remplace par « suivait ».',
+ 'es':'« tu es » : avec « tu », le verbe être donne « es ». Test : on peut dire « tu étais ». (« est » = il / elle.)',
+ 'l’a':'« l’a » = « le / la » + « a » (le verbe avoir). Test : remplace par « l’avait ». « là » = lieu, « la » = déterminant.',
+ 'là':'« là » avec accent indique un lieu (ici / là). Test : on peut dire « ici ».',
+ 'la':'« la » est un déterminant devant un nom féminin : la lune. Il n’a pas d’accent.',
+ 'peut':'« peut » vient du verbe pouvoir. Test : remplace par « pouvait ». (« peu » = pas beaucoup.)',
+ 'peu':'« peu » veut dire « pas beaucoup ». Test : remplace par « beaucoup » : ça change le sens, donc c’est « peu ».',
+ 'sans':'« sans » exprime l’absence (sans manteau). C’est le contraire de « avec ».',
+ 'sang':'« sang » est le liquide rouge dans le corps. Pour t’en souvenir : le sang → sanguin.',
+ 'se':'« se » accompagne un verbe (se laver). Test : remplace par « me » : « je me lave ».',
+ 'ce':'« ce » est un déterminant devant un nom masculin : ce livre. Test : remplace par « ces » au pluriel (ces livres).',
+ 'leur':'« leur » reste au singulier quand il n’y a qu’un seul objet possédé (leur ballon). Il prend un s s’il y en a plusieurs.',
+ 'leurs':'« leurs » prend un s car il y a plusieurs amis. Test : met le nom au singulier : leur ami.',
+ 'ta':'« ta » est un déterminant : ta trousse = la trousse à toi. Test : remplace par « ma ». (« t’a » = te + a.)',
+ 't’a':'« t’a » = « te » + « a » (verbe avoir). Test : remplace par « m’a » ou « t’avait ».',
+ 'm’ont':'« m’ont » = « me » + « ont » (verbe avoir). Test : remplace par « m’avaient ». (« mon » devant un nom.)',
+ 'qu’elle':'« qu’elle » = « que » + « elle ». Test : remplace par « qu’il ». (« quelle » va devant un nom : quelle heure.)',
+ 'cueillies':'Avec « avoir », le participe passé s’accorde avec le COD placé avant : « que » = les fleurs (féminin pluriel) → cueillies.',
+ 'lavé':'Avec « se laver » + un COD placé après (les mains), le participe passé ne s’accorde pas : « elle s’est lavé les mains ».',
+ 'vus':'Le COD « les films » est placé avant le verbe (masculin pluriel) : le participe s’accorde → vus.',
+ 'sois':'Après « il faut que », on utilise le subjonctif. Du verbe être, avec « tu » : que tu sois.',
+ 'soit':'Après « il faut que », subjonctif. Du verbe être, avec « il » : qu’il soit.',
+ 'viennes':'Après « je voudrais que », subjonctif présent. Du verbe venir, avec « tu » : que tu viennes.',
+ 'achèterais':'Conditionnel (après « si » + imparfait) : j’achèterais. On garde l’accent grave à « achèter- ».',
+ 'irons':'Futur de « aller » : nous irons (j’irai, tu iras, il ira, nous irons). « Demain » indique le futur.',
+ 'sont allés':'Le verbe « aller » se conjugue avec être au passé composé, et le participe s’accorde avec le sujet pluriel : ils sont allés.',
+ 'prends':'« tu prends » : avec « je » et « tu », prendre se termine par s (je prends, tu prends).',
+ 'veut':'« il veut » : avec « il / elle », vouloir se termine par t. (je veux, tu veux, il veut)',
+ 'dites':'« vous dites » : le verbe dire fait exception, il se termine par -tes à « vous ».',
+ 'faites':'« vous faites » : le verbe faire fait exception, il se termine par -tes à « vous ».',
+ 'jouais':'Imparfait avec « je » : terminaison -ais (je jouais). « Quand j’étais petit » = habitude dans le passé.',
+ 'font':'« ils font » : le verbe faire à la 3e personne du pluriel s’écrit « font ».',
+ 'née':'Avec « être », le participe passé s’accorde avec le sujet : « elle » est féminin → née.',
+ 'parties':'Avec « être », le participe passé s’accorde avec le sujet : « les filles » = féminin pluriel → parties.',
+ 'plus tôt':'« plus tôt » s’oppose à « plus tard » (se lever plus tôt). Test : remplace par « plus tard ».',
+ 'plutôt':'« plutôt » exprime une préférence (plutôt le thé que le café). On ne peut pas dire « plus tard ».',
+ 'quand':'« quand » exprime le moment, on peut dire « lorsque ». (« quant à » = en ce qui concerne ; « qu’en » = que + en.)',
+ 'tous':'« tous » (le s se prononce) s’accorde avec « ils » : ils sont tous venus. Test : « tous » peut se remplacer par « chacun ».',
+ 'tout':'« tout » est invariable ici (adverbe / pronom) : elle a tout mangé = elle a mangé « toute la nourriture ».',
+ 'ça':'« ça » = « cela » : on peut dire « cela va bien ? ». Avec la cédille.',
+ 'sa':'« sa » = à lui / à elle devant un nom féminin : sa maison. Test : remplace par « ma ».',
+ 's’est':'« s’est » = « se » + « est » : il s’est trompé (verbe pronominal, on peut dire « il se trompait »).',
+ 'c’est':'« c’est » = « cela est » : on peut dire « c’était ». ',
+ 'sait':'« il sait » vient du verbe savoir. Test : remplace par « savait ».',
+ 'n’y':'« n’y » = « ne » + « y » : elle n’y voit rien (y = à cet endroit). « ni » relie deux négations (ni lui ni elle).',
+ 'donc':'« donc » marque une conséquence (je pense, donc je suis). Test : remplace par « alors ».',
+ 'dont':'« dont » remplace « de + quelque chose » : le livre dont je parle = je parle de ce livre.',
+ 'prêt':'« prêt » veut dire « préparé » (prêt à partir). Test : féminin « prête ».',
+ 'près':'« près » indique la proximité : tout près d’ici. Test : contraire = « loin ».',
+ 'maire':'« le maire » dirige la ville. (la mère = maman ; la mer = l’eau salée.)',
+ 'verre':'« un verre d’eau » : on boit dans un verre (mot de la famille de « verrerie »). (vert = couleur ; vers = en direction de.)',
+ 'apprises':'Le COD « les » (= les règles, féminin pluriel) est placé avant « avons » : le participe s’accorde → apprises.',
+ 'parlé':'« se parler » : « se » est COI (parler à quelqu’un), donc le participe passé reste invariable : elles se sont parlé.',
+ 'finissions':'Après « il faut que », subjonctif présent. Du verbe finir, avec « nous » : que nous finissions.'
+};
+function explainOrtho(q,a,o){
+  const k=a.toLowerCase();
+  if(EXW[k])return EXW[k];
+  const wr=o.filter(x=>x!==a).map(x=>'« '+x+' »').join(' ou ');
+  return 'On écrit « '+a+' », et non '+wr+'. Recopie-le une fois en séparant les syllabes pour le retenir.';
+}
 function makeMath(lv){
-  let a,b,q,r,wrong;
+  let a,b,q,r,ex='';
   if(lv===1){
     const k=rnd(1,5);
     if(k<=2){a=rnd(2,15);b=rnd(2,15);q=a+' + '+b;r=a+b;}
     else if(k<=4){a=rnd(8,20);b=rnd(1,a-1);q=a+' − '+b;r=a-b;}
-    else{a=rnd(2,5);b=rnd(2,10);q=a+' × '+b;r=a*b;}
+    else{a=rnd(2,5);b=rnd(2,10);q=a+' × '+b;r=a*b;ex='Révise ta table de '+a+'.';}
   }else if(lv===2){
     const k=rnd(1,5);
     if(k===1){a=rnd(20,70);b=rnd(12,60);q=a+' + '+b;r=a+b;}
     else if(k===2){a=rnd(50,99);b=rnd(11,a-5);q=a+' − '+b;r=a-b;}
-    else if(k<=4){a=rnd(3,9);b=rnd(3,9);q=a+' × '+b;r=a*b;}
+    else if(k<=4){a=rnd(3,9);b=rnd(3,9);q=a+' × '+b;r=a*b;ex='Révise ta table de '+a+' (ou de '+b+').';}
     else{b=rnd(2,9);r=rnd(3,10);a=b*r;q=a+' ÷ '+b;}
   }else{
     const k=rnd(1,6);
     if(k===1){a=rnd(11,25);b=rnd(3,9);q=a+' × '+b;r=a*b;}
     else if(k===2){a=rnd(120,480);b=rnd(35,190);q=a+' + '+b;r=a+b;}
     else if(k===3){a=rnd(200,500);b=rnd(35,190);q=a+' − '+b;r=a-b;}
-    else if(k===4){a=rnd(2,9);b=rnd(2,9);const c=rnd(2,9);q=a+' + '+b+' × '+c;r=a+b*c;}
-    else if(k===5){b=rnd(4,12);r=rnd(6,15);a=b*r;q=a+' ÷ '+b;r=r;}
-    else{a=rnd(2,6);b=rnd(2,6);const c=rnd(2,9);q='('+a+' + '+b+') × '+c;r=(a+b)*c;}
+    else if(k===4){a=rnd(2,9);b=rnd(2,9);const c=rnd(2,9);q=a+' + '+b+' × '+c;r=a+b*c;ex='La multiplication est prioritaire : '+b+' × '+c+' = '+(b*c)+', puis '+a+' + '+(b*c)+'.';}
+    else if(k===5){b=rnd(4,12);r=rnd(6,15);a=b*r;q=a+' ÷ '+b;ex='Une division se vérifie avec une multiplication : '+r+' × '+b+' = '+a+'.';}
+    else{a=rnd(2,6);b=rnd(2,6);const c=rnd(2,9);q='('+a+' + '+b+') × '+c;r=(a+b)*c;ex='On calcule d’abord les parenthèses : '+a+' + '+b+' = '+(a+b)+', puis × '+c+'.';}
   }
   const set=new Set([r]);const offs=[1,-1,2,-2,10,-10,3,-3,5,-5];
   const cand=pick(offs,10);for(const o of cand){if(set.size>=4)break;const v=r+o;if(v>=0)set.add(v);}
   while(set.size<4)set.add(r+set.size+10);
-  return {q:q+' = ?',a:String(r),o:pick([...set].map(String),4)};
+  if(!ex){ex=q+' = '+r+'. ';if(q.includes('+')&&!q.includes('×'))ex+='Pose l’addition en colonnes pour vérifier.';else if(q.includes('−'))ex+='Vérifie : '+r+' + '+(q.split(' − ')[1])+' = '+q.split(' − ')[0]+'.';else if(q.includes('×'))ex+='Décompose : '+q+' avec une multiplication simple.';}
+  else ex=q+' = '+r+'. '+ex;
+  return {q:q+' = ?',a:String(r),o:pick([...set].map(String),4),e:ex};
 }
 
 /* ---------- Menu des jeux ---------- */
@@ -875,20 +961,22 @@ function gTaq(){
 /* ---------- Questions (maths / orthographe) ---------- */
 function runQuiz(title,items,base,again,sentence){
   const tok=++gTok,N=items.length;let i=0,good=0;
+  const next=()=>{
+    if(!alive(tok))return;i++;
+    if(i<N)draw(null);
+    else{gTok++;const perfect=good===N,gems=Math.round(base*good/N)+(perfect?Math.round(base*.25):0);
+      const g=endGame(perfect?'Sans faute !':good>=N*.6?'Bien joué !':'Continue, tu progresses',gems,good>=N*.6?1:.5,good+' bonne(s) réponse(s) sur '+N+(perfect?' · bonus sans faute':''));g.again.onclick=again;g.close.onclick=closeModal;}
+  };
   const draw=(ans)=>{
-    const it=items[i];
+    const it=items[i],wrong=ans!=null&&ans!==it.a;
     openModal('<h2>'+title+'</h2><p class="score">Question '+(i+1)+' / '+N+' · '+good+' juste(s)</p><p class="qtxt'+(sentence?' sen':'')+'">'+it.q+'</p><div class="opts">'+
       it.o.map(o=>'<button class="opt'+(ans!=null?(o===it.a?' good':(o===ans?' bad':'')):'')+'" data-o="'+o.replace(/"/g,'&quot;')+'" '+(ans!=null?'disabled':'')+'>'+o+'</button>').join('')+'</div>'+
-      (ans!=null&&ans!==it.a?'<p class="muted">La bonne réponse : <b style="color:var(--gold)">'+it.a+'</b></p>':'<p class="muted">&nbsp;</p>'));
+      (wrong?'<div class="why"><b>La bonne réponse : <span style="color:var(--gold)">'+it.a+'</span></b><p>'+(it.e||'')+'</p></div><button class="ob" id="nx">Suivant</button>':'<p class="muted">&nbsp;</p>'));
+    if($('nx'))$('nx').onclick=next;
     ov.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
-      const o=b.dataset.o;if(o===it.a){good++;SFX.ok();}else SFX.no();
-      draw(o);
-      setTimeout(()=>{
-        if(!alive(tok))return;i++;
-        if(i<N)draw(null);
-        else{gTok++;const perfect=good===N,gems=Math.round(base*good/N)+(perfect?Math.round(base*.25):0);
-          const g=endGame(perfect?'Sans faute !':good>=N*.6?'Bien joué !':'Continue, tu progresses',gems,good>=N*.6?1:.5,good+' bonne(s) réponse(s) sur '+N+(perfect?' · bonus sans faute':''));g.again.onclick=again;g.close.onclick=closeModal;}
-      },o===it.a?650:1900);
+      const o=b.dataset.o;
+      if(o===it.a){good++;SFX.ok();draw(o);setTimeout(next,650);}
+      else{SFX.no();draw(o);}
     });
   };
   draw(null);
@@ -900,7 +988,7 @@ function gMath(){
 }
 function gOrtho(){
   chooseLevel('Orthographe','8 questions : homophones, mots difficiles, accords et conjugaison.',GAINS.ortho,lv=>{
-    const items=pick(ORTHO[lv],8).map(r=>({q:r[0],a:r[1],o:pick(r.slice(1),r.length-1)}));
+    const items=pick(ORTHO[lv],8).map(r=>({q:r[0],a:r[1],o:pick(r.slice(1),r.length-1),e:explainOrtho(r[0],r[1],r.slice(1))}));
     runQuiz('Orthographe',items,GAINS.ortho[lv-1],gOrtho,true);
   });
 }
