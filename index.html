@@ -22,18 +22,23 @@ a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
 #inst:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
 #help{display:none;margin:-8px 0 18px;padding:12px 14px;background:var(--panel);border:2px solid var(--pink);border-radius:14px;line-height:1.45}
 #help b{color:var(--pink)}
+#ver{margin:26px 0 8px;text-align:center;color:var(--muted);font-size:13px}
+#upd{display:none;margin:0 0 14px;padding:12px 14px;background:var(--panel);border:2px solid var(--pink);border-radius:14px;text-align:center}
+#upd button{margin-top:8px;padding:10px 16px;font:inherit;font-weight:800;color:#2a0f3d;background:var(--pink);border:2px solid var(--edge);border-radius:12px}
 </style>
 </head>
 <body>
 <main>
 <h1>Mes jeux</h1>
 <p class="s">Sans pub, sans compte, hors ligne.</p>
+<div id="upd"></div>
 <button id="inst" hidden>📲 Installer sur mon téléphone</button>
 <div id="help"></div>
 <a class="g" href="coinche/"><img src="coinche/icons/icon-192.png" alt=""><div><b>Coinche entre amis</b><span>Cartes à 4 · robots ou en ligne avec un code</span></div></a>
 <a class="g" href="tama/"><img src="tama/icons/icon-192.png" alt=""><div><b>Mon petit compagnon</b><span>Tamagotchi · 7 espèces, musiques, jeux, boutique</span></div></a>
 <a class="g" href="rosine/"><img src="rosine/icons/icon-192.png" alt=""><div><b>Rosine la Lutine</b><span>Plateformes · 10 mondes, vélo, libellule, boutique</span></div></a>
 <a class="g" href="sudoku/"><img src="sudoku/icons/icon-192.png" alt=""><div><b>Sudoku Expert</b><span>4 niveaux, indices, notes</span></div></a>
+<div id="ver"></div>
 </main>
 <script>
 (function(){
@@ -50,6 +55,30 @@ a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
     help.innerHTML=ios?'<b>Sur iPhone / iPad :</b><br>1. Touche le bouton <b>Partager</b> (le carré avec une flèche vers le haut) en bas de Safari.<br>2. Choisis <b>« Sur l’écran d’accueil »</b>.<br>3. Touche <b>Ajouter</b>.':
       '<b>Sur Android :</b><br>1. Touche le menu <b>⋮</b> en haut à droite de Chrome.<br>2. Choisis <b>« Installer l’application »</b> (ou « Ajouter à l’écran d’accueil »).<br>3. Confirme.<br><small>Si le choix n’apparaît pas, recharge la page une fois puis réessaie.</small>';
   };
+})();
+</script>
+<script>
+(function(){
+  const VERSION='n°1 · 25/10 19:17';
+  const ver=document.getElementById('ver'),upd=document.getElementById('upd');
+  ver.textContent='Version '+VERSION;
+  async function check(){
+    try{
+      const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
+      const j=await r.json();
+      if(j.v&&j.v!==VERSION){
+        upd.style.display='block';
+        upd.innerHTML='🔔 <b>Mise à jour disponible</b><br><small>Tu as la version '+VERSION+', la dernière est '+j.v+'.</small><br><button id="doUpd">Mettre à jour</button>';
+        document.getElementById('doUpd').onclick=async()=>{
+          try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}catch(e){}
+          try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(x=>x.unregister()));}catch(e){}
+          location.reload();
+        };
+      }else ver.textContent='Version '+VERSION+' · à jour ✓';
+    }catch(e){ver.textContent='Version '+VERSION+' · hors ligne';}
+  }
+  check();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)check();});
 })();
 </script>
 <script>if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>

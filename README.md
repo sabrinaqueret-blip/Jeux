@@ -8,3 +8,4 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 - `sudoku/` : Sudoku Expert
 
 Publication : Settings → Pages → Deploy from a branch → `main` / `(root)`.
+- Avant chaque publication : `./bump.sh` met à jour le numéro de version affiché en bas de la page d’accueil.
