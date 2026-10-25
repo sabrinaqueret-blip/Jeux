@@ -1,0 +1,11 @@
+{
+  "name": "Mes jeux",
+  "short_name": "Jeux",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1D1230",
+  "theme_color": "#1D1230",
+  "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+}
