@@ -69,7 +69,7 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .msg.mt{top:auto;bottom:2px;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{opacity:.5}}
 .me{text-align:center;font-weight:800;font-size:14px;padding:2px 10px;margin:0 auto;border-radius:10px;width:max-content}
-.hand{display:flex;justify-content:center;padding:6px 6px 8px;min-height:calc(var(--cw)*1.4 + 20px)}
+.hand{display:flex;justify-content:center;padding:6px 6px max(16px,env(safe-area-inset-bottom));min-height:calc(var(--cw)*1.4 + 20px)}
 .hand .card{margin-left:calc(var(--ov)*-1);transition:transform .12s;touch-action:none}.hand .card:first-child{margin-left:0}
 .hand .card.sel{transform:translateY(calc(var(--cw)*-.2))}.hand .card.adv{box-shadow:0 0 0 3px var(--gold),0 0 16px var(--gold);transform:translateY(calc(var(--cw)*-.12))}.hand .card.no{filter:brightness(.55)}
 .card{width:var(--cw);height:calc(var(--cw)*1.4);background:#fff;border-radius:calc(var(--cw)*.12);border:1px solid #888;position:relative;box-shadow:0 2px 5px #0008;flex:0 0 auto;font-weight:800}
@@ -92,6 +92,7 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .info .adv-t{flex:1 1 100%;color:var(--gold);font-weight:700}
 .tools{display:flex;gap:8px;justify-content:center}
 .tools button{padding:6px 14px;font-weight:800;font-size:14px;background:var(--panel2);border:2px solid var(--edge);border-radius:999px}.tools button:disabled{opacity:.4}
+.bidp{max-height:62%;overflow:auto}.why2{margin-top:4px;border-top:1px solid #fff3;padding-top:4px;color:#fff}.why2 b{color:var(--gold)}.why2 ul{margin:2px 0 0;padding-left:18px}.why2 li{margin:2px 0}
 .hint{font-size:13px;background:#0008;border-radius:8px;padding:4px 8px;text-align:left}.hint b{color:var(--gold)}
 .memo{width:100%;max-width:360px;background:var(--panel);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px}
 .mrow{display:flex;gap:4px;align-items:center}.mrow>b{font-size:24px;width:26px}
@@ -423,7 +424,7 @@ const closeOv=()=>{$('ov').hidden=true;$('ov').innerHTML='';};
 function size(){
   const W=innerWidth,H=innerHeight,land=W>H,head=land?70:150;
   const cw=Math.max(44,Math.min(land?84:100,(W-14)/4.4,H*(land?.31:.25)/1.4));
-  const tableH=H-head-(cw*1.4+16);
+  const tableH=H-head-(cw*1.4+30);
   const tcw=Math.max(36,Math.min(cw*.85,tableH/2.7));
   const step=Math.min(cw*.62,(W-18-cw)/7);
   const st=document.documentElement.style;
@@ -550,6 +551,10 @@ function onView(v){
   const key=v.phase+':'+v.turn+':'+v.handNo+':'+v.trick.length;
   if(key!==lastTurnKey){lastTurnKey=key;advice=null;if(v.turn===me&&(v.phase==='play'||v.phase==='bidding')){SFX.turn();sel=-1;}}
   render();
+  if(P.auto!==false&&v.phase==='play'&&v.legal&&v.legal.length===1){
+    const id=v.legal[0],key=lastTurnKey;
+    setTimeout(()=>{if(view&&view.phase==='play'&&view.legal&&view.legal.length===1&&view.legal[0]===id&&lastTurnKey===key&&!dragging){sel=-1;toast('Carte jouée automatiquement : c’était la seule possible.',1800);sendAct({a:'play',card:id});}},1000);
+  }
 }
 const rel=s=>(s-me+4)%4;
 function render(){
@@ -574,7 +579,7 @@ function render(){
   const mb=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===me):null;
   if(mb)h+='<div class="bub mine">'+bidText(mb)+'</div>';
   if(v.msg)h+='<div class="msg">'+esc(v.msg)+'</div>';
-  if(v.phase==='play'&&v.turn===me)h+='<div class="msg mt">À toi de jouer</div>';
+  if(v.phase==='play'&&v.turn===me)h+='<div class="msg mt">'+(sel>=0&&v.legal&&v.legal.includes(sel)?'Touche la table pour jouer cette carte':'À toi de jouer · glisse une carte sur la table')+'</div>';
   else if(v.phase==='play'||v.phase==='bidding')h+='<div class="msg wt">'+esc(turnName)+' réfléchit…</div>';
   if(v.opts)h+=bidPanel(v);
   h+='</div>';
@@ -595,6 +600,10 @@ function render(){
     el.onpointerdown=e=>startDrag(e,el,id);
   });
   wireAids(v);
+  $('game').querySelector('.tbl').onclick=e=>{
+    if(sel<0||!view.legal||!view.legal.includes(sel)||e.target.closest('.bidp'))return;
+    audio();const id=sel;sel=-1;sendAct({a:'play',card:id});
+  };
   wireBid(v);
   if(v.phase==='handEnd'||v.phase==='gameEnd')endOverlay(v);else if($('ov').querySelector('.endbox'))closeOv();
 }
@@ -629,9 +638,10 @@ function showLast(){
   $('x').onclick=closeOv;
 }
 function showMenu(){
-  openOv('<h2>Menu</h2><button class="sw" id="snd"><span>Sons</span><span>'+(P.mute?'🔇 Coupés':'🔊 Activés')+'</span></button><button class="sw" id="aid"><span>Aides de jeu</span><span>'+(P.aids?'💡 Activées':'Désactivées')+'</span></button><button class="ob alt" id="ru">Règles et points</button><button class="ob alt" id="q">Quitter la partie</button><button class="ob" id="x">Retour au jeu</button>');
+  openOv('<h2>Menu</h2><button class="sw" id="snd"><span>Sons</span><span>'+(P.mute?'🔇 Coupés':'🔊 Activés')+'</span></button><button class="sw" id="aid"><span>Aides de jeu</span><span>'+(P.aids?'💡 Activées':'Désactivées')+'</span></button><button class="sw" id="aut"><span>Jouer seul la carte obligatoire</span><span>'+(P.auto===false?'Non':'✓ Oui')+'</span></button><button class="ob alt" id="ru">Règles et points</button><button class="ob alt" id="q">Quitter la partie</button><button class="ob" id="x">Retour au jeu</button>');
   $('x').onclick=closeOv;$('ru').onclick=()=>{showRules();$('x').onclick=showMenu;};
   $('snd').onclick=()=>{P.mute=!P.mute;saveP();showMenu();};
+  $('aut').onclick=()=>{P.auto=P.auto===false;saveP();showMenu();};
   $('aid').onclick=()=>{P.aids=!P.aids;advice=null;saveP();showMenu();render();};
   $('q').onclick=()=>{openOv('<h2>Quitter ?</h2><p>'+(G&&seatConn.some(Boolean)?'Les joueurs en ligne seront déconnectés.':'La partie sera perdue.')+'</p><button class="ob" id="y">Oui, quitter</button><button class="ob alt" id="n">Non</button>');$('y').onclick=showHome;$('n').onclick=closeOv;};
 }
@@ -716,14 +726,7 @@ function wireAids(v){
 }
 const SUITN_=['pique','cœur','carreau','trèfle'];
 function computeAdvice(v){
-  if(v.phase==='bidding'&&v.opts){
-    const g=pseudoGame(v),a=botBidAction(g,me);let best=0,bs=0;for(let s=0;s<4;s++){const e=estimate(v.hand,s);if(e>best){best=e;bs=s;}}
-    const est=Math.round(best/10)*10;
-    if(a.a==='bid')return {bid:{val:a.val,suit:a.suit},why:'Ta main vaut environ '+Math.round(estimate(v.hand,a.suit)/10)*10+' en '+SUITN_[a.suit]+' : annonce '+a.val+' '+SUITS[a.suit]+'.'};
-    if(a.a==='coinche')return {why:'Tu as de bons atouts dans la couleur adverse : tu peux coincher (risqué !).'};
-    if(a.a==='sur')return {why:'Ta main est solide : tu peux surcoincher.'};
-    return {why:'Ta meilleure couleur ('+SUITN_[bs]+') vaut environ '+est+' : c’est léger, mieux vaut passer.'};
-  }
+  if(v.phase==='bidding'&&v.opts)return bidAnalysis(v);
   if(!v.legal)return null;
   const g=pseudoGame(v),c=botPlayCard(g,me),tr=v.trump;let why='';
   if(!v.trick.length){
@@ -738,6 +741,41 @@ function computeAdvice(v){
   }
   return {card:c,why:why};
 }
+function bidAnalysis(v){
+  const hand=v.hand,g=pseudoGame(v),a=botBidAction(g,me);
+  let best=-1,bs=0;for(let s=0;s<4;s++){const e=estimate(hand,s);if(e>best){best=e;bs=s;}}
+  const suit=a.a==='bid'?a.suit:bs,tr=hand.filter(c=>cs(c)===suit).sort((x,y)=>cstr(y,suit)-cstr(x,suit));
+  const hasJ=tr.some(c=>cr(c)===4),has9=tr.some(c=>cr(c)===2),hasA=tr.some(c=>cr(c)===7),n=tr.length;
+  const aces=hand.filter(c=>cs(c)!==suit&&cr(c)===7).length,est=Math.round(estimate(hand,suit)/10)*10;
+  const cb=v.cb,partnerBid=cb&&cb.seat%2===me%2;
+  const L=[];let title,bid=null;
+  if(a.a==='bid'){
+    bid={val:a.val,suit:a.suit};title='✅ Prends : '+(a.val===250?'Capot':a.val)+' '+SUITS[a.suit];
+    if(hasJ&&has9)L.push('Tu as le Valet et le 9 d’atout, les deux meilleures cartes (34 points à eux deux).');
+    else if(hasJ)L.push('Tu as le Valet d’atout : c’est la carte la plus forte.');
+    else if(has9)L.push('Tu as le 9 d’atout, la deuxième meilleure carte.');
+    if(n>=4)L.push('Tu as '+n+' atouts : tu contrôles la couleur et tu pourras faire tomber ceux des adversaires.');
+    else if(n===3)L.push('Tu as 3 atouts, c’est un bon début.');
+    if(hasA&&!hasJ)L.push('Tu as l’As d’atout.');
+    if(aces)L.push('Tu as '+aces+' As hors atout : ce sont des plis presque sûrs.');
+    if(partnerBid)L.push('Ton partenaire a annoncé '+cb.val+' : tu le soutiens en montant, ton jeu complète le sien.');
+    L.push('Ta main vaut environ '+est+' points. Avec l’aide de ton partenaire, '+a.val+' est atteignable (il faut ≥ '+a.val+' points sur 162).');
+  }else if(a.a==='coinche'){
+    title='⚔️ Tu peux coincher';L.push('Tu as '+tr.length+' atout(s) dans la couleur adverse'+(cb?' ('+SUITS[cb.suit]+')':'')+' dont le Valet ou le 9 : ils risquent de chuter.');L.push('Attention : si tu te trompes, ils marquent le double.');
+    const t2=hand.filter(c=>cs(c)===cb.suit);L.length=0;L.push('Tu as '+t2.length+' atout(s) de leur couleur '+SUITS[cb.suit]+', dont le Valet ou le 9 : ils auront du mal à faire leur contrat.');L.push('Attention : si tu te trompes, ils marquent le double.');
+  }else if(a.a==='sur'){title='🔥 Tu peux surcoincher';L.push('Ta main est solide pour ton contrat : tu peux quadrupler.');L.push('Risque : si tu chutes, ils marquent quatre fois.');}
+  else{
+    title='✋ Passe';
+    if(partnerBid)L.push('Ton partenaire a déjà annoncé '+cb.val+' '+SUITS[cb.suit]+' : laisse-le jouer.');
+    if(!hasJ&&!has9)L.push('Dans ta meilleure couleur ('+SUITS[bs]+'), tu n’as ni le Valet ni le 9 d’atout : sans eux, ton atout est fragile.');
+    else if(!hasJ)L.push('Tu n’as pas le Valet d’atout, la carte maîtresse.');
+    if(n<3)L.push('Tu n’as que '+n+' atout(s) dans ta meilleure couleur : trop peu pour la contrôler.');
+    if(!aces)L.push('Tu n’as aucun As hors atout pour faire des plis.');
+    if(cb&&!partnerBid)L.push('Pour monter au-dessus de '+cb.val+', il faudrait une main qui vaut plus : la tienne vaut environ '+est+'.');
+    if(!cb)L.push('Ta main vaut environ '+est+' points : il en faut environ 90 pour annoncer 80 en sécurité.');
+  }
+  return {bid:bid,title:title,lines:L,why:title};
+}
 function showMemo(){
   const v=view,pl=new Set(v.played||[]);
   const rows=[0,1,3,2].map(s=>'<div class="mrow"><b class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</b>'+[7,3,6,5,4,2,1,0].map(r=>{const id=s*8+r,st=pl.has(id)?'pl':v.hand.includes(id)?'mine':'';return '<span class="mc2 '+st+(s===v.trump?' tr':'')+'">'+RANKS[r]+'</span>';}).join('')+'</div>').join('');
@@ -746,7 +784,10 @@ function showMemo(){
 }
 function bidHint(v){
   let best=0,bs=0;for(let s=0;s<4;s++){const e=estimate(v.hand,s);if(e>best){best=e;bs=s;}}
-  return '<div class="hint">Ta meilleure couleur : '+suitHtml(bs)+' (valeur estimée ≈ <b>'+Math.round(best/10)*10+'</b>)'+(advice&&advice.why?'<br>💡 '+advice.why:'')+'</div>';
+  const tr=v.hand.filter(c=>cs(c)===bs).sort((x,y)=>cstr(y,bs)-cstr(x,bs));
+  let h='<div class="hint">Meilleure couleur : '+suitHtml(bs)+' ('+tr.map(c=>RANKS[cr(c)]).join(' ')+') · valeur ≈ <b>'+Math.round(best/10)*10+'</b>';
+  if(advice&&advice.lines)h+='<div class="why2"><b>'+advice.title+'</b><ul>'+advice.lines.map(l=>'<li>'+l+'</li>').join('')+'</ul></div>';
+  return h+'</div>';
 }
 
 </script>
