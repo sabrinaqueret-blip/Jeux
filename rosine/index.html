@@ -118,15 +118,35 @@ canvas{display:block;width:100%;height:100%;image-rendering:crisp-edges;image-re
 .toast[hidden],.overlay[hidden]{display:none}
 .chip:focus-visible,.ob:focus-visible,.lvb:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @media (max-width:380px){.pad{width:68px;height:68px}.hearts i{width:17px;height:15px}.gemc{font-size:18px}}
-@media (orientation:landscape) and (max-height:520px){
-  .game{max-width:none;min-height:0;gap:6px}
-  .screen{width:auto;height:calc(100svh - 62px);max-width:100%;margin-inline:auto}
+@media (orientation:landscape) and (max-height:600px){
+  body{padding-block:6px 0;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}
+  .game{max-width:none;min-height:0;gap:4px}
+  .hud{padding-inline:2px}
+  .hearts i{width:17px;height:15px}.gemc{font-size:17px}
+  .chip{padding:4px 9px;font-size:13px}
+  .screen{width:auto;height:calc(100svh - 54px - env(safe-area-inset-bottom,0px));max-width:100%;margin-inline:auto;flex:none}
   .controls{
-    position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));
-    bottom:max(10px,env(safe-area-inset-bottom,0px));padding:0;margin:0;pointer-events:none;
+    position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));
+    bottom:max(8px,env(safe-area-inset-bottom,0px));padding:0;margin:0;pointer-events:none;
   }
-  .controls .pad{pointer-events:auto;opacity:.82;width:70px;height:70px}
-  .acts .btnb{transform:translateY(10px)}
+  .controls .pad{pointer-events:auto;opacity:.85;width:66px;height:66px;border-radius:20px}
+  .dpad,.acts{gap:10px}
+  .acts .btnb{transform:translateY(-22px)}
+  .overlay{padding:6px 12px}
+  .ovbox{max-width:760px;gap:5px;padding:4px}
+  .ttl{font-size:30px}.ttl2{font-size:24px}
+  .lvgrid{grid-template-columns:repeat(6,1fr);gap:6px}
+  .lvb{min-height:50px}
+  .shop{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .shr{padding:4px 7px}
+  .tips{font-size:11px}
+  .overlay.sheet{padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px))}
+  .overlay.sheet .ovbox{flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;max-width:none;gap:6px 14px}
+  .overlay.sheet .dq,.overlay.sheet .dmsg{flex:1 1 40%;text-align:left;min-height:0}
+  .overlay.sheet .dbtns{flex:1 1 100%;max-width:520px;margin-inline:auto}
+  .shop+.ob{position:sticky;bottom:0;max-width:340px}
+  .dbtn{min-height:40px;flex-direction:row;justify-content:center;gap:8px}
+  .dbtn svg{width:22px;height:22px}
 }
 @media (prefers-reduced-motion:reduce){.pad,.chip,.ob,.lvb{transition:none}}
 </style>
@@ -1213,12 +1233,12 @@ function drawDuelScene(){
   const g=S.g,d=DU.st;if(!d)return;
   const t=d.t,t0=g.t;
   ctx.save();ctx.globalAlpha=.95;R(0,0,VW,VH,'#1a0d2e');ctx.restore();
-  R(0,118,VW,42,'#2b1a4a');R(0,118,VW,2,'#5a3a8a');
+  R(0,112,VW,42,'#2b1a4a');R(0,112,VW,2,'#5a3a8a');
   /* personnages */
   const bob=(d.phase==='shake')?Math.round(Math.abs(Math.sin(t*.21))*4):Math.round(Math.sin(t0*.08)*1.5);
-  ctx.save();ctx.translate(18,118-50+(bob>>1));ctx.scale(3,3);
+  ctx.save();ctx.translate(18,112-50+(bob>>1));ctx.scale(3,3);
   lutine({x:0,y:0,vx:0,vy:0,onGround:true,atkT:0,anim:0,facing:1},t0);ctx.restore();
-  ctx.save();ctx.translate(188,118-56+(bob>>1)*0+(g.boss.kind===0?0:0));ctx.scale(2,2);drawBoss(g.boss.kind,0,0,t0);ctx.restore();
+  ctx.save();ctx.translate(188,112-56+(bob>>1)*0+(g.boss.kind===0?0:0));ctx.scale(2,2);drawBoss(g.boss.kind,0,0,t0);ctx.restore();
   /* score */
   ctx.font='700 11px "Pixelify Sans",monospace';ctx.textAlign='center';ctx.textBaseline='top';
   ctx.fillStyle='#ffd84a';ctx.fillText('Rosine  '+d.me+' – '+d.bo+'  '+BOSSES[g.boss.kind].name,VW/2,5);
