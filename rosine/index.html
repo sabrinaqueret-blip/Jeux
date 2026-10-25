@@ -76,6 +76,9 @@ canvas{display:block;width:100%;height:100%;image-rendering:crisp-edges;image-re
 .buy{min-width:74px;padding:8px;font-weight:700;background:var(--gold);color:#2a0f3d;border:2px solid var(--edge);border-radius:8px}
 .buy:disabled{opacity:.45}
 .overlay.sheet{inset:auto 0 0 0;background:rgba(22,10,40,.96);padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid var(--edge)}
+.rec{display:block;font-style:normal;font-size:10px;color:var(--gold)}
+.tips{text-align:left;background:var(--panel);border:2px solid var(--edge);border-radius:10px;padding:6px 8px;font-size:12px;width:100%}
+.tips b{color:var(--gold)}
 .dq{font-size:12px}.dq b{color:var(--gold)}
 .duel #bcv{width:80px;height:80px;image-rendering:pixelated;border:2px solid var(--edge);border-radius:10px}
 .dbtns{display:flex;gap:8px;width:100%}
@@ -169,16 +172,28 @@ const T=16,VW=256,VH=160,ROWS=10,GR=8,MAXH=5;
 const SOLID=[0,1,1,1,1,1,0,1,1];
 /* kind : plat = plateformes, bike = course en vélo, copter = vol en libellule-hélico ; boss : 0 à 2 ou -1 */
 const LEVELS=[
-  {name:'Prairie des Murmures',short:'Prairie',kind:'plat',seed:7,len:120,gapP:.16,enemyP:.5,theme:0,types:['mush','mush','bee'],boss:-1,extras:['spring']},
-  {name:'Forêt du Crépuscule',short:'Forêt',kind:'plat',seed:21,len:150,gapP:.22,enemyP:.65,theme:1,types:['mush','bee','hog'],boss:0,extras:['boulder','spring']},
-  {name:'La Grande Course',short:'Vélo',kind:'bike',seed:5,len:200,gapP:.2,enemyP:.45,theme:3,types:['mush','bee'],boss:-1,extras:['boulder']},
-  {name:'Nuit des Étoiles',short:'Nuit',kind:'plat',seed:99,len:180,gapP:.26,enemyP:.8,theme:2,types:['mush','bee','hog','hog'],boss:1,extras:['boulder','fire','spring']},
-  {name:'Vol de la Libellule',short:'Ciel',kind:'copter',seed:13,len:230,enemyP:.7,theme:4,types:['bird'],boss:2}
+  {name:'Prairie des Murmures',short:'Prairie',kind:'plat',seed:7,len:240,gapP:.16,enemyP:.5,theme:0,types:['mush','mush','bee'],boss:3,extras:['spring']},
+  {name:'Forêt du Crépuscule',short:'Forêt',kind:'plat',seed:21,len:300,gapP:.22,enemyP:.65,theme:1,types:['mush','bee','hog'],boss:0,extras:['boulder','spring']},
+  {name:'La Grande Course',short:'Vélo',kind:'bike',seed:5,len:420,gapP:.2,enemyP:.45,theme:3,types:['mush','bee'],boss:4,extras:['boulder']},
+  {name:'Nuit des Étoiles',short:'Nuit',kind:'plat',seed:99,len:340,gapP:.26,enemyP:.8,theme:2,types:['mush','bee','hog','hog'],boss:1,extras:['boulder','fire','spring']},
+  {name:'Vol de la Libellule',short:'Ciel',kind:'copter',seed:13,len:420,enemyP:.7,theme:4,types:['bird'],boss:2},
+  {name:'Marais des Lucioles',short:'Marais',kind:'plat',seed:31,len:320,gapP:.22,enemyP:.8,theme:5,types:['hop','hop','bee','mush'],boss:5,extras:['fire','boulder','spring']},
+  {name:'Course des Dunes',short:'Dunes',kind:'bike',seed:17,len:460,gapP:.22,enemyP:.55,theme:6,types:['hop','bee'],boss:6,extras:['boulder']},
+  {name:'Pics de Givre',short:'Givre',kind:'plat',seed:47,len:360,gapP:.24,enemyP:.8,theme:7,ice:true,types:['hop','hog','bee'],boss:7,extras:['fire','spring','boulder']},
+  {name:'Tempête Dorée',short:'Orage',kind:'copter',seed:23,len:460,enemyP:.85,theme:8,types:['bird'],boss:8,gateP:.17},
+  {name:'Château du Roi Déchu',short:'Château',kind:'plat',seed:61,len:420,gapP:.27,enemyP:.9,theme:9,types:['hop','hog','bee','mush'],boss:9,extras:['boulder','fire','spring']}
 ];
 const BOSSES=[
   {name:'Roi Crapaud',quote:'« Jamais deux fois le même signe, petite ! »'},
   {name:'Hibou Astronome',quote:'« Je réponds toujours à ton dernier signe. »'},
-  {name:'Reine des Ombres',quote:'« Mon rythme est une ronde sans fin… »'}
+  {name:'Reine des Ombres',quote:'« Mon rythme est une ronde sans fin… »'},
+  {name:'Golem de Mousse',quote:'« Je cogne toujours du poing… sauf si tu me bats. »'},
+  {name:'Renard Rusé',quote:'« Si je gagne, je recommence. Si je perds, je change. »'},
+  {name:'Dragonnet Farceur',quote:'« Je fais comme toi, avec un temps de retard ! »'},
+  {name:'Sorcière des Sables',quote:'« Ma danse tourne à l’envers. »'},
+  {name:'Yéti Gourmand',quote:'« Je te laisse gagner… si tu rejoues ton signe. »'},
+  {name:'Aigle Tonnerre',quote:'« Mon cri se répète toutes les quatre manches. »'},
+  {name:'Roi Déchu',quote:'« Gagnant, je m’obstine. Perdant, je t’imite. »'}
 ];
 function rng(seed){
   return function(){
@@ -207,6 +222,7 @@ function buildPlat(cfg){
   const gem=(tx,ty,dy)=>gems.push({x:tx*T+4,y:ty*T+4+(dy||0)});
   const enemy=(type,cx,len)=>{
     if(type==='mush')ents.push({t:'mush',x:cx*T,y:(GR-1)*T+3,w:12,h:11,vx:-.35,alive:true,step:0});
+    else if(type==='hop')ents.push({t:'hop',ox:cx*T,x:cx*T,y0:(GR-1)*T+4,y:(GR-1)*T+4,w:12,h:12,range:Math.min(36,len*T/2-8),ph:r()*6,alive:true});
     else if(type==='hog')ents.push({t:'hog',x:cx*T,y:(GR-1)*T+5,w:14,h:9,vx:-.3,alive:true,spiky:true,step:0});
     else ents.push({t:'bee',x:cx*T,ox:cx*T,y:(GR-3)*T+4,y0:(GR-3)*T+4,w:12,h:9,range:Math.min(40,len*T/2-8),ph:r()*6,alive:true,face:1});
   };
@@ -242,6 +258,7 @@ function buildPlat(cfg){
       const px=s+(bike?5:3)+((r()*2)|0),n=1+((r()*2)|0);
       for(let i=0;i<n;i++)put(px+i,GR-1,6);
       for(let i=-1;i<=n;i++)gem(px+i,GR-3,i===0||i===n-1?-4:0);
+      flat(3);
     }else if((c-=wRocks)<0){
       flat(10);cp(s);
       const px=s+5,n=1+((r()*2)|0);
@@ -305,7 +322,7 @@ function buildCopter(cfg){
       const h=3+((r()*3)|0);
       for(let i=0;i<2;i++)for(let y=0;y<h;y++)put(x+i,y,5);
       for(let q=-1;q<=2;q++)gem(x+q,h+1);
-    }else if(k<.92){
+    }else if(k<.82+(cfg.gateP||.1)){
       for(let i=0;i<2;i++)ents.push({t:'gate',x:(x+i*4)*T,y:4*T,y0:3*T+8,amp:34,ph:i*3.14,w:16,h:3*T,alive:true,spiky:true,hard:true});
       for(let q=0;q<7;q++)gem(x+q,q%2?1:8);
     }else{
@@ -325,7 +342,7 @@ function newGame(li,o){
   o=o||{};
   const cfg=LEVELS[li],L=buildLevel(cfg),air=cfg.kind==='copter';
   const start=Math.min(MAXH,3+(o.heart|0));
-  return {li:li,kind:cfg.kind,W:L.W,tiles:L.tiles,ents:L.ents,gems:L.gems,cps:L.cps,portal:L.portal,boss:L.boss,shop:L.shop,shopDone:false,starT:0,magnet:false,
+  return {li:li,kind:cfg.kind,W:L.W,tiles:L.tiles,ents:L.ents,gems:L.gems,cps:L.cps,portal:L.portal,boss:L.boss,shop:L.shop,shopDone:false,starT:0,magnet:false,charm:0,
     items:[],parts:[],shots:[],
     p:{x:2*T,y:air?4*T:GR*T-14,w:10,h:14,vx:0,vy:0,facing:1,onGround:false,coy:0,buf:0,atkT:0,atkCd:0,inv:0,anim:0},
     camX:0,t:0,hearts:start,startHearts:start,gemCount:0,cpi:0,deaths:0,status:'play',toast:'',toastT:0,ev:[],
@@ -410,6 +427,7 @@ function updateEnemy(g,e){
     e.face=Math.cos(g.t*.025+e.ph)>0?1:-1;
     return;
   }
+  if(e.t==='hop'){e.x=e.ox+Math.sin(g.t*.02+e.ph)*e.range;e.y=e.y0-Math.abs(Math.sin(g.t*.055+e.ph))*22;e.face=Math.cos(g.t*.02+e.ph)>0?1:-1;return;}
   if(e.t==='gate'){e.y=e.y0+Math.sin(g.t*.03+e.ph)*e.amp;return;}
   if(e.t==='fire'){const c=(g.t+e.ph)%150;e.on=c<55;e.warn=c>=120;return;}
   if(e.t==='orb'){
@@ -441,12 +459,27 @@ function swingBox(p,g){
 
 /* ----- Duel pierre-feuille-ciseaux : 0 pierre, 1 feuille, 2 ciseaux ----- */
 function duelOutcome(h,b){return h===b?0:(((h-b+3)%3)===1?1:-1);}
-function bossPick(kind,st){
-  const rnd=()=>(Math.random()*3)|0;
-  if(kind===0){const o=[0,1,2].filter(m=>m!==st.lastB);return o[(Math.random()*o.length)|0];}
-  if(kind===1)return st.lastP<0?rnd():(st.lastP+1)%3;
-  if(Math.random()<.2||st.lastB<0)return rnd();
-  return (st.lastB+1)%3;
+/* st : lastB, lastP (derniers signes), lastR (1 Rosine a gagné, -1 le gardien, 0 égalité), n (manches jouées).
+   det=true : renvoie -1 quand le gardien tire au hasard (sert aux tests) */
+function bossPick(kind,st,det){
+  const rnd=()=>det?-1:(Math.random()*3)|0;
+  const first=st.lastB<0||st.lastB===undefined;
+  switch(kind){
+  case 0:{const o=[0,1,2].filter(m=>m!==st.lastB);return det&&first?-1:o[(Math.random()*o.length)|0];}
+  case 1:return st.lastP<0?rnd():(st.lastP+1)%3;
+  case 2:if(first)return rnd();if(Math.random()<.2)return rnd();return (st.lastB+1)%3;
+  case 3:return st.lastR===1?1:0;
+  case 4:if(first)return rnd();return st.lastR===1?(st.lastB+1)%3:st.lastB;
+  case 5:return st.lastP<0?rnd():st.lastP;
+  case 6:if(first)return rnd();if(Math.random()<.15)return rnd();return (st.lastB+2)%3;
+  case 7:return st.lastP<0?rnd():(st.lastP+2)%3;
+  case 8:return [0,0,1,2][(st.n|0)%4];
+  default:
+    if(first)return rnd();
+    if(st.lastR===-1)return st.lastB;
+    if(st.lastR===1)return st.lastP;
+    return (st.lastP+1)%3;
+  }
 }
 
 /* ----- Mouvement de Rosine à pied ou à vélo ----- */
@@ -455,8 +488,9 @@ function movePlayer(g,inp){
   const dir=(inp.r?1:0)-(inp.l?1:0);
   if(bike){p.vx+=(2.0+dir*.9-p.vx)*.12;p.facing=1;}
   else{
-    if(dir){p.vx+=dir*(p.onGround?.2:.14);p.facing=dir;}
-    else if(p.onGround){p.vx*=.78;if(Math.abs(p.vx)<.05)p.vx=0;}
+    const ice=LEVELS[g.li].ice&&p.onGround;
+    if(dir){p.vx+=dir*(ice?.07:p.onGround?.2:.14);p.facing=dir;}
+    else if(p.onGround){p.vx*=ice?.95:.78;if(Math.abs(p.vx)<.05)p.vx=0;}
     else p.vx*=.97;
     p.vx=Math.max(-1.7,Math.min(1.7,p.vx));
   }
@@ -584,8 +618,8 @@ function update(g,inp){
         b.fire=0;
         if(b.x-g.camX<VW){
           const k=b.kind;
-          if(k===0)g.ents.push({t:'orb',k:0,x:b.x-4,y:GR*T-10,w:10,h:10,vx:-1.2,life:300,alive:true,step:0});
-          else if(k===1)g.ents.push({t:'orb',k:1,x:b.x-4,y:GR*T-28,w:10,h:8,vx:-1.4,life:300,alive:true,spiky:true});
+          if(!b.hover&&k%2===0)g.ents.push({t:'orb',k:0,x:b.x-4,y:GR*T-10,w:10,h:10,vx:-1.2,life:300,alive:true,step:0});
+          else if(!b.hover)g.ents.push({t:'orb',k:1,x:b.x-4,y:GR*T-28,w:10,h:8,vx:-1.4,life:300,alive:true,spiky:true});
           else g.ents.push({t:'orb',k:2,x:b.x-4,y:Math.max(8,Math.min(ROWS*T-30,p.y)),w:9,h:9,vx:-1.5,life:300,alive:true,spiky:true});
         }
       }
@@ -620,7 +654,12 @@ const THEMES=[
   {skyA:'#5a3f9a',skyB:'#f7a1b4',hillFar:'#7c4c97',hillNear:'#4b3070',grass:'#8fcf6a',grassD:'#4e9b4f',dirt:'#734864',dirtD:'#58364e',cloud:'#ffd2dd',cloudD:'#e49bb4'},
   {skyA:'#0f0c2e',skyB:'#3a2d7a',hillFar:'#2f2d78',hillNear:'#1d1b52',grass:'#4fb7a3',grassD:'#2c7f78',dirt:'#3f3d80',dirtD:'#2d2b61',cloud:'#4b4290',cloudD:'#362f72',stars:true,moon:true},
   {skyA:'#f0845c',skyB:'#ffe3a1',hillFar:'#e0a07a',hillNear:'#b76a6e',grass:'#a6c95a',grassD:'#6f9a3f',dirt:'#8a5a44',dirtD:'#6a4232',cloud:'#ffe0b8',cloudD:'#f3ab8a'},
-  {skyA:'#1e2a6e',skyB:'#ffb3c8',hillFar:'#7d68b8',hillNear:'#4a3f92',grass:'#ffffff',grassD:'#d9d2f0',dirt:'#cfc6ee',dirtD:'#b3a8dc',cloud:'#ffe6f0',cloudD:'#e7b9d0',stars:true,starMax:55}
+  {skyA:'#1e2a6e',skyB:'#ffb3c8',hillFar:'#7d68b8',hillNear:'#4a3f92',grass:'#ffffff',grassD:'#d9d2f0',dirt:'#cfc6ee',dirtD:'#b3a8dc',cloud:'#ffe6f0',cloudD:'#e7b9d0',stars:true,starMax:55},
+  {skyA:'#0b1f2a',skyB:'#2f7a6a',hillFar:'#1f5a52',hillNear:'#123b3a',grass:'#6fe0a0',grassD:'#2a9a6a',dirt:'#3a4a38',dirtD:'#2a362a',cloud:'#2f6a62',cloudD:'#1f4a48',stars:true,starMax:70},
+  {skyA:'#ffb15a',skyB:'#fff0b8',hillFar:'#f0c880',hillNear:'#d9a35a',grass:'#f2d98a',grassD:'#d6b25a',dirt:'#c98b4b',dirtD:'#a96d32',cloud:'#fff8dc',cloudD:'#f6dca0'},
+  {skyA:'#9ad0f0',skyB:'#f4fbff',hillFar:'#c9e6f5',hillNear:'#a6cde6',grass:'#ffffff',grassD:'#bfe3f7',dirt:'#8fb3d6',dirtD:'#6f94bd',cloud:'#ffffff',cloudD:'#d6ecf8'},
+  {skyA:'#2b2540',skyB:'#e0a050',hillFar:'#6a4a68',hillNear:'#3f2f55',grass:'#e8d9b0',grassD:'#b8a37a',dirt:'#6a5a78',dirtD:'#4f4160',cloud:'#8a6a80',cloudD:'#5f4a68'},
+  {skyA:'#1a0a1f',skyB:'#7a1f3a',hillFar:'#4a1a3a',hillNear:'#2a0f28',grass:'#8a5ad0',grassD:'#5a3a9a',dirt:'#3a2a4a',dirtD:'#281c36',cloud:'#5a2a48',cloudD:'#3a1a30',stars:true,starMax:50}
 ];
 THEMES.forEach(th=>{th.bands=[];for(let i=0;i<20;i++)th.bands.push(mix(th.skyA,th.skyB,i/19));});
 const STARS=[];
@@ -752,6 +791,48 @@ function drawBoss(kind,x,y,t){
     R(11,10,2,3,'#f2a93b');
     R(6,0,12,3,'#5a3fa0');R(9,-3,6,3,'#5a3fa0');R(11,-5,2,2,'#ffd84a');
     R(6,26,4,2,'#f2a93b');R(14,26,4,2,'#f2a93b');
+  }else if(kind===3){
+    R(0,12,5,14,'#7d8794');R(19,12,5,14,'#7d8794');R(0,24,5,4,'#a3adba');R(19,24,5,4,'#a3adba');
+    R(3,10,18,18,'#7d8794');R(5,12,14,3,'#a3adba');R(4,2,16,10,'#8f99a6');
+    R(4,0,16,4,'#5fbf5a');R(6,-2,4,3,'#6fcf6a');R(14,-1,5,3,'#6fcf6a');R(3,10,4,2,'#5fbf5a');
+    R(7,6,3,3,'#ffd84a');R(14,6,3,3,'#ffd84a');R(9,10,6,1,'#4a525e');
+    R(10,16,1,8,'#5a626e');R(14,18,1,6,'#5a626e');R(5,26,5,2,'#5fbf5a');
+  }else if(kind===4){
+    R(17,14,7,4,'#e8782e');R(20,10,4,6,'#e8782e');R(22,8,2,3,'#ffffff');
+    R(4,12,14,14,'#e8782e');R(7,16,8,10,'#fff3e0');R(2,24,6,4,'#c85a1e');R(12,24,6,4,'#c85a1e');
+    R(3,2,16,11,'#f08a3e');R(3,-3,4,6,'#e8782e');R(15,-3,4,6,'#e8782e');R(4,-2,2,4,'#3a1d4d');R(16,-2,2,4,'#3a1d4d');
+    R(6,8,10,5,'#fff3e0');R(5,6,3,2,'#3a1d4d');R(14,6,3,2,'#3a1d4d');R(9,10,4,2,'#3a1d4d');
+  }else if(kind===5){
+    const fl=(t>>3)&1;
+    R(-4,fl?4:8,6,10,'#8f5bd6');R(22,fl?4:8,6,10,'#8f5bd6');
+    R(4,12,16,15,'#5fd07a');R(7,16,10,11,'#c9f5a0');R(3,24,6,4,'#3f9a4a');R(15,24,6,4,'#3f9a4a');
+    R(18,22,8,4,'#5fd07a');R(25,21,3,3,'#ffd84a');
+    R(4,2,16,11,'#6fe08a');R(5,-3,3,6,'#ffd84a');R(16,-3,3,6,'#ffd84a');
+    R(6,6,4,4,'#ffffff');R(14,6,4,4,'#ffffff');R(8,7,2,3,'#3a1d4d');R(16,7,2,3,'#3a1d4d');R(8,12,8,1,'#3f9a4a');
+  }else if(kind===6){
+    R(2,10,20,18,'#c9803a');R(0,26,24,2,'#a9602a');R(8,14,8,12,'#e8b062');
+    R(5,6,14,6,'#5a2a8a');R(7,-4,10,10,'#6b3fb0');R(9,-8,6,5,'#6b3fb0');R(11,-10,2,3,'#ffd84a');
+    R(5,5,14,2,'#ffd84a');R(7,7,10,5,'#e8c08a');R(8,8,3,2,'#3a1d4d');R(13,8,3,2,'#3a1d4d');R(10,11,4,1,'#a9602a');
+    R(-2,6,2,22,'#a9712f');R(-4,2,6,5,'#ff6fb5');R(-3,3,4,3,'#ffffff');
+  }else if(kind===7){
+    R(0,10,5,14,'#f4fbff');R(19,10,5,14,'#f4fbff');R(1,22,4,5,'#bfe3f7');R(19,22,4,5,'#bfe3f7');
+    R(3,10,18,18,'#f4fbff');R(2,12,3,4,'#d6ecf8');R(19,12,3,4,'#d6ecf8');
+    R(4,0,16,12,'#f4fbff');R(6,3,12,7,'#7ec8f0');R(7,4,3,3,'#3a1d4d');R(14,4,3,3,'#3a1d4d');
+    R(8,8,8,3,'#ffffff');R(8,8,1,4,'#ffffff');R(15,8,1,4,'#ffffff');R(9,9,6,1,'#3a1d4d');
+    R(5,-3,3,4,'#d6ecf8');R(16,-3,3,4,'#d6ecf8');R(5,27,6,2,'#bfe3f7');R(13,27,6,2,'#bfe3f7');
+  }else if(kind===8){
+    const fl=(t>>3)&1;
+    R(-6,fl?0:6,10,6,'#6a4a2a');R(20,fl?0:6,10,6,'#6a4a2a');R(-10,fl?4:10,8,4,'#8a6a3a');R(26,fl?4:10,8,4,'#8a6a3a');
+    R(6,8,12,18,'#8a6a3a');R(8,14,8,10,'#e6d3b0');R(7,24,4,4,'#ffd84a');R(13,24,4,4,'#ffd84a');
+    R(6,0,12,10,'#f4ecd8');R(5,2,3,4,'#f4ecd8');R(7,3,3,3,'#ffd84a');R(14,3,3,3,'#ffd84a');R(8,4,1,2,'#3a1d4d');R(15,4,1,2,'#3a1d4d');
+    R(10,6,5,4,'#ffb347');R(11,9,3,2,'#e8782e');
+    if(fl){R(-2,-8,2,6,'#fff2a8');R(0,-4,3,2,'#fff2a8');R(24,-8,2,6,'#fff2a8');}
+  }else if(kind===9){
+    R(-2,10,28,18,'#7a1f3a');R(0,24,24,4,'#5a1428');
+    R(3,12,18,16,'#2f2f45');R(5,14,14,5,'#4a4a68');R(10,14,4,12,'#8a1f4a');
+    R(5,0,14,12,'#2f2f45');R(6,2,12,8,'#1a1a28');R(8,5,3,2,'#ff4d7a');R(14,5,3,2,'#ff4d7a');
+    R(5,-4,3,5,'#ffd84a');R(10,-6,4,7,'#ffd84a');R(16,-4,3,5,'#ffd84a');R(5,0,14,2,'#ffd84a');R(11,-3,2,2,'#ff4d7a');
+    R(1,14,4,10,'#4a4a68');R(19,14,4,10,'#4a4a68');R(22,6,2,22,'#c9d0df');R(21,4,4,3,'#ffd84a');
   }else{
     R(0,12,24,16,'#2a1550');R(5,12,14,16,'#4b2a82');
     R(5,4,3,10,'#1d1230');R(16,4,3,10,'#1d1230');R(6,1,12,5,'#1d1230');R(8,3,8,8,'#efdcf8');
@@ -775,6 +856,12 @@ function drawEnemy(e,cx,t){
     R(3,fl?-2:-1,5,3,'#ffffff');R(5,fl?-1:0,4,2,'#d9f3ff');
     R(1,2,10,6,'#ffd84a');R(4,2,2,6,'#3a1d4d');R(8,2,2,6,'#3a1d4d');R(10,3,1,2,'#3a1d4d');
     R(0,4,1,2,'#3a1d4d');R(9,3,1,1,'#ffffff');
+  }else if(e.t==='hop'){
+    const up=e.y<e.y0-6;
+    const c1=e.ph>3?'#ff9fd2':'#7be07a',c2=e.ph>3?'#d9609a':'#3f9a4a';
+    R(1,up?1:3,10,up?9:7,c1);R(2,up?0:2,8,2,c1);R(1,up?9:9,10,2,c2);
+    R(3,up?3:5,2,2,'#ffffff');R(7,up?3:5,2,2,'#ffffff');R(4,up?4:6,1,1,'#3a1d4d');R(8,up?4:6,1,1,'#3a1d4d');
+    R(4,up?7:8,4,1,'#3a1d4d');
   }else if(e.t==='boulder'){
     const a=((e.step/3)|0)%4;
     R(3,0,9,15,'#8b8da3');R(0,3,15,9,'#8b8da3');R(1,1,13,13,'#a3a5bb');R(2,2,5,4,'#c9cbe0');
@@ -905,14 +992,18 @@ const SAVE_KEY='rosine-la-lutine-v2';
 const NLV=LEVELS.length;
 
 /* progression */
-let prog={unlocked:1,best:[0,0,0,0,0],muted:false,wallet:0,up:{heart:0,boots:0,wand:0,bubble:0}};
+let prog={unlocked:1,best:[],muted:false,wallet:0,up:{heart:0}};
 try{
   const j=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
-  if(j){prog.unlocked=Math.max(1,Math.min(NLV,j.unlocked|0));prog.best=[0,1,2,3,4].map(i=>(j.best&&j.best[i])|0);prog.muted=!!j.muted;
+  if(j){prog.unlocked=Math.max(1,Math.min(NLV,j.unlocked|0));prog.muted=!!j.muted;
+    prog.best=Array.from({length:NLV},(_,q)=>(j.best&&j.best[q])|0);
     prog.wallet=Math.max(0,j.wallet|0);const u=j.up||{};
-    prog.up={heart:Math.min(2,u.heart|0),boots:u.boots?1:0,wand:u.wand?1:0,bubble:Math.min(9,Math.max(0,u.bubble|0))};}
-}catch(e){}
-function saveProg(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(prog));}catch(e){}}
+    prog.up={heart:Math.min(2,u.heart|0)};
+    /* anciennes versions : les objets achetés pour toujours sont remboursés */
+    if(!j.v3)prog.wallet+=(u.boots?50:0)+(u.wand?40:0)+15*Math.max(0,u.bubble|0);}
+  }catch(e){}
+if(prog.best.length!==NLV)prog.best=Array.from({length:NLV},(_,q)=>prog.best[q]|0);
+function saveProg(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(Object.assign({v3:1},prog)));}catch(e){}}
 
 /* sons */
 let actx=null;
@@ -991,12 +1082,12 @@ const heartSvg='<svg viewBox="0 0 7 6" aria-hidden="true">'+HEARTROWS.map((row,y
 for(let i=0;i<MAXH;i++){const s=document.createElement('i');s.innerHTML=heartSvg;heartsEl.appendChild(s);}
 let hudKey='';
 function updateHud(g){
-  const k=g.hearts+'|'+g.gemCount+'|'+g.bubbles;
+  const k=g.hearts+'|'+g.gemCount+'|'+g.bubbles+'|'+g.charm+'|'+g.magnet;
   if(k===hudKey)return;
   hudKey=k;
   [...heartsEl.children].forEach((c,i)=>c.classList.toggle('off',i>=g.hearts));
   $('gemN').textContent=g.gemCount;
-  $('bubN').hidden=!g.bubbles;$('bubN').textContent='🫧'+g.bubbles;
+  const bt=(g.bubbles?'🫧'+g.bubbles+' ':'')+(g.charm?'🍀'+g.charm+' ':'')+(g.magnet?'🧲':'');$('bubN').hidden=!bt;$('bubN').textContent=bt;
   heartsEl.setAttribute('aria-label',g.hearts+' cœur'+(g.hearts>1?'s':''));
 }
 let lblKey='';
@@ -1017,40 +1108,77 @@ function setMuteLabel(){const b=$('muteBtn');b.textContent=prog.muted?'Muet':'So
 const S={mode:'title',g:newGame(0)};
 function show(html){ov.innerHTML=html;ov.hidden=false;ov.classList.remove('sheet');}
 function hide(){ov.hidden=true;ov.classList.remove('sheet');}
-function returnBubbles(){const g=S.g;if(g&&S.mode!=='title'&&g.bubbles>0){prog.up.bubble+=g.bubbles;g.bubbles=0;saveProg();}}
 function showTitle(){
-  returnBubbles();
   S.mode='title';S.g=newGame(0);
   let btns='';
   for(let i=0;i<NLV;i++){
     const open=i<prog.unlocked,ic=LEVELS[i].kind==='bike'?' 🚲':LEVELS[i].kind==='copter'?' 🚁':'';
     btns+='<button class="lvb" data-act="start" data-li="'+i+'"'+(open?'':' disabled')+'><b>'+(i+1)+'</b><span>'+(open?LEVELS[i].short+ic:'verrouillé')+'</span>'+(prog.best[i]?'<em>'+prog.best[i]+' gemmes</em>':'')+'</button>';
   }
-  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Traverse cinq mondes, à pied, à vélo et en libellule volante.</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · entre dans la boutique au début de chaque niveau</p></div>');
+  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Dix mondes à traverser, à pied, à vélo et en libellule volante.</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · chaque niveau commence par la boutique</p></div>');
 }
-const SHOP=[
-  {id:'heart',name:'Cœur en plus',desc:'Commence avec un cœur de plus',price:[30,60],max:2},
-  {id:'boots',name:'Bottines à ressort',desc:'Saute plus haut',price:[50],max:1},
-  {id:'wand',name:'Longue baguette',desc:'La baguette porte plus loin',price:[40],max:1},
-  {id:'bubble',name:'Bulle magique',desc:'Absorbe un coup (une par niveau)',price:[15],max:9}
+/* Boutique : seuls les cœurs en plus sont gardés d'un niveau à l'autre. Le reste se rachète à chaque niveau. */
+const ITEMS=[
+  {id:'heart',name:'Cœur en plus',desc:'Pour toujours : on commence avec un cœur de plus',price:[30,60],perm:true},
+  {id:'boots',name:'Bottines à ressort',desc:'Saute plus haut, ce niveau',price:[35]},
+  {id:'wand',name:'Longue baguette',desc:'La baguette porte très loin, ce niveau',price:[30]},
+  {id:'bubble',name:'Bulle magique',desc:'Absorbe un coup (jusqu’à 3)',price:[15],count:3},
+  {id:'magnet',name:'Aimant à gemmes',desc:'Attire les gemmes proches, ce niveau',price:[20]},
+  {id:'star',name:'Étoile filante',desc:'Invincible pendant 10 secondes',price:[30]},
+  {id:'charm',name:'Porte-bonheur',desc:'Rejoue une manche perdue contre le gardien (jusqu’à 2)',price:[25],count:2}
 ];
-const SHOP_LV=[
-  {id:'magnet',name:'Aimant à gemmes',desc:'Attire les gemmes proches, tout ce niveau',price:[25]},
-  {id:'star',name:'Étoile filante',desc:'Invincible pendant 10 secondes',price:[30]}
-];
+function haveOf(it,g){
+  switch(it.id){
+    case 'heart':return prog.up.heart;
+    case 'boots':return g.boots?1:0;
+    case 'wand':return g.wand?1:0;
+    case 'bubble':return g.bubbles;
+    case 'magnet':return g.magnet?1:0;
+    case 'star':return g.starT>0?1:0;
+    default:return g.charm;
+  }
+}
+function itemMax(it){return it.perm?2:(it.count||1);}
+/* conseils de la marchande, tirés du contenu réel du niveau */
+function advice(g){
+  const c={fly:0,hog:0,hard:0,hop:0,gaps:0,spikes:0},tips=[],rec=new Set();
+  for(const e of g.ents){
+    if(e.t==='bee'||e.t==='bird')c.fly++;
+    else if(e.t==='hog')c.hog++;
+    else if(e.t==='hop')c.hop++;
+    else if(e.hard&&e.t!=='spring')c.hard++;
+  }
+  if(g.kind!=='copter')for(let x=12;x<g.W-20;x++)if(!g.tiles[GR][x])c.gaps++;
+  for(let x=0;x<g.W;x++)if(g.tiles[GR-1][x]===6)c.spikes++;
+  if(g.kind==='copter'){
+    tips.push(c.hard?'Des portes de pierre bougent dans le ciel : l’étoile ou une bulle aident à passer.':'Beaucoup d’oiseaux : tire dessus avec B.');
+    rec.add(c.hard?'star':'bubble');
+  }else{
+    if(c.gaps>=14||g.kind==='bike'){tips.push('Beaucoup de trous et d’obstacles : les bottines sautent plus haut.');rec.add('boots');}
+    if(c.fly>=4){tips.push('Des abeilles dans les airs : la longue baguette les atteint de loin.');rec.add('wand');}
+    if(c.hog>=3){tips.push('Des hérissons piquants, impossible de les écraser : tape-les avec la baguette.');rec.add('wand');}
+    if(c.hop>=3){tips.push('Des sauteurs rebondissants : écrase-les en retombant dessus.');}
+    if(c.hard>=3){tips.push('Rochers, flammes : on ne peut pas les détruire. Bulle ou étoile.');rec.add('bubble');rec.add('star');}
+    if(c.spikes>=3){tips.push('Des piques sur la route : bottines et bulles te protègent.');rec.add('boots');rec.add('bubble');}
+  }
+  if(g.gems.length>=60){tips.push('Beaucoup de gemmes sur le chemin : l’aimant te les rapporte.');rec.add('magnet');}
+  tips.push('Au bout du niveau, '+BOSSES[g.boss.kind].name+' t’attend pour un duel. Le porte-bonheur te donne une seconde chance.');rec.add('charm');
+  return {tips:tips.slice(0,4),rec:rec};
+}
 function showShop(back){
   const inLv=S.mode==='shop',g=S.g;
-  const list=inLv?SHOP.concat(SHOP_LV):SHOP;
+  const list=inLv?ITEMS:ITEMS.filter(x=>x.perm);
+  const adv=inLv?advice(g):null;
   let rows='';
   for(const it of list){
-    const cons=!it.max,stock=it.id==='bubble';
-    const have=cons?(it.id==='magnet'&&g.magnet?1:0):(stock&&inLv?g.bubbles:prog.up[it.id]);
-    const full=!cons&&!stock&&have>=it.max||(it.id==='magnet'&&g.magnet);
-    const price=it.price[Math.min(prog.up[it.id]|0,it.price.length-1)];
-    const lab=full?'Acheté':price+' 💎';
-    rows+='<div class="shr"><div><b>'+it.name+(stock?' ×'+have:(it.max>1?' ('+have+'/'+it.max+')':''))+'</b><small>'+it.desc+'</small></div><button class="buy" data-act="buy" data-id="'+it.id+'"'+((full||prog.wallet<price)?' disabled':'')+'>'+lab+'</button></div>';
+    const have=inLv?haveOf(it,g):prog.up.heart,mx=itemMax(it);
+    const full=have>=mx;
+    const price=it.price[Math.min(it.perm?prog.up.heart:0,it.price.length-1)];
+    const lab=full?(it.id==='star'?'Actif':'Acheté'):price+' 💎';
+    const star=adv&&adv.rec.has(it.id)?'<i class="rec">★ conseillé</i>':'';
+    rows+='<div class="shr"><div><b>'+it.name+(mx>1?' ('+have+'/'+mx+')':'')+'</b>'+star+'<small>'+it.desc+'</small></div><button class="buy" data-act="buy" data-id="'+it.id+'"'+((full||prog.wallet<price)?' disabled':'')+'>'+lab+'</button></div>';
   }
-  const head=inLv?'<p class="sub">Bienvenue ! Équipe-toi pour ce niveau.</p>':'';
+  const head=inLv?'<p class="sub tips"><b>La marchande dit :</b><br>'+adv.tips.map(t=>'• '+t).join('<br>')+'</p>':'<p class="sub">Les autres objets s’achètent à l’entrée de chaque niveau, selon ce qui t’attend.</p>';
   show('<div class="ovbox"><h2 class="ttl2">Boutique</h2>'+head+'<p class="stat"><b>'+prog.wallet+'</b> gemmes</p><div class="shop">'+rows+'</div><button class="ob" data-act="'+back+'">'+(inLv?'Sortir et jouer':'Retour')+'</button></div>');
 }
 function showPause(){
@@ -1090,7 +1218,7 @@ function drawDuelScene(){
   const bob=(d.phase==='shake')?Math.round(Math.abs(Math.sin(t*.21))*4):Math.round(Math.sin(t0*.08)*1.5);
   ctx.save();ctx.translate(18,118-50+(bob>>1));ctx.scale(3,3);
   lutine({x:0,y:0,vx:0,vy:0,onGround:true,atkT:0,anim:0,facing:1},t0);ctx.restore();
-  ctx.save();ctx.translate(196,118-56+(bob>>1)*0+(g.boss.kind===0?0:0));ctx.scale(2,2);drawBoss(g.boss.kind,0,0,t0);ctx.restore();
+  ctx.save();ctx.translate(188,118-56+(bob>>1)*0+(g.boss.kind===0?0:0));ctx.scale(2,2);drawBoss(g.boss.kind,0,0,t0);ctx.restore();
   /* score */
   ctx.font='700 11px "Pixelify Sans",monospace';ctx.textAlign='center';ctx.textBaseline='top';
   ctx.fillStyle='#ffd84a';ctx.fillText('Rosine  '+d.me+' – '+d.bo+'  '+BOSSES[g.boss.kind].name,VW/2,5);
@@ -1107,7 +1235,7 @@ function drawDuelScene(){
   }else{
     const p=d.pend;
     ctx.fillStyle=p.r>0?'#5ee6d0':p.r<0?'#ff6fb5':'#ffffff';ctx.font='700 14px "Pixelify Sans",monospace';
-    ctx.fillText(p.r>0?'Manche pour Rosine !':p.r<0?'Manche pour le gardien':'Égalité !',VW/2,28);
+    ctx.fillText(p.charm?'Porte-bonheur !':p.r>0?'Manche pour Rosine !':p.r<0?'Manche pour le gardien':'Égalité !',VW/2,28);
     const pop=Math.min(1,t/8);
     drawHand(p.m,70-(p.r>0?0:4),hy-Math.round((p.r>0?1:0)*6*pop),4,false);
     drawHand(p.b,142+(p.r<0?0:4),hy-Math.round((p.r<0?1:0)*6*pop),4,true);
@@ -1123,7 +1251,7 @@ function drawDuelScene(){
 function showSheet(html){ov.innerHTML=html;ov.hidden=false;ov.classList.add('sheet');}
 function startDuel(g){
   S.mode='duel';kb.l=kb.r=kb.j=kb.a=0;sync();
-  DU.st={me:0,bo:0,lastB:-1,lastP:-1,msg:'Choisis ton signe !',phase:'choose',t:0,pend:null};
+  DU.st={me:0,bo:0,lastB:-1,lastP:-1,lastR:0,n:0,msg:'Choisis ton signe !',phase:'choose',t:0,pend:null};
   showDuel(g);
 }
 function showDuel(g){
@@ -1134,9 +1262,9 @@ function showDuel(g){
 }
 function duelPick(m){
   const g=S.g,d=DU.st;if(d.phase!=='choose')return;ensureAudio();
-  const b=bossPick(g.boss.kind,{lastB:d.lastB,lastP:d.lastP});
+  const b=bossPick(g.boss.kind,{lastB:d.lastB,lastP:d.lastP,lastR:d.lastR,n:d.n});
   d.lastB=b;d.lastP=m;
-  d.pend={m:m,b:b,r:duelOutcome(m,b)};
+  d.pend={m:m,b:b,r:duelOutcome(m,b)};d.lastR=d.pend.r;d.n++;
   d.phase='shake';d.t=0;d.msg='Pierre… feuille… ciseaux !';showDuel(g);
 }
 function duelStep(){
@@ -1145,6 +1273,7 @@ function duelStep(){
   if(d.phase==='shake'&&d.t>=70){
     const p=d.pend;d.phase='reveal';d.t=0;
     if(p.r>0){d.me++;d.msg=NAMES[p.m]+' bat '+NAMES[p.b].toLowerCase()+' : tu gagnes la manche !';SFX.win();}
+    else if(p.r<0&&g.charm>0){g.charm--;p.r=0;p.charm=true;d.msg='Le porte-bonheur brille : manche rejouée !';SFX.bonus();}
     else if(p.r<0){d.bo++;d.msg=NAMES[p.b]+' bat '+NAMES[p.m].toLowerCase()+' : il gagne la manche.';SFX.lose();}
     else d.msg='Même signe : on recommence !';
     showDuel(g);
@@ -1168,9 +1297,8 @@ function duelStep(){
   }
 }
 function startLevel(li){
-  ensureAudio();returnBubbles();
-  const o={heart:prog.up.heart,boots:prog.up.boots,wand:prog.up.wand,bubbles:prog.up.bubble};
-  prog.up.bubble=0;saveProg();
+  ensureAudio();
+  const o={heart:prog.up.heart};
   S.g=newGame(li,o);S.mode='play';hudKey='';lblKey='';
   S.g.toast='Niveau '+(li+1)+' · '+LEVELS[li].name;S.g.toastT=170;
   hide();
@@ -1191,28 +1319,20 @@ ov.addEventListener('click',e=>{
   else if(a==='leave'){leaveShop(S.g);S.mode='play';hudKey='';hide();}
   else if(a==='buy'){
     const id=b.dataset.id,lv=S.mode==='shop',g=S.g;
-    const it=SHOP.concat(SHOP_LV).find(x=>x.id===id);
+    const it=ITEMS.find(x=>x.id===id);
     if(!it)return;
-    if(it.max){
-      const have=prog.up[id],price=it.price[Math.min(have,it.price.length-1)];
-      if(prog.wallet>=price&&(id==='bubble'||have<it.max)){
-        prog.wallet-=price;prog.up[id]++;
-        if(lv){
-          if(id==='heart'){g.startHearts=Math.min(MAXH,g.startHearts+1);g.hearts=Math.min(MAXH,g.hearts+1);}
-          else if(id==='boots')g.boots=true;
-          else if(id==='wand')g.wand=true;
-          else if(id==='bubble'){prog.up.bubble--;g.bubbles++;}
-        }
-        saveProg();SFX.buy();showShop(lv?'leave':S.mode==='clear'?'back2':'menu');
-      }
-    }else if(lv){
-      const price=it.price[0];
-      if(prog.wallet>=price){
-        prog.wallet-=price;
-        if(id==='magnet')g.magnet=true;else g.starT=600;
-        saveProg();SFX.buy();showShop('leave');
-      }
-    }
+    const have=lv?haveOf(it,g):prog.up.heart,price=it.price[Math.min(it.perm?prog.up.heart:0,it.price.length-1)];
+    if(prog.wallet<price||have>=itemMax(it))return;
+    prog.wallet-=price;
+    if(id==='heart'){prog.up.heart++;if(lv){g.startHearts=Math.min(MAXH,g.startHearts+1);g.hearts=Math.min(MAXH,g.hearts+1);}}
+    else if(id==='boots')g.boots=true;
+    else if(id==='wand')g.wand=true;
+    else if(id==='bubble')g.bubbles++;
+    else if(id==='magnet')g.magnet=true;
+    else if(id==='star')g.starT=600;
+    else g.charm++;
+    saveProg();SFX.buy();showShop(lv?'leave':S.mode==='clear'?'back2':'menu');
+    hudKey='';
   }
   else if(a==='pick')duelPick(+b.dataset.m);
   else if(a==='resume')togglePause();
