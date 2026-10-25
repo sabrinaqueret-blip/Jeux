@@ -82,7 +82,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:crisp-edges;image-re
 .dbtn svg{width:30px;height:30px}.dbtn:disabled{opacity:.5}
 .dbtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
 .dmsg{min-height:2.4em}
-#bubN{font-size:15px}
+#bubN{font-size:15px;white-space:nowrap}.chip{white-space:nowrap}.stats{flex-wrap:nowrap}
 .lvb{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:62px;padding:4px 2px;
   background:var(--panel);border:2px solid var(--edge);border-radius:10px;box-shadow:0 4px 0 var(--edge);
@@ -119,6 +119,18 @@ canvas{display:block;width:100%;height:100%;image-rendering:crisp-edges;image-re
 .dbot{bottom:6px;font-size:clamp(12px,3.4vw,15px);font-weight:600;line-height:1.35}
 .dbot i{color:var(--gold);font-style:normal}
 .dueling .controls{visibility:hidden}
+.wallet{margin:0;font-size:20px}.wallet b{font-size:32px;color:var(--gold);font-variant-numeric:tabular-nums}
+.tiles{display:flex;justify-content:center;gap:8px;width:100%}
+.tile{flex:1;max-width:130px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;background:var(--panel);border:3px solid var(--edge);border-radius:14px;box-shadow:0 4px 0 var(--edge);color:var(--ink)}
+.tile .ic{font-size:38px;line-height:1}
+.tile .nm{font-size:13px;font-weight:700;line-height:1.15}
+.tile .pr{font-size:19px;font-weight:800;color:var(--gold)}
+.tile.done .pr{color:var(--teal);font-size:15px}
+.tile.sel{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,216,74,.35),0 4px 0 var(--edge);background:#3b2566}
+.detail{width:100%;text-align:left;background:var(--panel);border:2px solid var(--edge);border-radius:12px;padding:8px 12px}
+.detail h3{margin:0 0 4px;font-size:17px;color:var(--gold)}.detail h3 small{font-size:12px;color:var(--muted);font-weight:600}
+.detail p{margin:0;font-size:14px;line-height:1.35}.detail .why{margin-top:5px;color:var(--teal);font-size:13px}
+.buyb{font-size:19px}.buyb:disabled{opacity:.55}
 .toast[hidden],.overlay[hidden]{display:none}
 .chip:focus-visible,.ob:focus-visible,.lvb:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @media (max-width:380px){.pad{width:68px;height:68px}.hearts i{width:17px;height:15px}.gemc{font-size:18px}}
@@ -141,7 +153,10 @@ canvas{display:block;width:100%;height:100%;image-rendering:crisp-edges;image-re
   .ttl{font-size:30px}.ttl2{font-size:24px}
   .lvgrid{grid-template-columns:repeat(6,1fr);gap:6px}
   .lvb{min-height:50px}
-  .shop{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .tile{padding:6px 4px}.tile .ic{font-size:28px}
+  .detail{padding:5px 10px}.detail p{font-size:12px}.detail h3{font-size:15px}
+  .wallet{font-size:16px}.wallet b{font-size:24px}
+  .buyb{font-size:17px;padding:7px}
   .shr{padding:4px 7px}
   .tips{font-size:11px}
   .shop+.ob{position:sticky;bottom:0;max-width:340px}
@@ -1112,7 +1127,7 @@ function updateHud(g){
   hudKey=k;
   [...heartsEl.children].forEach((c,i)=>c.classList.toggle('off',i>=g.hearts));
   $('gemN').textContent=g.gemCount;
-  const bt=(g.bubbles?'🫧'+g.bubbles+' ':'')+(g.charm?'🍀'+g.charm+' ':'')+(g.magnet?'🧲':'');$('bubN').hidden=!bt;$('bubN').textContent=bt;
+  const bt=(g.bubbles?'🛡️'+g.bubbles+' ':'')+(g.charm?'🍀'+g.charm+' ':'')+(g.magnet?'🧲':'');$('bubN').hidden=!bt;$('bubN').textContent=bt;
   heartsEl.setAttribute('aria-label',g.hearts+' cœur'+(g.hearts>1?'s':''));
 }
 let lblKey='';
@@ -1144,13 +1159,13 @@ function showTitle(){
 }
 /* Boutique : seuls les cœurs en plus sont gardés d'un niveau à l'autre. Le reste se rachète à chaque niveau. */
 const ITEMS=[
-  {id:'heart',name:'Cœur en plus',desc:'Pour toujours : on commence avec un cœur de plus',price:[30,60],perm:true},
-  {id:'boots',name:'Bottines à ressort',desc:'Saute plus haut, ce niveau',price:[35]},
-  {id:'wand',name:'Longue baguette',desc:'La baguette porte très loin, ce niveau',price:[30]},
-  {id:'bubble',name:'Bulle magique',desc:'Absorbe un coup (jusqu’à 3)',price:[15],count:3},
-  {id:'magnet',name:'Aimant à gemmes',desc:'Attire les gemmes proches, ce niveau',price:[20]},
-  {id:'star',name:'Étoile filante',desc:'Invincible pendant 10 secondes',price:[30]},
-  {id:'charm',name:'Porte-bonheur',desc:'Rejoue une manche perdue contre le gardien (jusqu’à 2)',price:[25],count:2}
+  {id:'heart',ic:'❤️',name:'Cœur en plus',long:'Tu commences chaque niveau avec un cœur de plus. C’est pour toujours (2 au maximum).',price:[30,60],perm:true},
+  {id:'boots',ic:'👢',name:'Bottines à ressort',long:'Rosine saute plus haut jusqu’à la fin du niveau.',price:[35]},
+  {id:'wand',ic:'🪄',name:'Longue baguette',long:'La baguette frappe beaucoup plus loin jusqu’à la fin du niveau.',price:[30]},
+  {id:'bubble',ic:'🛡️',name:'Bulle magique',long:'Une bulle protège Rosine : elle éclate au lieu de te faire perdre un cœur. Tu peux en avoir 3.',price:[15],count:3},
+  {id:'magnet',ic:'🧲',name:'Aimant à gemmes',long:'Les gemmes proches viennent toutes seules vers Rosine, jusqu’à la fin du niveau.',price:[20]},
+  {id:'star',ic:'⭐',name:'Étoile filante',long:'Rosine est invincible pendant 10 secondes, dès que tu sors de la boutique.',price:[30]},
+  {id:'charm',ic:'🍀',name:'Porte-bonheur',long:'Si tu perds une manche contre le gardien, elle est rejouée. Tu peux en avoir 2.',price:[25],count:2}
 ];
 function haveOf(it,g){
   switch(it.id){
@@ -1164,9 +1179,10 @@ function haveOf(it,g){
   }
 }
 function itemMax(it){return it.perm?2:(it.count||1);}
-/* conseils de la marchande, tirés du contenu réel du niveau */
+/* la marchande propose 3 objets, choisis d'après le contenu réel du niveau */
 function advice(g){
-  const c={fly:0,hog:0,hard:0,hop:0,gaps:0,spikes:0},tips=[],rec=new Set();
+  const c={fly:0,hog:0,hard:0,hop:0,gaps:0,spikes:0},why={},order=[];
+  const add=(id,t)=>{if(!why[id]){why[id]=t;order.push(id);}};
   for(const e of g.ents){
     if(e.t==='bee'||e.t==='bird')c.fly++;
     else if(e.t==='hog')c.hog++;
@@ -1176,35 +1192,45 @@ function advice(g){
   if(g.kind!=='copter')for(let x=12;x<g.W-20;x++)if(!g.tiles[GR][x])c.gaps++;
   for(let x=0;x<g.W;x++)if(g.tiles[GR-1][x]===6)c.spikes++;
   if(g.kind==='copter'){
-    tips.push(c.hard?'Des portes de pierre bougent dans le ciel : l’étoile ou une bulle aident à passer.':'Beaucoup d’oiseaux : tire dessus avec B.');
-    rec.add(c.hard?'star':'bubble');
+    if(c.hard)add('star','Des portes de pierre bougent dans le ciel : l’étoile te laisse passer sans risque.');
+    add('bubble',c.hard?'Les portes et les oiseaux font mal : la bulle encaisse un coup.':'Beaucoup d’oiseaux dans ce ciel : la bulle encaisse un coup.');
   }else{
-    if(c.gaps>=14||g.kind==='bike'){tips.push('Beaucoup de trous et d’obstacles : les bottines sautent plus haut.');rec.add('boots');}
-    if(c.fly>=4){tips.push('Des abeilles dans les airs : la longue baguette les atteint de loin.');rec.add('wand');}
-    if(c.hog>=3){tips.push('Des hérissons piquants, impossible de les écraser : tape-les avec la baguette.');rec.add('wand');}
-    if(c.hop>=3){tips.push('Des sauteurs rebondissants : écrase-les en retombant dessus.');}
-    if(c.hard>=3){tips.push('Rochers, flammes : on ne peut pas les détruire. Bulle ou étoile.');rec.add('bubble');rec.add('star');}
-    if(c.spikes>=3){tips.push('Des piques sur la route : bottines et bulles te protègent.');rec.add('boots');rec.add('bubble');}
+    if(c.hard>=3)add('bubble','Rochers et flammes sont indestructibles : la bulle encaisse un coup.');
+    if(c.gaps>=14||g.kind==='bike')add('boots','Beaucoup de trous et d’obstacles sur la route : saute plus haut.');
+    if(c.fly>=4)add('wand','Des abeilles volent haut : la longue baguette les touche de loin.');
+    if(c.hog>=3)add('wand','Des hérissons piquants, impossibles à écraser : tape-les de loin.');
+    if(c.spikes>=3)add('bubble','Des piques sur le chemin : la bulle te protège.');
+    if(c.hard>=3)add('star','Beaucoup d’obstacles indestructibles : l’étoile te rend invincible un moment.');
   }
-  if(g.gems.length>=60){tips.push('Beaucoup de gemmes sur le chemin : l’aimant te les rapporte.');rec.add('magnet');}
-  tips.push('Au bout du niveau, '+BOSSES[g.boss.kind].name+' t’attend pour un duel. Le porte-bonheur te donne une seconde chance.');rec.add('charm');
-  return {tips:tips.slice(0,4),rec:rec};
+  if(g.gems.length>=60)add('magnet','Beaucoup de gemmes sur le chemin : l’aimant te les rapporte.');
+  const pick=order.slice(0,2);
+  for(const id of ['bubble','boots','magnet','wand','star'])if(pick.length<2&&!pick.includes(id)){pick.push(id);why[id]=why[id]||'Un bon coup de pouce pour ce niveau.';}
+  why.charm='Au bout du niveau, '+BOSSES[g.boss.kind].name+' t’attend pour un duel. Une seconde chance, ça aide !';
+  pick.push('charm');
+  return {ids:pick,why:why};
 }
+let SHOPSEL=null,SHOPIDS=null,SHOPWHY=null,SHOPLV=-1;
 function showShop(back){
   const inLv=S.mode==='shop',g=S.g;
-  const list=inLv?ITEMS:ITEMS.filter(x=>x.perm);
-  const adv=inLv?advice(g):null;
-  let rows='';
-  for(const it of list){
-    const have=inLv?haveOf(it,g):prog.up.heart,mx=itemMax(it);
-    const full=have>=mx;
+  let ids,why={};
+  if(inLv){
+    if(SHOPLV!==g.li||!SHOPIDS||g.t<5){const ad=advice(g);SHOPIDS=ad.ids;SHOPWHY=ad.why;SHOPLV=g.li;SHOPSEL=null;}
+    ids=SHOPIDS;why=SHOPWHY;
+  }else{ids=['heart'];SHOPSEL=null;}
+  if(!SHOPSEL||!ids.includes(SHOPSEL))SHOPSEL=ids[0];
+  const items=ids.map(id=>ITEMS.find(x=>x.id===id));
+  let tiles='';
+  for(const it of items){
+    const have=inLv?haveOf(it,g):prog.up.heart,mx=itemMax(it),full=have>=mx;
     const price=it.price[Math.min(it.perm?prog.up.heart:0,it.price.length-1)];
-    const lab=full?(it.id==='star'?'Actif':'Acheté'):price+' 💎';
-    const star=adv&&adv.rec.has(it.id)?'<i class="rec">★ conseillé</i>':'';
-    rows+='<div class="shr"><div><b>'+it.name+(mx>1?' ('+have+'/'+mx+')':'')+'</b>'+star+'<small>'+it.desc+'</small></div><button class="buy" data-act="buy" data-id="'+it.id+'"'+((full||prog.wallet<price)?' disabled':'')+'>'+lab+'</button></div>';
+    tiles+='<button class="tile'+(it.id===SHOPSEL?' sel':'')+(full?' done':'')+'" data-act="sel" data-id="'+it.id+'"><span class="ic">'+it.ic+'</span><span class="nm">'+it.name+'</span><span class="pr">'+(full?'✔ Acheté':price+' 💎')+'</span></button>';
   }
-  const head=inLv?'<p class="sub tips"><b>La marchande dit :</b><br>'+adv.tips.map(t=>'• '+t).join('<br>')+'</p>':'<p class="sub">Les autres objets s’achètent à l’entrée de chaque niveau, selon ce qui t’attend.</p>';
-  show('<div class="ovbox"><h2 class="ttl2">Boutique</h2>'+head+'<p class="stat"><b>'+prog.wallet+'</b> gemmes</p><div class="shop">'+rows+'</div><button class="ob" data-act="'+back+'">'+(inLv?'Sortir et jouer':'Retour')+'</button>'+(inLv?'<button class="ob alt" data-act="menu">Menu principal</button>':'')+'</div>');
+  const it=items.find(x=>x.id===SHOPSEL),have=inLv?haveOf(it,g):prog.up.heart,mx=itemMax(it),full=have>=mx;
+  const price=it.price[Math.min(it.perm?prog.up.heart:0,it.price.length-1)];
+  const poor=!full&&prog.wallet<price;
+  const detail='<div class="detail"><h3>'+it.ic+' '+it.name+(mx>1?' <small>(en ce moment : '+have+'/'+mx+')</small>':'')+'</h3><p>'+it.long+'</p>'+(why[it.id]?'<p class="why">★ '+why[it.id]+'</p>':'')+'</div>';
+  const buy='<button class="ob buyb" data-act="buy" data-id="'+it.id+'"'+((full||poor)?' disabled':'')+'>'+(full?'Déjà acheté':poor?'Pas assez de gemmes ('+price+' 💎)':'Acheter · '+price+' 💎')+'</button>';
+  show('<div class="ovbox"><h2 class="ttl2">Boutique</h2><p class="wallet"><b>'+prog.wallet+'</b> 💎 en poche</p><div class="tiles">'+tiles+'</div>'+detail+buy+'<button class="ob alt" data-act="'+back+'">'+(inLv?'Sortir et jouer':'Retour')+'</button>'+(inLv?'<button class="ob alt" data-act="menu">Menu principal</button>':'')+'</div>');
 }
 function showPause(){
   show('<div class="ovbox"><h2 class="ttl2">Pause</h2><button class="ob" data-act="resume">Reprendre</button><button class="ob alt" data-act="again" data-li="'+S.g.li+'">Recommencer le niveau</button><button class="ob alt" data-act="menu">Menu principal</button></div>');
@@ -1336,6 +1362,7 @@ ov.addEventListener('click',e=>{
   else if(a==='shop'){showShop('menu');}
   else if(a==='shop2'){showShop('back2');}
   else if(a==='back2'){showClear(S.g);}
+  else if(a==='sel'){SHOPSEL=b.dataset.id;showShop(S.mode==='shop'?'leave':S.mode==='clear'?'back2':'menu');}
   else if(a==='leave'){leaveShop(S.g);S.mode='play';hudKey='';hide();}
   else if(a==='buy'){
     const id=b.dataset.id,lv=S.mode==='shop',g=S.g;
