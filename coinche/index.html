@@ -262,7 +262,7 @@ class Game{
     if(this.phase==='bidding')this.act(s,botBidAction(this,s));
     else this.act(s,{a:'play',card:botPlayCard(this,s)});
   }
-  minBid(){return this.cb?(this.cb.val>=200?250:this.cb.val+10):80;}
+  minBid(){return this.cb?(this.cb.val>=360?500:this.cb.val+10):80;}
   act(seat,a){
     if(this.phase==='handEnd'&&a.a==='ready'){this.ready[seat]=true;this.checkReady();return '';}
     if(this.phase==='bidding'){
@@ -280,11 +280,11 @@ class Game{
         if(cb&&cb.coinche>0)return 'coinché';
         const v=a.val,su=a.suit;
         if(!(su>=0&&su<=5))return 'couleur';
-        if(!((v>=80&&v<=200&&v%10===0)||v===250))return 'valeur';
-        if(v<this.minBid()&&!(v===250&&(!cb||cb.val<250)))return 'trop bas';
+        if(!((v>=80&&v<=360&&v%10===0)||v===500))return 'valeur';
+        if(v<this.minBid()&&!(v===500&&(!cb||cb.val<500)))return 'trop bas';
         if(cb&&v<=cb.val)return 'trop bas';
         this.cb={seat,val:v,suit:su,coinche:0};this.passes=0;this.bids.push({seat,k:'bid',val:v,suit:su});
-        if(v===250){this.passes=0;}
+        
         this.turn=(seat+1)%4;this.push();return '';
       }
       if(a.a==='coinche'){
@@ -347,12 +347,12 @@ class Game{
     const belTeam=this.bel&&this.bel.n>=2?this.bel.seat%2:-1;
     const ap=this.annPts||[0,0];
     const made=this.pts[att]+ap[att]+(belTeam===att?20:0);
-    const ok=cb.val===250?capot:made>=cb.val;
+    const bv=cb.val===500?250:cb.val,ok=cb.val===500?capot:made>=cb.val;
     const sc=[0,0];
     if(ok){
-      if(m===1){sc[att]=round10(this.pts[att]+(capot?90:0)+ap[att])+cb.val;sc[def]=round10(this.pts[def]+ap[def]);}
-      else{sc[att]=(cb.val+160)*m+ap[att];sc[def]=0;}
-    }else{sc[def]=(160+cb.val)*m+ap[def];sc[att]=0;}
+      if(m===1){sc[att]=round10(this.pts[att]+(capot?90:0)+ap[att])+bv;sc[def]=round10(this.pts[def]+ap[def]);}
+      else{sc[att]=(bv+160)*m+ap[att];sc[def]=0;}
+    }else{sc[def]=(160+bv)*m+ap[def];sc[att]=0;}
     if(belTeam>=0)sc[belTeam]+=20;
     this.scores[0]+=sc[0];this.scores[1]+=sc[1];
     this.result={ok,att,val:cb.val,suit:cb.suit,coinche:cb.coinche,pts:this.pts.slice(),tricks:this.tricksWon.slice(),belTeam,delta:sc,capot,bidder:cb.seat,ann:ap.slice(),annList:this.annRes?this.annRes.list:[]};
@@ -457,7 +457,7 @@ function showHome(){
 }
 function showRules(){
   openOv('<h2>Règles</h2><div class="rules"><p><b>Équipes :</b> toi et ton partenaire (face à face) contre les deux autres.</p>'+
-   '<p><b>Enchères :</b> chacun son tour annonce un contrat (80 à 200, ou Capot) dans une couleur, en <b>Tout atout</b> ou en <b>Sans atout</b>, ou passe. Un adversaire peut <b>coincher</b> (points ×2), l’équipe peut <b>surcoincher</b> (×4).</p>'+
+   '<p><b>Enchères :</b> chacun son tour annonce un contrat (80 à 360, ou Capot) dans une couleur, en <b>Tout atout</b> ou en <b>Sans atout</b>, ou passe. Un adversaire peut <b>coincher</b> (points ×2), l’équipe peut <b>surcoincher</b> (×4).</p>'+
    '<p><b>Jeu :</b> on fournit la couleur demandée. Sinon on coupe à l’atout (sauf si le partenaire est maître) et on surcoupe si on peut.</p>'+
    '<p><b>Valeur à l’atout :</b> Valet 20 · 9 14 · As 11 · 10 10 · Roi 4 · Dame 3.<br><b>Hors atout :</b> As 11 · 10 10 · Roi 4 · Dame 3 · Valet 2.</p>'+
    '<p><b>Tout atout :</b> chaque couleur est de l’atout (Valet 20, 9 14, As 11, 10 10, Roi 4, Dame 3 ; 258 points au total) : on monte toujours si on peut. <b>Sans atout :</b> pas d’atout, pas de coupe (As 19, 10 10, Roi 4, Dame 3, Valet 2 ; 162 points). Pas de belote dans ces deux contrats.</p><p><b>Dix de der</b> +10. <b>Belote-rebelote</b> (Roi + Dame d’atout) +20.</p>'+
@@ -550,7 +550,7 @@ function leave(silent){
 /* ---------- table ---------- */
 const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '+(s===1||s===2?'red':'blk')+' '+(cls||'')+'" data-id="'+id+'" '+(extra||'')+'><i>'+RANKS[r]+'<br>'+SUITS[s]+'</i><em>'+SUITS[s]+'</em></div>';};
 const suitHtml=s=>'<span class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</span>';
-function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===250?'Capot':b.val)+' '+suitHtml(b.suit);}
+function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===500?'Capot':b.val)+' '+suitHtml(b.suit);}
 function onView(v){
   const prev=view;view=v;me=v.me;
   if(mode!=='game')show('game');
@@ -570,7 +570,7 @@ function render(){
   const T=v.cb,myTeam=me%2;
   const nous=v.scores[myTeam],eux=v.scores[1-myTeam];
   let chip='<span class="chip">Enchères…</span>';
-  if(T){chip='<span class="chip">Contrat '+(T.val===250?'Capot':T.val)+' '+suitHtml(T.suit)+' · '+esc(v.names[T.seat])+(T.coinche===1?' · <b class="cc">COINCHÉ</b>':T.coinche===2?' · <b class="cc">SURCOINCHÉ</b>':'')+'</span>';}
+  if(T){chip='<span class="chip">Contrat '+(T.val===500?'Capot':T.val)+' '+suitHtml(T.suit)+' · '+esc(v.names[T.seat])+(T.coinche===1?' · <b class="cc">COINCHÉ</b>':T.coinche===2?' · <b class="cc">SURCOINCHÉ</b>':'')+'</span>';}
   if(v.annRes){const t=myTeam;chip+='<span class="chip">Annonces : nous '+(v.annRes.team===t?v.annRes.total:0)+' · eux '+(v.annRes.team!==t?v.annRes.total:0)+'</span>';}
   else if(v.annTxt&&v.annTxt.length&&v.phase!=='bidding')chip+='<span class="chip">📣 '+v.annTxt.map(a=>esc(v.names[a.seat])+' : '+a.label).join(' · ')+'</span>';
   const turnName=(v.phase==='play'||v.phase==='bidding')?v.names[v.turn]:'';
@@ -617,12 +617,12 @@ function render(){
 function bidPanel(v){
   const o=v.opts;if(o.locked&&!o.canSur)return '';
   if(bidVal<o.min)bidVal=o.min;
-  const vals=[80,90,100,110,120,130,140,150,160,170,180,190,200,250];
+  const vals=[80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,500];
   let h='<div class="bidp">'+(P.aids?bidHint(v):'');
   if(!o.locked){
-    h+='<div class="vals">'+vals.map(x=>'<button data-v="'+x+'" class="'+(x===bidVal?'on':'')+'" '+(x<o.min||(x===250&&false)?'disabled':'')+'>'+(x===250?'Capot':x)+'</button>').join('')+'</div>';
+    h+='<div class="vals">'+vals.map(x=>'<button data-v="'+x+'" class="'+(x===bidVal?'on':'')+'" '+(x<o.min||(x===500&&false)?'disabled':'')+'>'+(x===500?'Capot':x)+'</button>').join('')+'</div>';
     h+='<div class="suits">'+[0,1,3,2,4,5].map(s=>'<button data-s="'+s+'" class="'+(s===bidSuit?'on ':'')+(s===1||s===2?'rd':s>3?'bk wd':'bk')+'">'+(s>3?SUITS[s].replace(' atout','<br>atout'):SUITS[s])+'</button>').join('')+'</div>';
-    h+='<div class="acts"><button class="ob" id="bidB" '+(bidSuit<0?'disabled':'')+'>'+(bidSuit<0?'Choisis une couleur':'Annoncer '+(bidVal===250?'Capot':bidVal)+' '+SUITS[bidSuit])+'</button>';
+    h+='<div class="acts"><button class="ob" id="bidB" '+(bidSuit<0?'disabled':'')+'>'+(bidSuit<0?'Choisis une couleur':'Annoncer '+(bidVal===500?'Capot':bidVal)+' '+SUITS[bidSuit])+'</button>';
   }else h+='<div class="acts">';
   h+='<button class="ob alt" id="passB">'+(o.canSur?'Pas de surcoinche':'Passer')+'</button>';
   if(o.canCoinche)h+='<button class="ob warn" id="coiB">Coincher ×2</button>';
@@ -667,7 +667,7 @@ function endOverlay(v){
   const myAtt=r.att===t,pre=n=>n===t?'Nous':'Eux';
   const waiting=v.ready.some((x,i)=>!x&&v.kinds[i]==='human');
   const iready=v.ready[me];
-  openOv('<div class="endbox"><h2>'+(r.ok?'Contrat réussi':'Contrat chuté')+'</h2><p>'+pre(r.att)+' : '+(r.val===250?'Capot':r.val)+' '+suitHtml(r.suit)+(r.coinche?' <b class="cc">×'+(r.coinche===1?2:4)+'</b>':'')+'</p>'+
+  openOv('<div class="endbox"><h2>'+(r.ok?'Contrat réussi':'Contrat chuté')+'</h2><p>'+pre(r.att)+' : '+(r.val===500?'Capot':r.val)+' '+suitHtml(r.suit)+(r.coinche?' <b class="cc">×'+(r.coinche===1?2:4)+'</b>':'')+'</p>'+
     '<table class="res"><tr><th></th><th>Nous</th><th>Eux</th></tr>'+
     '<tr><td>Points de cartes</td><td>'+r.pts[t]+'</td><td>'+r.pts[1-t]+'</td></tr>'+
     '<tr><td>Plis</td><td>'+r.tricks[t]+'</td><td>'+r.tricks[1-t]+'</td></tr>'+
@@ -758,7 +758,7 @@ function bidAnalysis(v){
   const cb=v.cb,partnerBid=cb&&cb.seat%2===me%2;
   const L=[];let title,bid=null;
   if(a.a==='bid'){
-    bid={val:a.val,suit:a.suit};title='✅ Prends : '+(a.val===250?'Capot':a.val)+' '+SUITS[a.suit];
+    bid={val:a.val,suit:a.suit};title='✅ Prends : '+(a.val===500?'Capot':a.val)+' '+SUITS[a.suit];
     if(suit===4){L.push('Tout atout : toutes les couleurs sont de l’atout. Tu as '+nJ+' Valet(s) (20 pts chacun) et '+n9a+' neuf(s) (14 pts).');L.push('Chaque Valet est maître de sa couleur : il fera le pli.');}
     else if(suit===5){L.push('Sans atout : pas de coupe, l’As vaut 19 points. Tu as '+nA+' As.');L.push('Les As et les 10 qui les suivent font des plis presque sûrs.');}
     else{
