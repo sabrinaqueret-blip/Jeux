@@ -18,17 +18,40 @@ a.g{display:flex;align-items:center;gap:14px;padding:12px;margin-bottom:12px;bac
 a.g:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
 a.g img{width:64px;height:64px;border-radius:14px;image-rendering:pixelated}
 a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
+#inst{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:0 0 18px;padding:14px;font:inherit;font-size:18px;font-weight:800;color:#2a0f3d;background:var(--pink);border:2px solid var(--edge);border-radius:14px;box-shadow:0 4px 0 var(--edge);cursor:pointer}
+#inst:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+#help{display:none;margin:-8px 0 18px;padding:12px 14px;background:var(--panel);border:2px solid var(--pink);border-radius:14px;line-height:1.45}
+#help b{color:var(--pink)}
 </style>
 </head>
 <body>
 <main>
 <h1>Mes jeux</h1>
 <p class="s">Sans pub, sans compte, hors ligne.</p>
+<button id="inst" hidden>📲 Installer sur mon téléphone</button>
+<div id="help"></div>
 <a class="g" href="coinche/"><img src="coinche/icons/icon-192.png" alt=""><div><b>Coinche entre amis</b><span>Cartes à 4 · robots ou en ligne avec un code</span></div></a>
 <a class="g" href="tama/"><img src="tama/icons/icon-192.png" alt=""><div><b>Mon petit compagnon</b><span>Tamagotchi · 7 espèces, musiques, jeux, boutique</span></div></a>
 <a class="g" href="rosine/"><img src="rosine/icons/icon-192.png" alt=""><div><b>Rosine la Lutine</b><span>Plateformes · 10 mondes, vélo, libellule, boutique</span></div></a>
 <a class="g" href="sudoku/"><img src="sudoku/icons/icon-192.png" alt=""><div><b>Sudoku Expert</b><span>4 niveaux, indices, notes</span></div></a>
 </main>
+<script>
+(function(){
+  const btn=document.getElementById('inst'),help=document.getElementById('help');let dp=null;
+  const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  if(standalone())return;
+  btn.hidden=false;
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;});
+  addEventListener('appinstalled',()=>{btn.hidden=true;help.style.display='block';help.innerHTML='✅ <b>Installé !</b> Tu trouveras « Mes jeux » sur ton écran d’accueil.';});
+  btn.onclick=async()=>{
+    if(dp){dp.prompt();try{await dp.userChoice;}catch(e){}dp=null;return;}
+    const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    help.style.display='block';
+    help.innerHTML=ios?'<b>Sur iPhone / iPad :</b><br>1. Touche le bouton <b>Partager</b> (le carré avec une flèche vers le haut) en bas de Safari.<br>2. Choisis <b>« Sur l’écran d’accueil »</b>.<br>3. Touche <b>Ajouter</b>.':
+      '<b>Sur Android :</b><br>1. Touche le menu <b>⋮</b> en haut à droite de Chrome.<br>2. Choisis <b>« Installer l’application »</b> (ou « Ajouter à l’écran d’accueil »).<br>3. Confirme.<br><small>Si le choix n’apparaît pas, recharge la page une fois puis réessaie.</small>';
+  };
+})();
+</script>
 <script>if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
