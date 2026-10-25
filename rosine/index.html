@@ -11,20 +11,17 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
 <title>Rosine la Lutine</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap">
 <style>
 /* Mise en page : écran de jeu 16:10 en haut, commandes tactiles collées en bas, violet nuit et roses de pixel */
 :root{
   --bg:#1D1230; --panel:#2E1C4D; --ink:#FFF3FA; --muted:#C2ADDD;
   --pink:#FF6FB5; --pink-d:#D93D8F; --gold:#FFD84A; --teal:#5EE6D0;
   --edge:#0E0719; --heart:#FF4D7A; --heart-off:#4A3470;
-  --font:"Pixelify Sans",ui-monospace,Menlo,Consolas,monospace;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   color-scheme:dark;
 }
 body{
-  background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;
+  background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;font-variant-numeric:lining-nums tabular-nums;
   padding-block:12px 16px;
   padding-left:max(16px,env(safe-area-inset-left,0px));
   padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -1240,7 +1237,7 @@ function drawDuelScene(){
   lutine({x:0,y:0,vx:0,vy:0,onGround:true,atkT:0,anim:0,facing:1},t0);ctx.restore();
   ctx.save();ctx.translate(188,112-56+(bob>>1)*0+(g.boss.kind===0?0:0));ctx.scale(2,2);drawBoss(g.boss.kind,0,0,t0);ctx.restore();
   /* score */
-  ctx.font='700 11px "Pixelify Sans",monospace';ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.font='700 11px system-ui,-apple-system,Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
   ctx.fillStyle='#ffd84a';ctx.fillText('Rosine  '+d.me+' – '+d.bo+'  '+BOSSES[g.boss.kind].name,VW/2,5);
   /* mains */
   const hy=60;
@@ -1249,21 +1246,21 @@ function drawDuelScene(){
     drawHand(0,70,hy,3,false);drawHand(0,150,hy,3,true);
   }else if(d.phase==='shake'){
     const beat=Math.floor(t/22),words=['Pierre…','Feuille…','Ciseaux !'];
-    ctx.fillStyle='#ffffff';ctx.font='700 14px "Pixelify Sans",monospace';ctx.fillText(words[Math.min(2,beat)],VW/2,28);
+    ctx.fillStyle='#ffffff';ctx.font='700 14px system-ui,-apple-system,Arial,sans-serif';ctx.fillText(words[Math.min(2,beat)],VW/2,28);
     const dy=Math.round(Math.sin((t%22)/22*Math.PI)*-14);
     drawHand(0,70,hy+dy+8,3,false);drawHand(0,150,hy+dy+8,3,true);
   }else{
     const p=d.pend;
-    ctx.fillStyle=p.r>0?'#5ee6d0':p.r<0?'#ff6fb5':'#ffffff';ctx.font='700 14px "Pixelify Sans",monospace';
+    ctx.fillStyle=p.r>0?'#5ee6d0':p.r<0?'#ff6fb5':'#ffffff';ctx.font='700 14px system-ui,-apple-system,Arial,sans-serif';
     ctx.fillText(p.charm?'Porte-bonheur !':p.r>0?'Manche pour Rosine !':p.r<0?'Manche pour le gardien':'Égalité !',VW/2,28);
     const pop=Math.min(1,t/8);
     drawHand(p.m,70-(p.r>0?0:4),hy-Math.round((p.r>0?1:0)*6*pop),4,false);
     drawHand(p.b,142+(p.r<0?0:4),hy-Math.round((p.r<0?1:0)*6*pop),4,true);
-    ctx.font='700 9px "Pixelify Sans",monospace';ctx.fillStyle='#c2addd';
+    ctx.font='700 9px system-ui,-apple-system,Arial,sans-serif';ctx.fillStyle='#c2addd';
     ctx.fillText(NAMES[p.m],90,hy+44);ctx.fillText(NAMES[p.b],162,hy+44);
   }
   if(d.phase==='end'){
-    ctx.font='700 14px "Pixelify Sans",monospace';ctx.fillStyle=d.me>=2?'#ffd84a':'#ff6fb5';
+    ctx.font='700 14px system-ui,-apple-system,Arial,sans-serif';ctx.fillStyle=d.me>=2?'#ffd84a':'#ff6fb5';
     ctx.fillText(d.me>=2?'Victoire !':'Perdu…',VW/2,100);
   }
   ctx.textAlign='start';
