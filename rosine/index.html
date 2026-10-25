@@ -75,6 +75,8 @@ canvas{display:block;width:100%;height:100%;image-rendering:crisp-edges;image-re
 .shr b{display:block;font-size:13px}.shr small{font-size:11px;color:var(--muted)}
 .buy{min-width:74px;padding:8px;font-weight:700;background:var(--gold);color:#2a0f3d;border:2px solid var(--edge);border-radius:8px}
 .buy:disabled{opacity:.45}
+.overlay.sheet{inset:auto 0 0 0;background:rgba(22,10,40,.96);padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid var(--edge)}
+.dq{font-size:12px}.dq b{color:var(--gold)}
 .duel #bcv{width:80px;height:80px;image-rendering:pixelated;border:2px solid var(--edge);border-radius:10px}
 .dbtns{display:flex;gap:8px;width:100%}
 .dbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:64px;padding:6px;background:var(--panel);color:var(--ink);border:2px solid var(--edge);border-radius:10px;box-shadow:0 4px 0 var(--edge);font-size:12px;font-weight:700}
@@ -1013,8 +1015,8 @@ function setMuteLabel(){const b=$('muteBtn');b.textContent=prog.muted?'Muet':'So
 
 /* écrans */
 const S={mode:'title',g:newGame(0)};
-function show(html){ov.innerHTML=html;ov.hidden=false;}
-function hide(){ov.hidden=true;}
+function show(html){ov.innerHTML=html;ov.hidden=false;ov.classList.remove('sheet');}
+function hide(){ov.hidden=true;ov.classList.remove('sheet');}
 function returnBubbles(){const g=S.g;if(g&&S.mode!=='title'&&g.bubbles>0){prog.up.bubble+=g.bubbles;g.bubbles=0;saveProg();}}
 function showTitle(){
   returnBubbles();
@@ -1062,52 +1064,108 @@ function showClear(g){
   const words=last?'Bravo ! Rosine a traversé le dernier portail.':'Le portail s’ouvre sur un nouveau monde.';
   show('<div class="ovbox"><h2 class="ttl2">'+(last?'Fin du voyage !':'Niveau terminé !')+'</h2><p class="sub">'+words+'</p><p class="stat"><b>'+g.gemCount+'</b> gemmes gagnées · <b>'+g.deaths+'</b> reprise'+(g.deaths>1?'s':'')+'</p><p class="stat">Total : <b>'+prog.wallet+'</b> 💎</p>'+(last?'':'<button class="ob" data-act="start" data-li="'+(g.li+1)+'">Niveau suivant</button>')+'<button class="ob alt" data-act="shop2">Boutique</button><button class="ob alt" data-act="'+(last?'menu':'again')+'" data-li="'+g.li+'">'+(last?'Menu':'Rejouer')+'</button></div>');
 }
-/* duel pierre-feuille-ciseaux */
+/* duel pierre-feuille-ciseaux : joué sur l'écran de jeu, Rosine face au gardien */
 const DU={st:null};
+const NAMES=['Pierre','Feuille','Ciseaux'];
 const ICONS=['<svg viewBox="0 0 12 12"><path fill="currentColor" d="M3 4h6v1h1v4H9v1H3V9H2V5h1z"/></svg>',
  '<svg viewBox="0 0 12 12"><path fill="currentColor" d="M2 1h8v1h1v8h-1v1H2v-1H1V2h1zM3 4v1h6V4zm0 2v1h6V6zm0 2v1h4V8z" fill-rule="evenodd"/></svg>',
  '<svg viewBox="0 0 12 12"><path fill="currentColor" d="M2 1h2v1h1v3h1l1-3h2v1H8L7 5l3 3v2H9L6 7 3 10H2V8l3-3-3-3z"/></svg>'];
-const NAMES=['Pierre','Feuille','Ciseaux'];
+const HANDS=[
+ ['..oooooo..','.o######o.','o########o','o#o#o#o##o','o########o','o########o','.o######o.','..o####o..','...oooo...'],
+ ['..o.o.o.o.','.o#o#o#o#o','.o#o#o#o#o','.o#o#o#o#o','.o########','o#########','o########o','.o######o.','..oooooo..'],
+ ['.oo....oo.','o##o..o##o','o##o..o##o','.o##oo##o.','..o####o..','.o######o.','o#o#o#o#o.','.o######o.','..oooooo..']
+];
+function drawHand(m,x,y,sc,flip){
+  const rows=HANDS[m],pal={'#':'#ffd9b8',o:'#8a4a3a'};
+  ctx.save();ctx.translate(x,y);if(flip){ctx.translate(10*sc,0);ctx.scale(-1,1);}
+  for(let j=0;j<rows.length;j++)for(let i=0;i<10;i++){const c=pal[rows[j][i]];if(c)R(i*sc,j*sc,sc,sc,c);}
+  ctx.restore();
+}
+function drawDuelScene(){
+  const g=S.g,d=DU.st;if(!d)return;
+  const t=d.t,t0=g.t;
+  ctx.save();ctx.globalAlpha=.95;R(0,0,VW,VH,'#1a0d2e');ctx.restore();
+  R(0,118,VW,42,'#2b1a4a');R(0,118,VW,2,'#5a3a8a');
+  /* personnages */
+  const bob=(d.phase==='shake')?Math.round(Math.abs(Math.sin(t*.21))*4):Math.round(Math.sin(t0*.08)*1.5);
+  ctx.save();ctx.translate(18,118-50+(bob>>1));ctx.scale(3,3);
+  lutine({x:0,y:0,vx:0,vy:0,onGround:true,atkT:0,anim:0,facing:1},t0);ctx.restore();
+  ctx.save();ctx.translate(196,118-56+(bob>>1)*0+(g.boss.kind===0?0:0));ctx.scale(2,2);drawBoss(g.boss.kind,0,0,t0);ctx.restore();
+  /* score */
+  ctx.font='700 11px "Pixelify Sans",monospace';ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillStyle='#ffd84a';ctx.fillText('Rosine  '+d.me+' – '+d.bo+'  '+BOSSES[g.boss.kind].name,VW/2,5);
+  /* mains */
+  const hy=60;
+  if(d.phase==='choose'){
+    ctx.fillStyle='#ffffff';ctx.fillText('À toi de jouer !',VW/2,30);
+    drawHand(0,70,hy,3,false);drawHand(0,150,hy,3,true);
+  }else if(d.phase==='shake'){
+    const beat=Math.floor(t/22),words=['Pierre…','Feuille…','Ciseaux !'];
+    ctx.fillStyle='#ffffff';ctx.font='700 14px "Pixelify Sans",monospace';ctx.fillText(words[Math.min(2,beat)],VW/2,28);
+    const dy=Math.round(Math.sin((t%22)/22*Math.PI)*-14);
+    drawHand(0,70,hy+dy+8,3,false);drawHand(0,150,hy+dy+8,3,true);
+  }else{
+    const p=d.pend;
+    ctx.fillStyle=p.r>0?'#5ee6d0':p.r<0?'#ff6fb5':'#ffffff';ctx.font='700 14px "Pixelify Sans",monospace';
+    ctx.fillText(p.r>0?'Manche pour Rosine !':p.r<0?'Manche pour le gardien':'Égalité !',VW/2,28);
+    const pop=Math.min(1,t/8);
+    drawHand(p.m,70-(p.r>0?0:4),hy-Math.round((p.r>0?1:0)*6*pop),4,false);
+    drawHand(p.b,142+(p.r<0?0:4),hy-Math.round((p.r<0?1:0)*6*pop),4,true);
+    ctx.font='700 9px "Pixelify Sans",monospace';ctx.fillStyle='#c2addd';
+    ctx.fillText(NAMES[p.m],90,hy+44);ctx.fillText(NAMES[p.b],162,hy+44);
+  }
+  if(d.phase==='end'){
+    ctx.font='700 14px "Pixelify Sans",monospace';ctx.fillStyle=d.me>=2?'#ffd84a':'#ff6fb5';
+    ctx.fillText(d.me>=2?'Victoire !':'Perdu…',VW/2,100);
+  }
+  ctx.textAlign='start';
+}
+function showSheet(html){ov.innerHTML=html;ov.hidden=false;ov.classList.add('sheet');}
 function startDuel(g){
   S.mode='duel';kb.l=kb.r=kb.j=kb.a=0;sync();
-  DU.st={me:0,bo:0,lastB:-1,lastP:-1,msg:'Choisis ton signe !',over:false,hist:[]};
+  DU.st={me:0,bo:0,lastB:-1,lastP:-1,msg:'Choisis ton signe !',phase:'choose',t:0,pend:null};
   showDuel(g);
 }
 function showDuel(g){
-  const d=DU.st,B=BOSSES[g.boss.kind];
+  const d=DU.st,B=BOSSES[g.boss.kind],on=d.phase==='choose';
   let btns='';
-  for(let i=0;i<3;i++)btns+='<button class="dbtn" data-act="pick" data-m="'+i+'" aria-label="'+NAMES[i]+'"'+(d.over?' disabled':'')+'>'+ICONS[i]+'<span>'+NAMES[i]+'</span></button>';
-  show('<div class="ovbox duel"><canvas id="bcv" width="40" height="40" aria-hidden="true"></canvas><h2 class="ttl2">'+B.name+'</h2><p class="sub">'+B.quote+'</p><p class="stat"><b>'+d.me+'</b> – <b>'+d.bo+'</b> <small>(2 manches gagnantes)</small></p><p class="sub dmsg" aria-live="polite">'+d.msg+'</p><div class="dbtns">'+btns+'</div></div>');
-  const c=$('bcv'),save=ctx;ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;
-  ctx.fillStyle='#2a1550';ctx.fillRect(0,0,40,40);ctx.translate(8,8);drawBoss(g.boss.kind,0,0,0);
-  ctx=save;
+  for(let i=0;i<3;i++)btns+='<button class="dbtn" data-act="pick" data-m="'+i+'" aria-label="'+NAMES[i]+'"'+(on?'':' disabled')+'>'+ICONS[i]+'<span>'+NAMES[i]+'</span></button>';
+  showSheet('<div class="ovbox duel"><p class="sub dq"><b>'+B.name+'</b> — '+B.quote+'</p><p class="sub dmsg" aria-live="polite">'+d.msg+'</p><div class="dbtns">'+btns+'</div></div>');
 }
 function duelPick(m){
-  const g=S.g,d=DU.st;if(d.over)return;ensureAudio();
+  const g=S.g,d=DU.st;if(d.phase!=='choose')return;ensureAudio();
   const b=bossPick(g.boss.kind,{lastB:d.lastB,lastP:d.lastP});
-  const r=duelOutcome(m,b);
   d.lastB=b;d.lastP=m;
-  const w=NAMES[m]+' contre '+NAMES[b]+' — ';
-  if(r>0){d.me++;d.msg=w+'tu gagnes la manche !';SFX.win();}
-  else if(r<0){d.bo++;d.msg=w+'il gagne la manche.';SFX.lose();}
-  else d.msg=w+'égalité, on recommence !';
-  if(d.me>=2||d.bo>=2){
-    d.over=true;
+  d.pend={m:m,b:b,r:duelOutcome(m,b)};
+  d.phase='shake';d.t=0;d.msg='Pierre… feuille… ciseaux !';showDuel(g);
+}
+function duelStep(){
+  const g=S.g,d=DU.st;if(!d)return;
+  d.t++;
+  if(d.phase==='shake'&&d.t>=70){
+    const p=d.pend;d.phase='reveal';d.t=0;
+    if(p.r>0){d.me++;d.msg=NAMES[p.m]+' bat '+NAMES[p.b].toLowerCase()+' : tu gagnes la manche !';SFX.win();}
+    else if(p.r<0){d.bo++;d.msg=NAMES[p.b]+' bat '+NAMES[p.m].toLowerCase()+' : il gagne la manche.';SFX.lose();}
+    else d.msg='Même signe : on recommence !';
+    showDuel(g);
+  }else if(d.phase==='reveal'&&d.t>=75){
+    if(d.me>=2||d.bo>=2){
+      d.phase='end';d.t=0;
+      d.msg=d.me>=2?'Victoire ! Le gardien s’efface. +10 gemmes':'Perdu… Rosine recule d’un pas.';
+      showDuel(g);
+    }else{d.phase='choose';d.t=0;d.msg='Choisis ton signe !';showDuel(g);}
+  }else if(d.phase==='end'&&d.t>=80){
     if(d.me>=2){
-      d.msg='Victoire ! Le gardien s’efface. +10 gemmes';
-      showDuel(g);
-      setTimeout(()=>{if(S.mode!=='duel')return;g.boss.defeated=true;g.gemCount+=10;g.status='play';g.p.inv=60;S.mode='play';hide();g.toast='Le portail est libre !';g.toastT=140;SFX.clear();},1300);
+      g.boss.defeated=true;g.gemCount+=10;g.status='play';g.p.inv=60;S.mode='play';hide();
+      g.toast='Le portail est libre !';g.toastT=140;SFX.clear();
     }else{
-      d.msg='Perdu… Rosine recule d’un pas.';
-      showDuel(g);
-      setTimeout(()=>{if(S.mode!=='duel')return;
-        g.boss.cd=90;g.status='play';g.p.vx=-2;g.p.vy=-2;g.p.inv=70;
-        g.hearts--;g.ev.push('hurt');
-        if(g.hearts<=0){g.status='dead';g.ev.push('die');S.mode='dead';showDead();}
-        else{S.mode='play';hide();}
-      },1300);
+      g.boss.cd=90;g.status='play';g.p.vx=-2;g.p.vy=-2;g.p.inv=70;
+      g.hearts--;g.ev.push('hurt');
+      if(g.hearts<=0){g.status='dead';g.ev.push('die');S.mode='dead';showDead();}
+      else{S.mode='play';hide();}
     }
-  }else showDuel(g);
+    DU.st=null;
+  }
 }
 function startLevel(li){
   ensureAudio();returnBubbles();
@@ -1182,6 +1240,7 @@ function step(){
       prog.best[g.li]=Math.max(prog.best[g.li],g.gemCount);
       saveProg();showClear(g);
     }
+  }else if(S.mode==='duel'){g.t++;duelStep();
   }else if(S.mode==='title'){
     g.t++;
     g.camX=(g.t*.35)%(g.W*T-VW-40);
@@ -1193,7 +1252,7 @@ function frame(ts){
   if(!last)last=ts;
   acc+=Math.min(100,ts-last);last=ts;
   while(acc>=16.667){step();acc-=16.667;}
-  draw(S.g);updateHud(S.g);updateLabels(S.g);updateToast(S.g);
+  draw(S.g);if(S.mode==='duel')drawDuelScene();updateHud(S.g);updateLabels(S.g);updateToast(S.g);
 }
 setMuteLabel();
 showTitle();
