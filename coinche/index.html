@@ -115,6 +115,11 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 <div id="game" class="screen" hidden></div>
 <div id="ov" hidden></div>
 <div id="toast" hidden></div>
+
+<style>.bub.ann{background:var(--gold);color:#0b2a1a;font-weight:800}
+.trick.end .slot .card{animation:sweep .38s ease-in .32s forwards}
+@keyframes sweep{to{transform:translate(var(--sx),var(--sy)) scale(.45);opacity:0}}
+.trick.w0{--sx:0;--sy:190px}.trick.w1{--sx:-170px;--sy:0}.trick.w2{--sx:0;--sy:-190px}.trick.w3{--sx:170px;--sy:0}</style>
 <script src="peerjs.min.js"></script>
 <script>
 'use strict';
@@ -256,8 +261,9 @@ class Game{
   pump(){
     clearTimeout(this.rt);
     if((this.phase==='bidding'||this.phase==='play')&&this.isBot(this.turn)){
+      const extra=this.phase==='play'&&this.tricksDone===0&&!this.trick.length&&this.annTxt.length?1700*this.pace:0;
       const forced=this.phase==='play'&&legalMoves(this.hands[this.turn],this.trick,this.trump,this.turn).length===1;
-      this.rt=setTimeout(()=>this.botMove(),this.fast?0:(forced?rnd(260,480):rnd(650,1250))*this.pace);
+      this.rt=setTimeout(()=>this.botMove(),this.fast?0:(forced?rnd(260,480):rnd(650,1250))*this.pace+extra);
     }
   }
   botMove(){
@@ -342,7 +348,9 @@ class Game{
     this.trump=this.cb.suit;this.phase='play';this.turn=(this.dealer+1)%4;
     this.hands=this.hands.map(h=>sortHand(h,this.trump));
     this.ann=[0,1,2,3].map(i=>findAnnonces(this.hands[i],i));this.annDecl=[false,false,false,false];this.annTxt=[];this.annRes=null;this.annPts=[0,0];this.tricksDone=0;
-    if(this.trump<4)for(let s=0;s<4;s++){const h=this.hands[s];if(h.includes(this.trump*8+5)&&h.includes(this.trump*8+6))this.bel={seat:s,n:0};}
+    if(this.trump<4)this.ann.forEach((l,i)=>{if(l.length)this.annTxt.push({seat:i,label:[...new Set(l.map(x=>x.label))].join(' + ')});});this.annDecl=[true,true,true,true];
+    if(this.annTxt.length)this.msg='📣 Annonces : '+this.annTxt.map(x=>this.names[x.seat]+' '+x.label).join(' · ');
+    for(let s=0;s<4;s++){const h=this.hands[s];if(h.includes(this.trump*8+5)&&h.includes(this.trump*8+6))this.bel={seat:s,n:0};}
     this.push();
   }
   endHand(){
@@ -556,6 +564,7 @@ const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '
 const suitHtml=s=>'<span class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</span>';
 function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===500?'Capot':b.val)+' '+suitHtml(b.suit);}
 const animSeen=new Set();
+const annB=(v,s)=>{if(v.phase==='bidding'||v.phase==='redeal'||v.annRes)return '';const a=(v.annTxt||[]).find(x=>x.seat===s);return a?'<div class="bub ann">📣 '+esc(a.label)+'</div>':'';};
 function onView(v){
   const prev=view;view=v;me=v.me;
   if(mode!=='game')show('game');
@@ -583,13 +592,14 @@ function render(){
   h+='<div class="tbl">';
   for(const r of [1,2,3]){
     const s=(me+r)%4,bid=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===s):null,on=(v.phase==='play'||v.phase==='bidding')&&v.turn===s;
-    h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+esc(v.names[s])+(v.kinds[s]!=='human'?' 🤖':'')+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+bidText(bid)+'</div>':'')+'</div>';
+    h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+esc(v.names[s])+(v.kinds[s]!=='human'?' 🤖':'')+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+bidText(bid)+'</div>':'')+(annB(v,s))+'</div>';
   }
-  h+='<div class="trick">';
+  h+='<div class="trick'+(v.phase==='trickEnd'?' end w'+rel(v.winner):'')+'">';
   for(const t of v.trick){const k=v.handNo+'.'+t.card,fresh=!animSeen.has(k);animSeen.add(k);h+='<div class="slot q'+rel(t.seat)+(v.phase==='trickEnd'&&t.seat===v.winner?' win':'')+(fresh?' fly':'')+'">'+cardEl(t.card,'tc')+'</div>';}
   h+='</div>';
   const mb=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===me):null;
   if(mb)h+='<div class="bub mine">'+bidText(mb)+'</div>';
+  {const am=annB(v,me);if(am)h+=am.replace('class="bub ann"','class="bub mine ann"');}
   if(v.msg)h+='<div class="msg">'+esc(v.msg)+'</div>';
   if(v.phase==='play'&&v.turn===me)h+='<div class="msg mt">'+(sel>=0&&v.legal&&v.legal.includes(sel)?'Touche la table pour jouer cette carte':'À toi de jouer · glisse une carte sur la table')+'</div>';
   else if(v.phase==='play'||v.phase==='bidding')h+='<div class="msg wt">'+esc(turnName)+' réfléchit…</div>';
