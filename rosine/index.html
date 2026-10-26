@@ -241,7 +241,27 @@ const LEVELS=[
   {name:'Nébuleuse',short:'Nébuleuse',kind:'copter',skin:'rocket',seed:181,len:520,enemyP:.95,theme:12,types:['bird'],boss:26,gateP:.2},
   {name:'Pays de l’Arc-en-ciel',short:'Arc-en-ciel',kind:'plat',seed:191,len:480,gapP:.29,enemyP:.95,theme:19,types:['hop','hog','bee','mush'],boss:27,extras:['boulder','fire','spring']},
   {name:'Vol sur les Nuages',short:'Nuages',kind:'copter',skin:'cloud',seed:193,len:540,enemyP:1,theme:19,types:['bird'],boss:28,gateP:.22},
-  {name:'Palais des Rêves',short:'Palais',kind:'plat',seed:197,len:560,gapP:.3,enemyP:1,theme:20,types:['hop','hog','bee','mush'],boss:29,extras:['boulder','fire','spring']}
+  {name:'Palais des Rêves',short:'Palais',kind:'plat',seed:197,len:560,gapP:.3,enemyP:1,theme:20,types:['hop','hog','bee','mush'],boss:29,extras:['boulder','fire','spring']},
+  {name:'Neige de Noël',short:'Noël',kind:'plat',seed:211,len:480,gapP:.28,enemyP:.9,theme:21,ice:true,types:['hop','hog','bee'],boss:30,extras:['fire','spring','boulder']},
+  {name:'Vol du Dragon',short:'Dragon',kind:'copter',skin:'dragon',seed:223,len:540,enemyP:.95,theme:8,types:['bird'],boss:31,gateP:.2},
+  {name:'Fête Foraine',short:'Foraine',kind:'plat',seed:227,len:500,gapP:.3,enemyP:.95,theme:22,types:['hop','mush','bee','hog'],boss:32,extras:['spring','boulder','fire']},
+  {name:'Descente en Snowboard',short:'Snowboard',kind:'bike',skin:'snowboard',seed:229,len:560,gapP:.26,enemyP:.65,theme:21,types:['hop','hog','bee'],boss:33,extras:['boulder']},
+  {name:'Soucoupe Volante',short:'Soucoupe',kind:'copter',skin:'ufo',seed:233,len:540,enemyP:1,theme:23,types:['bird'],boss:34,gateP:.2},
+  {name:'Planète Rouge',short:'Mars',kind:'plat',seed:239,len:500,gapP:.31,enemyP:.95,theme:23,types:['hop','hog','bee'],boss:35,extras:['fire','boulder','spring']},
+  {name:'Chevauchée de la Licorne',short:'Licorne',kind:'bike',skin:'unicorn',seed:241,len:580,gapP:.27,enemyP:.7,theme:19,types:['hop','bee','hog'],boss:36,extras:['boulder']},
+  {name:'Forêt Enchantée',short:'Enchantée',kind:'plat',seed:251,len:520,gapP:.3,enemyP:1,theme:24,types:['hop','hog','bee','mush'],boss:37,extras:['spring','boulder','fire']},
+  {name:'Plongée Profonde',short:'Plongée',kind:'copter',skin:'fish',seed:257,len:560,enemyP:1,theme:10,types:['bird'],boss:38,gateP:.24},
+  {name:'Montagnes Russes',short:'Russes',kind:'bike',skin:'skate',seed:263,len:580,gapP:.28,enemyP:.7,theme:22,types:['hop','hog'],boss:39,extras:['boulder']},
+  {name:'Château Hanté',short:'Hanté',kind:'plat',seed:269,len:540,gapP:.32,enemyP:1,theme:9,types:['hop','hog','bee','mush'],boss:40,extras:['boulder','fire','spring']},
+  {name:'Dragon de Glace',short:'Glace',kind:'copter',skin:'dragon',seed:271,len:580,enemyP:1,theme:18,types:['bird'],boss:41,gateP:.24},
+  {name:'Désert Étoilé',short:'Étoilé',kind:'plat',seed:277,len:540,gapP:.32,enemyP:1,theme:6,types:['hop','hog','bee'],boss:42,extras:['boulder','fire','spring']},
+  {name:'Fusée Turbo',short:'Turbo',kind:'copter',skin:'rocket',seed:281,len:600,enemyP:1,theme:12,types:['bird'],boss:43,gateP:.26},
+  {name:'Cavalcade Dorée',short:'Cavalcade',kind:'bike',skin:'pony',seed:283,len:600,gapP:.29,enemyP:.75,theme:8,types:['hop','bee','hog'],boss:44,extras:['boulder']},
+  {name:'Citadelle de Cristal',short:'Citadelle',kind:'plat',seed:293,len:560,gapP:.33,enemyP:1,theme:16,types:['hop','hog','bee','mush'],boss:45,extras:['boulder','fire','spring']},
+  {name:'Tempête de Ballons',short:'Ballons',kind:'copter',skin:'balloon',seed:307,len:600,enemyP:1,theme:19,types:['bird'],boss:46,gateP:.26},
+  {name:'Soucoupe Arc-en-ciel',short:'Arc-en-ciel 2',kind:'copter',skin:'ufo',seed:311,len:600,enemyP:1,theme:19,types:['bird'],boss:47,gateP:.28},
+  {name:'Luge Infernale',short:'Infernale',kind:'bike',skin:'sled',seed:313,len:620,gapP:.3,enemyP:.8,theme:13,types:['hop','hog','bee'],boss:48,extras:['boulder']},
+  {name:'Forteresse du Dernier Gardien',short:'Forteresse',kind:'plat',seed:317,len:640,gapP:.34,enemyP:1,theme:20,types:['hop','hog','bee','mush'],boss:49,extras:['boulder','fire','spring']}
 ];
 const BOSSES=[
   {name:'Roi Crapaud',quote:'« Jamais deux fois le même signe, petite ! »'},
@@ -273,7 +293,27 @@ const BOSSES=[
   {name:'Sorcière des Étoiles',get quote(){return BOSSES[6].quote;}},
   {name:'Yéti Arc-en-ciel',get quote(){return BOSSES[7].quote;}},
   {name:'Aigle Royal des Nuages',get quote(){return BOSSES[8].quote;}},
-  {name:'Roi des Rêves',get quote(){return BOSSES[9].quote;}}
+  {name:'Roi des Rêves',get quote(){return BOSSES[9].quote;}},
+  {name:'Roi des Neiges',get quote(){return BOSSES[0].quote;}},
+  {name:'Hibou des Cimes',get quote(){return BOSSES[1].quote;}},
+  {name:'Reine du Carrousel',get quote(){return BOSSES[2].quote;}},
+  {name:'Golem de Neige',get quote(){return BOSSES[3].quote;}},
+  {name:'Renard Cosmique',get quote(){return BOSSES[4].quote;}},
+  {name:'Dragonnet Martien',get quote(){return BOSSES[5].quote;}},
+  {name:'Sorcière des Rêves',get quote(){return BOSSES[6].quote;}},
+  {name:'Yéti des Bois',get quote(){return BOSSES[7].quote;}},
+  {name:'Aigle des Abysses',get quote(){return BOSSES[8].quote;}},
+  {name:'Roi des Manèges',get quote(){return BOSSES[9].quote;}},
+  {name:'Crapaud Fantôme',get quote(){return BOSSES[0].quote;}},
+  {name:'Hibou de Givre',get quote(){return BOSSES[1].quote;}},
+  {name:'Reine des Dunes Étoilées',get quote(){return BOSSES[2].quote;}},
+  {name:'Golem Turbo',get quote(){return BOSSES[3].quote;}},
+  {name:'Renard Doré',get quote(){return BOSSES[4].quote;}},
+  {name:'Dragon de Cristal',get quote(){return BOSSES[5].quote;}},
+  {name:'Sorcière des Ballons',get quote(){return BOSSES[6].quote;}},
+  {name:'Yéti des Nuages Roses',get quote(){return BOSSES[7].quote;}},
+  {name:'Aigle Infernal',get quote(){return BOSSES[8].quote;}},
+  {name:'Le Dernier Gardien',get quote(){return BOSSES[9].quote;}}
 ];
 function rng(seed){
   return function(){
@@ -777,7 +817,11 @@ const THEMES=[
   {skyA:'#6a5a8a',skyB:'#ffd9a0',hillFar:'#b09a8a',hillNear:'#8a7a6a',grass:'#c9b27a',grassD:'#9a8750',dirt:'#7a6a4a',dirtD:'#5a4d34',cloud:'#fff0d8',cloudD:'#e0c8a8'},
   {skyA:'#041a2a',skyB:'#40e0a0',hillFar:'#1f5a6a',hillNear:'#12404f',grass:'#d8f0ff',grassD:'#a8d0ea',dirt:'#6a98b8',dirtD:'#4a7a9a',cloud:'#9fe8d0',cloudD:'#60c8a8',stars:true,starMax:60},
   {skyA:'#7ad0ff',skyB:'#fff0f8',hillFar:'#c9a8ff',hillNear:'#ff9fd0',grass:'#7be08a',grassD:'#3fb060',dirt:'#c9a070',dirtD:'#9a784a',cloud:'#ffffff',cloudD:'#e0e8ff'},
-  {skyA:'#14082a',skyB:'#c08a3a',hillFar:'#4a2a6a',hillNear:'#2a1448',grass:'#e8c860',grassD:'#b08a30',dirt:'#4a3470',dirtD:'#33224f',cloud:'#8a60b0',cloudD:'#5f3f88',stars:true,moon:true}
+  {skyA:'#14082a',skyB:'#c08a3a',hillFar:'#4a2a6a',hillNear:'#2a1448',grass:'#e8c860',grassD:'#b08a30',dirt:'#4a3470',dirtD:'#33224f',cloud:'#8a60b0',cloudD:'#5f3f88',stars:true,moon:true},
+  {skyA:'#0b2a3a',skyB:'#cfe9ff',hillFar:'#a8c8e0',hillNear:'#7aa0c0',grass:'#ffffff',grassD:'#cfe4f5',dirt:'#4a7a5a',dirtD:'#2f5a40',cloud:'#ffffff',cloudD:'#cfe0f0',stars:true,starMax:45},
+  {skyA:'#2a0f4a',skyB:'#ff9ad5',hillFar:'#8a4aa8',hillNear:'#5a2a80',grass:'#ffd84a',grassD:'#d6a82a',dirt:'#7a3a8a',dirtD:'#5a2a6a',cloud:'#ffc2e6',cloudD:'#e090c0',stars:true,starMax:60},
+  {skyA:'#3a0f1a',skyB:'#ff9a6a',hillFar:'#8a3a3a',hillNear:'#5f2528',grass:'#c0583a',grassD:'#8f3a26',dirt:'#6a2a22',dirtD:'#4a1c18',cloud:'#e0907a',cloudD:'#b06a5a',stars:true,starMax:50},
+  {skyA:'#0f2a3a',skyB:'#9affc8',hillFar:'#1f6a5a',hillNear:'#124a42',grass:'#7affb0',grassD:'#2fb080',dirt:'#3a4a5a',dirtD:'#2a3844',cloud:'#5fd0b0',cloudD:'#3a9a80',stars:true,starMax:80}
 ];
 THEMES.forEach(th=>{th.bands=[];for(let i=0;i<20;i++)th.bands.push(mix(th.skyA,th.skyB,i/19));});
 const STARS=[];
@@ -868,6 +912,24 @@ function rideSkin(sk,g,p){
   const rosine=(dx,dy)=>{ctx.save();ctx.translate(dx,dy);lutine(p,t);ctx.restore();};
   switch(sk){
   case 'run':rosine(0,0);return true;
+  case 'snowboard':
+    rosine(1,-1);R(-1,13,17,2,'#4a90e8');R(15,12,2,1,'#4a90e8');R(-2,12,1,1,'#4a90e8');R(4,13,3,1,'#ffffff');R(9,13,2,1,'#ffffff');return true;
+  case 'dragon':{
+    rosine(0,-3);const wf=(t>>2)&1;
+    R(-6,10,24,6,'#4aa860');R(-6,10,24,1,'#6fd08a');R(-4,14,20,2,'#ffe58a');R(-13,12,7,3,'#4aa860');R(-15,wf?10:13,3,2,'#4aa860');
+    R(17,7,8,6,'#4aa860');R(23,9,2,2,'#ffffff');R(24,9,1,1,'#3a1d4d');R(19,5,2,2,'#ffd84a');R(22,5,2,2,'#ffd84a');
+    R(1,wf?1:3,10,wf?9:7,'#8f5bd6');R(3,wf?3:5,6,3,'#b88af0');return true;}
+  case 'ufo':
+    rosine(0,-6);
+    R(-4,11,24,4,'#9aa5c0');R(-4,11,24,1,'#d9e0f0');R(-2,15,20,2,'#6a7590');R(2,17,12,1,'#4a5570');
+    R(0,12,2,2,(t>>3)&1?'#ffd84a':'#ff6fb5');R(7,12,2,2,(t>>3)&1?'#ff6fb5':'#ffd84a');R(14,12,2,2,(t>>3)&1?'#ffd84a':'#ff6fb5');
+    R(3,7,10,4,'rgba(190,240,255,.45)');return true;
+  case 'unicorn':{
+    rosine(3,-5);const a=sp?1:0;
+    R(-3,7,19,7,'#ffffff');R(-3,13,19,1,'#e8d9f0');
+    R(-1,14,2,5-a,'#e8d9f0');R(5,14,2,4+a,'#e8d9f0');R(10,14,2,5-a,'#e8d9f0');R(14,14,2,4+a,'#e8d9f0');
+    R(14,2,4,7,'#ffffff');R(16,1,6,4,'#ffffff');R(21,3,1,1,'#3a1d4d');R(15,-1,2,3,'#ffffff');R(20,-3,1,4,'#ffd84a');
+    R(13,2,1,7,'#ff6fb5');R(12,3,1,5,'#c98bff');R(-6,7,3,7,'#ff6fb5');R(-6,10,2,4,'#c98bff');R(4,6,7,2,'#c98bff');return true;}
   case 'sled':
     rosine(1,-2);
     R(-2,13,20,1,'#d9e6f2');R(-3,11,2,3,'#d9e6f2');R(0,10,16,3,'#c0392b');R(1,10,14,1,'#ff7a6a');R(15,8,2,3,'#c0392b');return true;
@@ -1059,7 +1121,7 @@ function drawEnemy(e,cx,t){
     const fl=(t>>3)&1;
     R(1,1,10,7,'#ff7aa8');R(3,0,6,1,'#ffb0cc');R(3,8,6,1,'#e0507f');R(-2,fl?1:3,3,4,'#ff7aa8');
     R(8,3,2,2,'#ffffff');R(9,3,1,1,'#3a1d4d');R(2,fl?-2:9,2,2,'#ffe27a');R(6,fl?9:-2,2,2,'#ffe27a');
-  }else if(e.t==='bird'&&CURSKIN==='rocket'){
+  }else if(e.t==='bird'&&(CURSKIN==='rocket'||CURSKIN==='ufo')){
     R(2,0,8,2,'#9ad0f0');R(0,2,12,3,'#7f8aa8');R(1,5,10,1,'#4a5270');R(4,-1,4,2,'#d9f5ff');
     R(2,3,1,1,((t>>3)&1)?'#ffd84a':'#ff6fb5');R(6,3,1,1,((t>>3)&1)?'#ff6fb5':'#ffd84a');R(9,3,1,1,((t>>3)&1)?'#ffd84a':'#ff6fb5');
   }else if(e.t==='bird'){
@@ -1296,7 +1358,7 @@ function setMuteLabel(){const b=$('muteBtn');b.textContent=prog.muted?'Muet':'So
 const S={mode:'title',g:newGame(0)};
 function show(html){ov.innerHTML=html;ov.hidden=false;ov.classList.remove('sheet');document.body.classList.remove('dueling');}
 function hide(){ov.hidden=true;ov.classList.remove('sheet');document.body.classList.remove('dueling');}
-const SKINIC={sled:'🛷',skate:'🛹',pony:'🐴',run:'🏃',fish:'🐠',rocket:'🚀',balloon:'🎈',carpet:'🧞',cloud:'☁️'};
+const SKINIC={sled:'🛷',skate:'🛹',pony:'🐴',run:'🏃',fish:'🐠',rocket:'🚀',balloon:'🎈',carpet:'🧞',cloud:'☁️',dragon:'🐉',ufo:'🛸',snowboard:'🏂',unicorn:'🦄'};
 function showTitle(){
   S.mode='title';S.g=newGame(0);
   let btns='';
@@ -1304,7 +1366,7 @@ function showTitle(){
     const open=i<prog.unlocked,ic=' '+(SKINIC[LEVELS[i].skin]||(LEVELS[i].kind==='bike'?'🚲':LEVELS[i].kind==='copter'?'🚁':''));
     btns+='<button class="lvb" data-act="start" data-li="'+i+'"'+(open?'':' disabled')+'><b>'+(i+1)+'</b><span>'+(open?LEVELS[i].short+ic:'verrouillé')+'</span>'+(prog.best[i]?'<em>'+prog.best[i]+' gemmes</em>':'')+'</button>';
   }
-  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Trente mondes à traverser : à pied, à vélo, en luge, sous l’eau, en fusée…</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · chaque niveau commence par la boutique</p></div>');
+  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Cinquante mondes à traverser : à pied, en luge, sous l’eau, en fusée, à dos de dragon…</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · chaque niveau commence par la boutique</p></div>');
 }
 /* Boutique : seuls les cœurs en plus sont gardés d'un niveau à l'autre. Le reste se rachète à chaque niveau. */
 const ITEMS=[
