@@ -579,6 +579,7 @@ const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '
 const suitHtml=s=>'<span class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</span>';
 function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===500?'Capot':b.val)+' '+suitHtml(b.suit);}
 const animSeen=new Set();const SC=['#ffd84a','#7fd4ff','#ff9ad5','#a6ff8a'];
+const nC=(v,s)=>'<span style="color:'+SC[(s-v.me+4)%4]+'">'+esc(v.names[s])+'</span>';
 const tkBadge=(v,s)=>v.cb&&v.cb.seat===s&&v.phase!=='redeal'?'<span class="bub tkb">'+suitHtml(v.cb.suit)+' '+(v.cb.val===500?'Capot':v.cb.val)+(v.cb.coinche===1?' ×2':v.cb.coinche===2?' ×4':'')+'</span>':'';
 const annB=(v,s)=>{if(v.phase==='bidding'||v.phase==='redeal'||v.annRes)return '';const a=(v.annTxt||[]).find(x=>x.seat===s);return a?'<div class="bub ann">📣 '+esc(a.label)+'</div>':'';};
 function onView(v){
@@ -600,9 +601,9 @@ function render(){
   const T=v.cb,myTeam=me%2;
   const nous=v.scores[myTeam],eux=v.scores[1-myTeam];
   let chip='<span class="chip">Enchères…</span>';
-  if(T){chip='<span class="chip">Contrat '+(T.val===500?'Capot':T.val)+' '+suitHtml(T.suit)+' · '+esc(v.names[T.seat])+(T.coinche===1?' · <b class="cc">COINCHÉ</b>':T.coinche===2?' · <b class="cc">SURCOINCHÉ</b>':'')+'</span>';}
+  if(T){chip='<span class="chip">Contrat '+(T.val===500?'Capot':T.val)+' '+suitHtml(T.suit)+' · '+nC(v,T.seat)+(T.coinche===1?' · <b class="cc">COINCHÉ</b>':T.coinche===2?' · <b class="cc">SURCOINCHÉ</b>':'')+'</span>';}
   if(v.annRes){const t=myTeam;chip+='<span class="chip">Annonces : nous '+(v.annRes.team===t?v.annRes.total:0)+' · eux '+(v.annRes.team!==t?v.annRes.total:0)+'</span>';}
-  else if(v.annTxt&&v.annTxt.length&&v.phase!=='bidding')chip+='<span class="chip">📣 '+v.annTxt.map(a=>esc(v.names[a.seat])+' : '+a.label).join(' · ')+'</span>';
+  else if(v.annTxt&&v.annTxt.length&&v.phase!=='bidding')chip+='<span class="chip">📣 '+v.annTxt.map(a=>nC(v,a.seat)+' : '+a.label).join(' · ')+'</span>';
   const turnName=(v.phase==='play'||v.phase==='bidding')?v.names[v.turn]:'';
   let h='<div class="hd"><button id="menuB" aria-label="Menu">☰</button><div class="sc"><span>Nous <b>'+nous+'</b></span><span class="sl">/'+v.target+'</span><span>Eux <b>'+eux+'</b></span></div><button id="lastB" '+(v.lastTrick?'':'disabled')+'>Dernier pli</button></div><div class="ct">'+chip+(v.tricks&&v.phase!=='bidding'?'<span class="chip">Plis : nous '+v.tricks[myTeam]+' · eux '+v.tricks[1-myTeam]+'</span>':'')+'</div>';
   h+='<div class="tbl">';
@@ -618,7 +619,7 @@ function render(){
   {const am=annB(v,me);if(am)h+=am.replace('class="bub ann"','class="bub mine ann"');}
   if(v.msg)h+='<div class="msg">'+esc(v.msg)+'</div>';
   if(v.phase==='play'&&v.turn===me)h+='<div class="msg mt">'+(sel>=0&&v.legal&&v.legal.includes(sel)?'Touche la table pour jouer cette carte':'À toi de jouer · glisse une carte sur la table')+'</div>';
-  else if(v.phase==='play'||v.phase==='bidding')h+='<div class="msg wt">'+esc(turnName)+' réfléchit…</div>';
+  else if(v.phase==='play'||v.phase==='bidding')h+='<div class="msg wt">'+(v.phase==='play'||v.phase==='bidding'?nC(v,v.turn):'')+' réfléchit…</div>';
   if(v.opts)h+=bidPanel(v);
   h+='</div>';
   h+=aidsHtml(v);
@@ -763,7 +764,7 @@ function aidsHtml(v){
   let info='';
   if((v.phase==='play'||v.phase==='trickEnd')&&v.trump!=null){const ext=v.trump<4;
     if(v.trick.length){const pts=v.trick.reduce((s,t)=>s+cpts(t.card,v.trump),0),w=trickWinner(v.trick,v.trump);
-      info+='<span>Pli : <b>'+pts+' pt'+(pts>1?'s':'')+'</b> · '+(w.seat===me?'<b class="gd">tu gagnes</b>':w.seat%2===me%2?'<b class="gd">'+esc(v.names[w.seat])+' (ton partenaire) gagne</b>':'<b class="bd">'+esc(v.names[w.seat])+' gagne</b>')+'</span>';}
+      info+='<span>Pli : <b>'+pts+' pt'+(pts>1?'s':'')+'</b> · '+(w.seat===me?'<b class="gd">tu gagnes</b>':w.seat%2===me%2?'<b class="gd">'+nC(v,w.seat)+' (ton partenaire) gagne</b>':'<b class="bd">'+nC(v,w.seat)+' gagne</b>')+'</span>';}
     const tl=ext?trumpsLeft(v):[];
     if(ext)info+='<span>Atouts '+suitHtml(v.trump)+' restants : '+(tl.length?tl.map(c=>'<b class="tk">'+RANKS[cr(c)]+'</b>').join(''):'<b>aucun</b>')+'</span>';
   }
