@@ -221,7 +221,27 @@ const LEVELS=[
   {name:'Course des Dunes',short:'Dunes',kind:'bike',seed:17,len:460,gapP:.22,enemyP:.55,theme:6,types:['hop','bee'],boss:6,extras:['boulder']},
   {name:'Pics de Givre',short:'Givre',kind:'plat',seed:47,len:360,gapP:.24,enemyP:.8,theme:7,ice:true,types:['hop','hog','bee'],boss:7,extras:['fire','spring','boulder']},
   {name:'Tempête Dorée',short:'Orage',kind:'copter',seed:23,len:460,enemyP:.85,theme:8,types:['bird'],boss:8,gateP:.17},
-  {name:'Château du Roi Déchu',short:'Château',kind:'plat',seed:61,len:420,gapP:.27,enemyP:.9,theme:9,types:['hop','hog','bee','mush'],boss:9,extras:['boulder','fire','spring']}
+  {name:'Château du Roi Déchu',short:'Château',kind:'plat',seed:61,len:420,gapP:.27,enemyP:.9,theme:9,types:['hop','hog','bee','mush'],boss:9,extras:['boulder','fire','spring']},
+  {name:'Lagon des Sirènes',short:'Lagon',kind:'copter',skin:'fish',seed:101,len:440,enemyP:.7,theme:10,types:['bird'],boss:10},
+  {name:'Jardin des Gourmandises',short:'Bonbons',kind:'plat',seed:103,len:380,gapP:.22,enemyP:.7,theme:11,types:['mush','bee','hop'],boss:11,extras:['spring','boulder']},
+  {name:'Piste de Luge',short:'Luge',kind:'bike',skin:'sled',seed:107,len:480,gapP:.2,enemyP:.55,theme:18,types:['hop','bee'],boss:12,extras:['boulder']},
+  {name:'Fusée vers les Étoiles',short:'Fusée',kind:'copter',skin:'rocket',seed:109,len:460,enemyP:.8,theme:12,types:['bird'],boss:13,gateP:.14},
+  {name:'Cratères du Volcan',short:'Volcan',kind:'plat',seed:113,len:400,gapP:.25,enemyP:.85,theme:13,types:['hog','hop','bee'],boss:14,extras:['fire','fire','boulder','spring']},
+  {name:'Galop du Poney',short:'Poney',kind:'bike',skin:'pony',seed:127,len:500,gapP:.22,enemyP:.55,theme:14,types:['mush','bee'],boss:15,extras:['boulder']},
+  {name:'Jungle Murmurante',short:'Jungle',kind:'plat',seed:131,len:420,gapP:.24,enemyP:.85,theme:15,types:['hop','mush','bee','hog'],boss:16,extras:['spring','boulder','fire']},
+  {name:'Montgolfière',short:'Ballon',kind:'copter',skin:'balloon',seed:137,len:480,enemyP:.85,theme:3,types:['bird'],boss:17,gateP:.16},
+  {name:'Skate des Cristaux',short:'Skate',kind:'bike',skin:'skate',seed:139,len:520,gapP:.24,enemyP:.6,theme:16,types:['hop','hog'],boss:18,extras:['boulder']},
+  {name:'Caverne de Cristal',short:'Caverne',kind:'plat',seed:149,len:440,gapP:.27,enemyP:.9,theme:16,types:['hop','hog','bee','mush'],boss:19,extras:['boulder','fire','spring']},
+  {name:'Les Abysses',short:'Abysses',kind:'copter',skin:'fish',seed:151,len:500,enemyP:.9,theme:10,types:['bird'],boss:20,gateP:.18},
+  {name:'Sprint des Bonbons',short:'Sprint',kind:'bike',skin:'run',seed:157,len:520,gapP:.25,enemyP:.6,theme:11,types:['mush','hop'],boss:21,extras:['boulder']},
+  {name:'Ruines Anciennes',short:'Ruines',kind:'plat',seed:163,len:460,gapP:.28,enemyP:.9,theme:17,types:['hop','hog','bee','mush'],boss:22,extras:['boulder','fire','spring']},
+  {name:'Tapis Volant',short:'Tapis',kind:'copter',skin:'carpet',seed:167,len:500,enemyP:.9,theme:6,types:['bird'],boss:23,gateP:.17},
+  {name:'Banquise Boréale',short:'Aurore',kind:'plat',seed:173,len:460,gapP:.28,enemyP:.9,theme:18,ice:true,types:['hop','hog','bee'],boss:24,extras:['fire','spring','boulder']},
+  {name:'Glissade Dorée',short:'Glissade',kind:'bike',skin:'sled',seed:179,len:540,gapP:.26,enemyP:.65,theme:8,types:['hop','hog','bee'],boss:25,extras:['boulder']},
+  {name:'Nébuleuse',short:'Nébuleuse',kind:'copter',skin:'rocket',seed:181,len:520,enemyP:.95,theme:12,types:['bird'],boss:26,gateP:.2},
+  {name:'Pays de l’Arc-en-ciel',short:'Arc-en-ciel',kind:'plat',seed:191,len:480,gapP:.29,enemyP:.95,theme:19,types:['hop','hog','bee','mush'],boss:27,extras:['boulder','fire','spring']},
+  {name:'Vol sur les Nuages',short:'Nuages',kind:'copter',skin:'cloud',seed:193,len:540,enemyP:1,theme:19,types:['bird'],boss:28,gateP:.22},
+  {name:'Palais des Rêves',short:'Palais',kind:'plat',seed:197,len:560,gapP:.3,enemyP:1,theme:20,types:['hop','hog','bee','mush'],boss:29,extras:['boulder','fire','spring']}
 ];
 const BOSSES=[
   {name:'Roi Crapaud',quote:'« Jamais deux fois le même signe, petite ! »'},
@@ -233,7 +253,27 @@ const BOSSES=[
   {name:'Sorcière des Sables',quote:'« Ma danse tourne à l’envers. »'},
   {name:'Yéti Gourmand',quote:'« Je te laisse gagner… si tu rejoues ton signe. »'},
   {name:'Aigle Tonnerre',quote:'« Mon cri se répète toutes les quatre manches. »'},
-  {name:'Roi Déchu',quote:'« Gagnant, je m’obstine. Perdant, je t’imite. »'}
+  {name:'Roi Déchu',quote:'« Gagnant, je m’obstine. Perdant, je t’imite. »'},
+  {name:'Crapaud des Récifs',get quote(){return BOSSES[0].quote;}},
+  {name:'Chouette Gourmande',get quote(){return BOSSES[1].quote;}},
+  {name:'Dame de Glace',get quote(){return BOSSES[2].quote;}},
+  {name:'Robot Lunaire',get quote(){return BOSSES[3].quote;}},
+  {name:'Renard de Braise',get quote(){return BOSSES[4].quote;}},
+  {name:'Petit Dragon d’Automne',get quote(){return BOSSES[5].quote;}},
+  {name:'Sorcière de la Jungle',get quote(){return BOSSES[6].quote;}},
+  {name:'Géant des Nuages',get quote(){return BOSSES[7].quote;}},
+  {name:'Aigle de Cristal',get quote(){return BOSSES[8].quote;}},
+  {name:'Roi des Cavernes',get quote(){return BOSSES[9].quote;}},
+  {name:'Crapaud des Abysses',get quote(){return BOSSES[0].quote;}},
+  {name:'Hibou du Sprint',get quote(){return BOSSES[1].quote;}},
+  {name:'Reine des Ruines',get quote(){return BOSSES[2].quote;}},
+  {name:'Golem du Désert',get quote(){return BOSSES[3].quote;}},
+  {name:'Renard Polaire',get quote(){return BOSSES[4].quote;}},
+  {name:'Dragon Doré',get quote(){return BOSSES[5].quote;}},
+  {name:'Sorcière des Étoiles',get quote(){return BOSSES[6].quote;}},
+  {name:'Yéti Arc-en-ciel',get quote(){return BOSSES[7].quote;}},
+  {name:'Aigle Royal des Nuages',get quote(){return BOSSES[8].quote;}},
+  {name:'Roi des Rêves',get quote(){return BOSSES[9].quote;}}
 ];
 function rng(seed){
   return function(){
@@ -502,6 +542,7 @@ function duelOutcome(h,b){return h===b?0:(((h-b+3)%3)===1?1:-1);}
 /* st : lastB, lastP (derniers signes), lastR (1 Rosine a gagné, -1 le gardien, 0 égalité), n (manches jouées).
    det=true : renvoie -1 quand le gardien tire au hasard (sert aux tests) */
 function bossPick(kind,st,det){
+  kind%=10;
   const rnd=()=>det?-1:(Math.random()*3)|0;
   const first=st.lastB<0||st.lastB===undefined;
   switch(kind){
@@ -679,7 +720,32 @@ function update(g,inp){
 
 /* ---------- Dessin pixel : tout est tracé en rectangles sur un canvas de 256 x 160 ---------- */
 let ctx=null;
-const R=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+let TINT=null;
+const R=(x,y,w,h,c)=>{ctx.fillStyle=TINT?TINT(c):c;ctx.fillRect(x,y,w,h);};
+const TINTS=new Map();
+function tintFor(k){
+  const deg=[0,150,290,60,200,330,100,30,240,170][k%10]+((k/10|0)*40);
+  if(TINTS.has(k))return TINTS.get(k);
+  const cache=new Map();
+  const f=c=>{
+    if(typeof c!=='string'||c[0]!=='#'||c.length!==7)return c;
+    let v=cache.get(c);if(v)return v;
+    let [r,g,b]=hex(c).map(q=>q/255);
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;
+    let h=0,sa=0;
+    if(d>0){
+      sa=l>.5?d/(2-mx-mn):d/(mx+mn);
+      h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h*=60;
+    }
+    h=(h+deg)%360;
+    const q=l<.5?l*(1+sa):l+sa-l*sa,p=2*l-q;
+    const hu=t=>{t=(t+360)%360;return t<60?p+(q-p)*t/60:t<180?q:t<240?p+(q-p)*(240-t)/60:p;};
+    const o=d>0?[hu(h+120),hu(h),hu(h-120)]:[l,l,l];
+    v='rgb('+o.map(z=>Math.round(z*255)).join(',')+')';
+    cache.set(c,v);return v;
+  };
+  TINTS.set(k,f);return f;
+}
 function pix(rows,pal,x,y){
   for(let j=0;j<rows.length;j++)for(let i=0;i<rows[j].length;i++){
     const k=rows[j][i];
@@ -700,6 +766,18 @@ const THEMES=[
   {skyA:'#9ad0f0',skyB:'#f4fbff',hillFar:'#c9e6f5',hillNear:'#a6cde6',grass:'#ffffff',grassD:'#bfe3f7',dirt:'#8fb3d6',dirtD:'#6f94bd',cloud:'#ffffff',cloudD:'#d6ecf8'},
   {skyA:'#2b2540',skyB:'#e0a050',hillFar:'#6a4a68',hillNear:'#3f2f55',grass:'#e8d9b0',grassD:'#b8a37a',dirt:'#6a5a78',dirtD:'#4f4160',cloud:'#8a6a80',cloudD:'#5f4a68'},
   {skyA:'#1a0a1f',skyB:'#7a1f3a',hillFar:'#4a1a3a',hillNear:'#2a0f28',grass:'#8a5ad0',grassD:'#5a3a9a',dirt:'#3a2a4a',dirtD:'#281c36',cloud:'#5a2a48',cloudD:'#3a1a30',stars:true,starMax:50}
+,
+  {skyA:'#0a3d6b',skyB:'#5ed0e0',hillFar:'#2a8fa8',hillNear:'#1d6f8a',grass:'#f2d98a',grassD:'#d6b25a',dirt:'#3a7a9a',dirtD:'#2a5f7d',cloud:'#9fe8f0',cloudD:'#6fc8d8'},
+  {skyA:'#ffb0dc',skyB:'#fff4c2',hillFar:'#ffc9e8',hillNear:'#ff9fcf',grass:'#ff8fc8',grassD:'#d6559f',dirt:'#b06a4a',dirtD:'#8a4a32',cloud:'#ffffff',cloudD:'#ffd9ec'},
+  {skyA:'#02020f',skyB:'#2a1060',hillFar:'#3a2a70',hillNear:'#241a50',grass:'#8a8fb0',grassD:'#5a5f80',dirt:'#3a3a5a',dirtD:'#2a2a45',cloud:'#4a3a90',cloudD:'#362a70',stars:true,moon:true},
+  {skyA:'#2a0a05',skyB:'#ff7a2a',hillFar:'#6a2a1a',hillNear:'#3f1810',grass:'#6a5048',grassD:'#3f2f2a',dirt:'#4a2a22',dirtD:'#2f1a15',cloud:'#8a4a3a',cloudD:'#5f3226',stars:true,starMax:40},
+  {skyA:'#f09a4a',skyB:'#ffe9b8',hillFar:'#e0a870',hillNear:'#c07a3f',grass:'#d9822f',grassD:'#a9561f',dirt:'#7a4a2a',dirtD:'#5a3420',cloud:'#fff0d0',cloudD:'#f3c890'},
+  {skyA:'#2a8a5a',skyB:'#d8f5a0',hillFar:'#4aa06a',hillNear:'#2f7a4a',grass:'#2fb04a',grassD:'#1f7a32',dirt:'#6a4a2a',dirtD:'#4a3320',cloud:'#e8ffd0',cloudD:'#b8e8a0'},
+  {skyA:'#2a1a5a',skyB:'#9ad8ff',hillFar:'#5a4aa0',hillNear:'#3a2f80',grass:'#b8a0ff',grassD:'#8a70d6',dirt:'#5a4a9a',dirtD:'#3f3478',cloud:'#d8e8ff',cloudD:'#a8b8e8',stars:true,starMax:50},
+  {skyA:'#6a5a8a',skyB:'#ffd9a0',hillFar:'#b09a8a',hillNear:'#8a7a6a',grass:'#c9b27a',grassD:'#9a8750',dirt:'#7a6a4a',dirtD:'#5a4d34',cloud:'#fff0d8',cloudD:'#e0c8a8'},
+  {skyA:'#041a2a',skyB:'#40e0a0',hillFar:'#1f5a6a',hillNear:'#12404f',grass:'#d8f0ff',grassD:'#a8d0ea',dirt:'#6a98b8',dirtD:'#4a7a9a',cloud:'#9fe8d0',cloudD:'#60c8a8',stars:true,starMax:60},
+  {skyA:'#7ad0ff',skyB:'#fff0f8',hillFar:'#c9a8ff',hillNear:'#ff9fd0',grass:'#7be08a',grassD:'#3fb060',dirt:'#c9a070',dirtD:'#9a784a',cloud:'#ffffff',cloudD:'#e0e8ff'},
+  {skyA:'#14082a',skyB:'#c08a3a',hillFar:'#4a2a6a',hillNear:'#2a1448',grass:'#e8c860',grassD:'#b08a30',dirt:'#4a3470',dirtD:'#33224f',cloud:'#8a60b0',cloudD:'#5f3f88',stars:true,moon:true}
 ];
 THEMES.forEach(th=>{th.bands=[];for(let i=0;i<20;i++)th.bands.push(mix(th.skyA,th.skyB,i/19));});
 const STARS=[];
@@ -785,6 +863,52 @@ function wheel(x0,y0,spin){
   R(x0+1,y0,4,1,dk);R(x0+1,y0+5,4,1,dk);R(x0,y0+1,1,4,dk);R(x0+5,y0+1,1,4,dk);
   R(x0+1,y0+1,4,4,'#c9d0df');R(x0+2,y0+2,2,2,spin?dk:'#ff6fb5');
 }
+function rideSkin(sk,g,p){
+  const t=g.t,sp=((p.anim/3)|0)&1,fl=(t>>2)&1;
+  const rosine=(dx,dy)=>{ctx.save();ctx.translate(dx,dy);lutine(p,t);ctx.restore();};
+  switch(sk){
+  case 'run':rosine(0,0);return true;
+  case 'sled':
+    rosine(1,-2);
+    R(-2,13,20,1,'#d9e6f2');R(-3,11,2,3,'#d9e6f2');R(0,10,16,3,'#c0392b');R(1,10,14,1,'#ff7a6a');R(15,8,2,3,'#c0392b');return true;
+  case 'skate':
+    rosine(1,-1);
+    R(0,13,15,2,'#ff6fb5');R(-1,12,1,2,'#ff6fb5');R(15,12,1,2,'#ff6fb5');R(1,15,3,2,'#2b1d44');R(11,15,3,2,'#2b1d44');
+    if(sp)R(2,16,1,1,'#ffffff');else R(12,16,1,1,'#ffffff');return true;
+  case 'pony':{
+    rosine(3,-5);
+    const a=sp?1:0;
+    R(-3,7,19,7,'#8a5a3a');R(-3,7,19,1,'#a87050');
+    R(-1,14,2,5-a,'#6a4228');R(5,14,2,4+a,'#6a4228');R(10,14,2,5-a,'#6a4228');R(14,14,2,4+a,'#6a4228');
+    R(14,2,4,7,'#8a5a3a');R(16,1,6,4,'#8a5a3a');R(21,3,1,1,'#3a1d4d');R(15,-1,2,3,'#6a4228');
+    R(13,2,1,7,'#2b1d44');R(-6,7,3,7,'#2b1d44');R(4,6,7,2,'#c0392b');return true;}
+  case 'fish':{
+    rosine(0,-3);
+    const w=(t>>3)&1;
+    R(1,10,15,7,'#ff9a4a');R(3,9,11,1,'#ffb877');R(3,17,9,1,'#e0702a');R(3,14,10,2,'#ffd9b0');
+    R(-5,w?9:11,6,3,'#ff7a2a');R(-7,w?8:12,3,3,'#ff7a2a');R(6,7,5,3,'#ff7a2a');
+    R(13,12,2,2,'#ffffff');R(14,12,1,1,'#3a1d4d');
+    if(w)R(18,9,2,2,'#bff6ff');else R(19,7,2,2,'#bff6ff');return true;}
+  case 'rocket':{
+    rosine(0,-3);
+    R(0,10,18,6,'#eef0f8');R(0,10,18,1,'#ffffff');R(3,11,3,3,'#7ad7f0');R(18,11,2,4,'#ff6fb5');R(20,12,1,2,'#ff6fb5');
+    R(1,16,4,3,'#ff6fb5');R(1,7,4,3,'#ff6fb5');
+    R(-6,11,6,4,fl?'#ffd84a':'#ff7a2a');R(-9,12,3,2,fl?'#ffb347':'#ffd84a');return true;}
+  case 'balloon':
+    rosine(0,-1);
+    R(2,-21,12,2,'#ff6fb5');R(-1,-19,18,3,'#ff6fb5');R(-3,-16,22,6,'#ff6fb5');R(-1,-10,18,3,'#ff6fb5');R(2,-7,12,2,'#ff6fb5');
+    R(-3,-14,22,2,'#ffd84a');R(5,-21,2,14,'#ffffff');R(10,-21,1,14,'#ffffff');
+    R(3,-5,1,10,'#a9712f');R(12,-5,1,10,'#a9712f');R(1,12,14,6,'#a9712f');R(1,12,14,1,'#c98b4b');return true;
+  case 'carpet':
+    rosine(0,-2);
+    R(-5,12,26,3,'#c0392b');R(-5,12,26,1,'#ffd84a');R(-5,14,26,1,'#7a1f1f');R(-7,12,2,3,'#ffd84a');R(21,12,2,3,'#ffd84a');
+    R(2,13,2,1,'#ffd84a');R(8,13,2,1,'#ffd84a');R(14,13,2,1,'#ffd84a');return true;
+  case 'cloud':
+    rosine(0,-2);
+    R(-3,12,22,5,'#ffffff');R(0,9,8,4,'#ffffff');R(9,8,8,5,'#ffffff');R(-1,16,18,2,'#d6ecf8');R(2,13,3,1,'#d6ecf8');return true;
+  }
+  return false;
+}
 function drawPlayer(g,cx){
   const p=g.p;
   if(p.inv>0&&!(g.starT>0)&&((g.t>>2)&1))return;
@@ -792,7 +916,9 @@ function drawPlayer(g,cx){
   const x=Math.round(p.x-3-cx),y=Math.round(p.y-2);
   ctx.save();
   if(p.facing<0){ctx.translate(x+16,y);ctx.scale(-1,1);}else ctx.translate(x,y);
-  if(g.kind==='bike'){
+  const sk=LEVELS[g.li].skin;
+  if(sk&&rideSkin(sk,g,p)){}
+  else if(g.kind==='bike'){
     ctx.save();ctx.translate(1,-2);lutine(p,g.t);ctx.restore();
     const sp=((p.anim/3)|0)&1;
     R(2,12,10,1,'#ff6fb5');R(11,8,1,5,'#ff6fb5');R(10,7,3,1,'#2b1d44');R(3,9,3,1,'#2b1d44');R(5,10,1,3,'#ff6fb5');
@@ -816,7 +942,11 @@ function drawPlayer(g,cx){
     ctx.restore();
   }
 }
-function drawBoss(kind,x,y,t){
+function drawBoss(kind0,x,y,t){
+  TINT=kind0>=10?tintFor(kind0):null;
+  try{drawBoss0(kind0%10,x,y,t);}finally{TINT=null;}
+}
+function drawBoss0(kind,x,y,t){
   ctx.save();ctx.translate(x,y);
   if(kind===0){
     R(0,14,3,12,'#b03a6a');R(21,14,3,12,'#b03a6a');
@@ -925,6 +1055,13 @@ function drawEnemy(e,cx,t){
     for(let yy=6;yy<e.h-4;yy+=8)R(2,yy,12,1,'#5a5680');
     R(0,0,16,3,'#a9a6d0');R(0,e.h-3,16,3,'#4f4b78');
     R(6,e.h/2-2,4,4,'#ffd84a');
+  }else if(e.t==='bird'&&CURSKIN==='fish'){
+    const fl=(t>>3)&1;
+    R(1,1,10,7,'#ff7aa8');R(3,0,6,1,'#ffb0cc');R(3,8,6,1,'#e0507f');R(-2,fl?1:3,3,4,'#ff7aa8');
+    R(8,3,2,2,'#ffffff');R(9,3,1,1,'#3a1d4d');R(2,fl?-2:9,2,2,'#ffe27a');R(6,fl?9:-2,2,2,'#ffe27a');
+  }else if(e.t==='bird'&&CURSKIN==='rocket'){
+    R(2,0,8,2,'#9ad0f0');R(0,2,12,3,'#7f8aa8');R(1,5,10,1,'#4a5270');R(4,-1,4,2,'#d9f5ff');
+    R(2,3,1,1,((t>>3)&1)?'#ffd84a':'#ff6fb5');R(6,3,1,1,((t>>3)&1)?'#ff6fb5':'#ffd84a');R(9,3,1,1,((t>>3)&1)?'#ffd84a':'#ff6fb5');
   }else if(e.t==='bird'){
     ctx.translate(12,0);ctx.scale(-1,1);
     const fl=(t>>2)&1;
@@ -973,7 +1110,9 @@ function drawPortal(pt,cx,t){
   const s=(t>>3)%4;R(x+3+s*2,y+10+s*6,1,1,'#ffffff');R(x+11-s*2,y+30-s*3,1,1,'#ffffff');
 }
 
+let CURSKIN=null;
 function draw(g){
+  CURSKIN=LEVELS[g.li].skin||null;
   const th=THEMES[LEVELS[g.li].theme],cx=Math.round(g.camX),t=g.t;
   for(let i=0;i<20;i++)R(0,i*8,VW,8,th.bands[i]);
   if(th.stars)for(const s of STARS)if(s.y<(th.starMax||99))R(s.x|0,s.y|0,1,1,(((t>>1)+s.p)%70<4)?'#ffffff':'#b9b0e8');
@@ -1157,14 +1296,15 @@ function setMuteLabel(){const b=$('muteBtn');b.textContent=prog.muted?'Muet':'So
 const S={mode:'title',g:newGame(0)};
 function show(html){ov.innerHTML=html;ov.hidden=false;ov.classList.remove('sheet');document.body.classList.remove('dueling');}
 function hide(){ov.hidden=true;ov.classList.remove('sheet');document.body.classList.remove('dueling');}
+const SKINIC={sled:'🛷',skate:'🛹',pony:'🐴',run:'🏃',fish:'🐠',rocket:'🚀',balloon:'🎈',carpet:'🧞',cloud:'☁️'};
 function showTitle(){
   S.mode='title';S.g=newGame(0);
   let btns='';
   for(let i=0;i<NLV;i++){
-    const open=i<prog.unlocked,ic=LEVELS[i].kind==='bike'?' 🚲':LEVELS[i].kind==='copter'?' 🚁':'';
+    const open=i<prog.unlocked,ic=' '+(SKINIC[LEVELS[i].skin]||(LEVELS[i].kind==='bike'?'🚲':LEVELS[i].kind==='copter'?'🚁':''));
     btns+='<button class="lvb" data-act="start" data-li="'+i+'"'+(open?'':' disabled')+'><b>'+(i+1)+'</b><span>'+(open?LEVELS[i].short+ic:'verrouillé')+'</span>'+(prog.best[i]?'<em>'+prog.best[i]+' gemmes</em>':'')+'</button>';
   }
-  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Dix mondes à traverser, à pied, à vélo et en libellule volante.</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · chaque niveau commence par la boutique</p></div>');
+  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Trente mondes à traverser : à pied, à vélo, en luge, sous l’eau, en fusée…</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · chaque niveau commence par la boutique</p></div>');
 }
 /* Boutique : seuls les cœurs en plus sont gardés d'un niveau à l'autre. Le reste se rachète à chaque niveau. */
 const ITEMS=[
