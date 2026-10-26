@@ -60,9 +60,10 @@ a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
 </script>
 <script>
 (function(){
-  const VERSION='n°14 · 26/10 05:28';
+  const VERSION='n°15 · 26/10 05:30';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
+  document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));});
   async function check(){
     try{
       const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
