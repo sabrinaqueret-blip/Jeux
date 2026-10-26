@@ -122,6 +122,8 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .trick.w0{--sx:0;--sy:190px}.trick.w1{--sx:-170px;--sy:0}.trick.w2{--sx:0;--sy:-190px}.trick.w3{--sx:170px;--sy:0}</style>
 
 <style>.annp{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:6;background:#0b2a1aee;border:2px solid var(--gold);border-radius:12px;padding:6px 10px;text-align:center;pointer-events:none;font-size:13px;animation:fly .3s ease-out;max-width:96%}.annp span{display:block;color:var(--gold);font-weight:800;margin:3px 0 2px}.annp .ac{display:flex;justify-content:center;gap:2px}.annp .ac .card{--tcw:calc(var(--cw)*.62);transform:none}</style>
+
+<style>.slot .card{box-shadow:0 0 0 3px var(--pc,transparent),0 2px 5px #0008}.slot.win .card{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}.tkb{display:inline-block;margin-left:5px;padding:0 6px;font-size:12px}.annl{width:100%;background:var(--panel);border-radius:12px;padding:6px 8px}.annl span{display:block;color:var(--gold);font-weight:800;margin-bottom:3px}.annl .ac{display:flex;gap:3px;justify-content:center}.res.calc td{font-size:13px;text-align:left}.res.calc td:first-child{width:46px}.endbox{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}.res td:nth-child(n+2){text-align:center}</style>
 <script src="peerjs.min.js"></script>
 <script>
 'use strict';
@@ -276,6 +278,7 @@ class Game{
   }
   minBid(){return this.cb?(this.cb.val>=360?500:this.cb.val+10):80;}
   act(seat,a){
+    if(this.phase==='annShow'&&a.a==='ready'){this.ready[seat]=true;if(this.ready.every(x=>x))this.contPlay();else this.push();return '';}
     if(this.phase==='handEnd'&&a.a==='ready'){this.ready[seat]=true;this.checkReady();return '';}
     if(this.phase==='bidding'){
       if(seat!==this.turn)return 'pas ton tour';
@@ -321,14 +324,16 @@ class Game{
         const w=trickWinner(this.trick,this.trump),p=this.trick.reduce((s,t)=>s+cpts(t.card,this.trump),0);
         this.phase='trickEnd';this.winner=w.seat;
         this.pts[w.seat%2]+=p;this.tricksWon[w.seat%2]++;
-        const lastT=this.hands[0].length===0;if(lastT){this.pts[w.seat%2]+=10;this.msg='Dix de der !';}
+        const lastT=this.hands[0].length===0;if(lastT){this.pts[w.seat%2]+=10;this.derTeam=w.seat%2;this.msg='Dix de der !';}
         this.tricksDone++;
         if(this.tricksDone===1)this.resolveAnn();
         this.lastTrick={cards:this.trick.slice(),winner:w.seat};
         this.push();
         this.later(()=>{
           if(lastT){this.endHand();return;}
-          this.trick=[];this.turn=w.seat;this.phase='play';this.push();
+          this.holdW=w.seat;
+          if(this.tricksDone===1&&this.annRes&&!this.fast){this.phase='annShow';this.ready=this.kinds.map(k=>k!=='human');this.push();clearTimeout(this.timer);this.timer=setTimeout(()=>this.contPlay(),12000);return;}
+          this.contPlay();
         },1150);
         return '';
       }
@@ -356,6 +361,7 @@ class Game{
     for(let s=0;s<4;s++){const h=this.hands[s];if(h.includes(this.trump*8+5)&&h.includes(this.trump*8+6))this.bel={seat:s,n:0};}
     this.push();
   }
+  contPlay(){if(this.phase!=='annShow'&&this.phase!=='trickEnd')return;clearTimeout(this.timer);this.trick=[];this.turn=this.holdW;this.phase='play';this.push();}
   endHand(){
     const cb=this.cb,att=cb.seat%2,def=1-att,m=[1,2,4][cb.coinche];
     const capot=this.tricksWon[att]===8;
@@ -363,14 +369,18 @@ class Game{
     const ap=this.annPts||[0,0];
     const made=this.pts[att]+ap[att]+(belTeam===att?20:0);
     const bv=cb.val===500?250:cb.val,ok=cb.val===500?capot:made>=cb.val;
-    const sc=[0,0];
+    const sc=[0,0],calc=['',''];
     if(ok){
-      if(m===1){sc[att]=round10(this.pts[att]+(capot?90:0)+ap[att])+bv;sc[def]=round10(this.pts[def]+ap[def]);}
-      else{sc[att]=(bv+160)*m+ap[att];sc[def]=0;}
-    }else{sc[def]=(160+bv)*m+ap[def];sc[att]=0;}
-    if(belTeam>=0)sc[belTeam]+=20;
+      if(m===1){const ra=this.pts[att]+(capot?90:0)+ap[att],rd=this.pts[def]+ap[def];sc[att]=round10(ra)+bv;sc[def]=round10(rd);
+        calc[att]='('+this.pts[att]+(capot?' + 90 capot':'')+(ap[att]?' + '+ap[att]+' annonces':'')+') = '+ra+' arrondi à '+round10(ra)+' + contrat '+bv+' = '+sc[att];
+        calc[def]='('+this.pts[def]+(ap[def]?' + '+ap[def]+' annonces':'')+') = '+rd+' arrondi à '+round10(rd);}
+      else{sc[att]=(bv+160)*m+ap[att];sc[def]=0;
+        calc[att]='(contrat '+bv+' + 160) × '+m+' = '+(bv+160)*m+(ap[att]?' + '+ap[att]+' annonces':'')+' = '+sc[att];calc[def]='Ils ne marquent rien (contrat coinché réussi).';}
+    }else{sc[def]=(160+bv)*m+ap[def];sc[att]=0;
+      calc[def]='(160 + contrat '+bv+')'+(m>1?' × '+m:'')+' = '+(160+bv)*m+(ap[def]?' + '+ap[def]+' annonces':'')+' = '+sc[def];calc[att]='Contrat chuté : ils ne marquent rien.';}
+    if(belTeam>=0){sc[belTeam]+=20;calc[belTeam]+=' + 20 belote = '+sc[belTeam];}
     this.scores[0]+=sc[0];this.scores[1]+=sc[1];
-    this.result={ok,att,val:cb.val,suit:cb.suit,coinche:cb.coinche,pts:this.pts.slice(),tricks:this.tricksWon.slice(),belTeam,delta:sc,capot,bidder:cb.seat,ann:ap.slice(),annList:this.annRes?this.annRes.list:[]};
+    this.result={ok,att,val:cb.val,suit:cb.suit,coinche:cb.coinche,pts:this.pts.slice(),tricks:this.tricksWon.slice(),belTeam,delta:sc,capot,calc,der:this.derTeam,bv,made,m,capotBonus:(ok&&m===1&&capot)?90:0,bidder:cb.seat,ann:ap.slice(),annList:this.annRes?this.annRes.list:[]};
     const fin=Math.max(...this.scores)>=this.target&&this.scores[0]!==this.scores[1];
     this.result.final=fin;
     this.phase='handEnd';this.ready=this.kinds.map(k=>k!=='human');
@@ -566,7 +576,8 @@ function leave(silent){
 const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '+(s===1||s===2?'red':'blk')+' '+(cls||'')+'" data-id="'+id+'" '+(extra||'')+'><i>'+RANKS[r]+'<br>'+SUITS[s]+'</i><em>'+SUITS[s]+'</em></div>';};
 const suitHtml=s=>'<span class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</span>';
 function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===500?'Capot':b.val)+' '+suitHtml(b.suit);}
-const animSeen=new Set();let annShown=-1,annUntil=0;
+const animSeen=new Set();const SC=['#ffd84a','#7fd4ff','#ff9ad5','#a6ff8a'];
+const tkBadge=(v,s)=>v.cb&&v.cb.seat===s&&v.phase!=='redeal'?'<span class="bub tkb">'+suitHtml(v.cb.suit)+' '+(v.cb.val===500?'Capot':v.cb.val)+(v.cb.coinche===1?' ×2':v.cb.coinche===2?' ×4':'')+'</span>':'';
 const annB=(v,s)=>{if(v.phase==='bidding'||v.phase==='redeal'||v.annRes)return '';const a=(v.annTxt||[]).find(x=>x.seat===s);return a?'<div class="bub ann">📣 '+esc(a.label)+'</div>':'';};
 function onView(v){
   const prev=view;view=v;me=v.me;
@@ -592,15 +603,13 @@ function render(){
   else if(v.annTxt&&v.annTxt.length&&v.phase!=='bidding')chip+='<span class="chip">📣 '+v.annTxt.map(a=>esc(v.names[a.seat])+' : '+a.label).join(' · ')+'</span>';
   const turnName=(v.phase==='play'||v.phase==='bidding')?v.names[v.turn]:'';
   let h='<div class="hd"><button id="menuB" aria-label="Menu">☰</button><div class="sc"><span>Nous <b>'+nous+'</b></span><span class="sl">/'+v.target+'</span><span>Eux <b>'+eux+'</b></span></div><button id="lastB" '+(v.lastTrick?'':'disabled')+'>Dernier pli</button></div><div class="ct">'+chip+(v.tricks&&v.phase!=='bidding'?'<span class="chip">Plis : nous '+v.tricks[myTeam]+' · eux '+v.tricks[1-myTeam]+'</span>':'')+'</div>';
-  if(v.annCards&&v.annCards.length&&v.phase!=='bidding'){if(annShown!==v.handNo){annShown=v.handNo;annUntil=Date.now()+5000;setTimeout(render,5100);}}
   h+='<div class="tbl">';
-  if(v.annCards&&Date.now()<annUntil)h+='<div class="annp"><b>📣 Annonces</b>'+v.annCards.map(a=>'<div><span>'+esc(v.names[a.seat])+' : '+esc(a.txt)+'</span><div class="ac">'+a.cards.map(c=>cardEl(c,'tc')).join('')+'</div></div>').join('')+'</div>';
   for(const r of [1,2,3]){
     const s=(me+r)%4,bid=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===s):null,on=(v.phase==='play'||v.phase==='bidding')&&v.turn===s;
-    h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+esc(v.names[s])+(v.kinds[s]!=='human'?' 🤖':'')+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+bidText(bid)+'</div>':'')+(annB(v,s))+'</div>';
+    h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+'<span style="color:'+SC[r]+'">'+esc(v.names[s])+'</span>'+(v.kinds[s]!=='human'?' 🤖':'')+tkBadge(v,s)+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+bidText(bid)+'</div>':'')+(annB(v,s))+'</div>';
   }
   h+='<div class="trick'+(v.phase==='trickEnd'?' end w'+rel(v.winner):'')+'">';
-  for(const t of v.trick){const k=v.handNo+'.'+t.card,fresh=!animSeen.has(k);animSeen.add(k);h+='<div class="slot q'+rel(t.seat)+(v.phase==='trickEnd'&&t.seat===v.winner?' win':'')+(fresh?' fly':'')+'">'+cardEl(t.card,'tc')+'</div>';}
+  for(const t of v.trick){const k=v.handNo+'.'+t.card,fresh=!animSeen.has(k);animSeen.add(k);h+='<div style="--pc:'+SC[rel(t.seat)]+'" class="slot q'+rel(t.seat)+(v.phase==='trickEnd'&&t.seat===v.winner?' win':'')+(fresh?' fly':'')+'">'+cardEl(t.card,'tc')+'</div>';}
   h+='</div>';
   const mb=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===me):null;
   if(mb)h+='<div class="bub mine">'+bidText(mb)+'</div>';
@@ -611,7 +620,7 @@ function render(){
   if(v.opts)h+=bidPanel(v);
   h+='</div>';
   h+=aidsHtml(v);
-  h+='<div class="me'+((v.phase==='play'||v.phase==='bidding')&&v.turn===me?' on':'')+'">'+(v.dealer===me?'<i class="dl">D</i>':'')+esc(v.names[me])+'</div>';
+  h+='<div class="me'+((v.phase==='play'||v.phase==='bidding')&&v.turn===me?' on':'')+'">'+(v.dealer===me?'<i class="dl">D</i>':'')+'<span style="color:'+SC[0]+'">'+esc(v.names[me])+'</span>'+tkBadge(v,me)+'</div>';
   h+='<div class="hand">'+v.hand.map(c=>{const ok=!v.legal||v.legal.includes(c),isT=v.trump!=null&&v.trump<4&&cs(c)===v.trump;return cardEl(c,(v.legal&&!ok?'no ':'')+(c===sel?'sel ':'')+(advice&&advice.card===c?'adv ':'')+(isT?'tr':''));}).join('')+'</div>';
   $('game').innerHTML=h;
   $('menuB').onclick=showMenu;$('lastB').onclick=showLast;
@@ -632,7 +641,13 @@ function render(){
     audio();const id=sel;sel=-1;sendAct({a:'play',card:id});
   };
   wireBid(v);
-  if(v.phase==='handEnd'||v.phase==='gameEnd')endOverlay(v);else if($('ov').querySelector('.endbox'))closeOv();
+  if(v.phase==='annShow')annOverlay(v);else if(v.phase==='handEnd'||v.phase==='gameEnd')endOverlay(v);else if($('ov').querySelector('.endbox'))closeOv();
+}
+function annOverlay(v){
+  const iready=v.ready[me];
+  openOv('<div class="endbox"><h2>📣 Annonces</h2>'+v.annCards.map(a=>'<div class="annl"><span>'+esc(v.names[a.seat])+' : '+esc(a.txt)+'</span><div class="ac">'+a.cards.map(c=>cardEl(c,'tc')).join('')+'</div></div>').join('')+
+    '<p class="muted">'+(v.annRes.team===me%2?'Votre équipe marque ':'Eux marquent ')+v.annRes.total+' points.</p><button class="ob" id="nx" '+(iready?'disabled':'')+'>'+(iready?'En attente des autres…':'Continuer')+'</button></div>');
+  if($('nx'))$('nx').onclick=()=>sendAct({a:'ready'});
 }
 function bidPanel(v){
   const o=v.opts;if(o.locked&&!o.canSur)return '';
@@ -684,18 +699,24 @@ function endOverlay(v){
   }
   if(!r)return;
   if(shownResult!==v.handNo){shownResult=v.handNo;(r.delta[t]>=r.delta[1-t])?SFX.win():SFX.lose();}
-  const myAtt=r.att===t,pre=n=>n===t?'Nous':'Eux';
-  const waiting=v.ready.some((x,i)=>!x&&v.kinds[i]==='human');
-  const iready=v.ready[me];
-  openOv('<div class="endbox"><h2>'+(r.ok?'Contrat réussi':'Contrat chuté')+'</h2><p>'+pre(r.att)+' : '+(r.val===500?'Capot':r.val)+' '+suitHtml(r.suit)+(r.coinche?' <b class="cc">×'+(r.coinche===1?2:4)+'</b>':'')+'</p>'+
+  const pre=n=>n===t?'Nous':'Eux',iready=v.ready[me],o=1-t;
+  const cards=k=>r.pts[k]-(r.der===k?10:0),both=(f)=>'<td>'+f(t)+'</td><td>'+f(o)+'</td>';
+  const ct=r.coinche?' <b class="cc">×'+(r.coinche===1?2:4)+'</b>':'';
+  const madeTxt=r.val===500?(r.capot?'Capot réussi':'Capot raté'):('L’équipe qui a pris ('+pre(r.att).toLowerCase()+') a fait '+r.made+' points pour un contrat de '+r.bv);
+  openOv('<div class="endbox"><h2>'+(r.ok?'Contrat réussi':'Contrat chuté')+'</h2><p>'+pre(r.att)+' : '+(r.val===500?'Capot':r.val)+' '+suitHtml(r.suit)+ct+'</p>'+
     '<table class="res"><tr><th></th><th>Nous</th><th>Eux</th></tr>'+
-    '<tr><td>Points de cartes</td><td>'+r.pts[t]+'</td><td>'+r.pts[1-t]+'</td></tr>'+
-    '<tr><td>Plis</td><td>'+r.tricks[t]+'</td><td>'+r.tricks[1-t]+'</td></tr>'+
-    (r.ann[0]+r.ann[1]>0?'<tr><td>Annonces</td><td>'+(r.ann[t]?'+'+r.ann[t]:'')+'</td><td>'+(r.ann[1-t]?'+'+r.ann[1-t]:'')+'</td></tr>':'')+
-    (r.belTeam>=0?'<tr><td>Belote-rebelote</td><td>'+(r.belTeam===t?'+20':'')+'</td><td>'+(r.belTeam!==t?'+20':'')+'</td></tr>':'')+
-    '<tr class="tot"><td>Cette manche</td><td>+'+r.delta[t]+'</td><td>+'+r.delta[1-t]+'</td></tr>'+
-    '<tr class="tot"><td>Total</td><td>'+v.scores[t]+'</td><td>'+v.scores[1-t]+'</td></tr></table>'+
-    ''+(r.annList&&r.annList.length?'<p class="muted">'+r.annList.map(x=>esc(v.names[x.seat])+' : '+x.txt+' ('+x.val+')').join(' · ')+'</p>':'')+'<button class="ob" id="nx" '+(iready?'disabled':'')+'>'+(iready?'En attente des autres…':(r.final?'Voir le résultat':'Manche suivante'))+'</button></div>');
+    '<tr><td>Points des cartes</td>'+both(k=>cards(k))+'</tr>'+
+    '<tr><td>Dix de der</td>'+both(k=>r.der===k?'+10':'0')+'</tr>'+
+    '<tr><td>Belote-rebelote</td>'+both(k=>r.belTeam===k?'+20':'0')+'</tr>'+
+    '<tr><td>Annonces</td>'+both(k=>r.ann[k]?'+'+r.ann[k]:'0')+'</tr>'+
+    (r.capotBonus?'<tr><td>Capot</td>'+both(k=>r.att===k?'+90':'0')+'</tr>':'')+
+    '<tr class="tot"><td>Total de l’équipe</td>'+both(k=>cards(k)+(r.der===k?10:0)+(r.belTeam===k?20:0)+r.ann[k]+(r.att===k?r.capotBonus:0))+'</tr>'+
+    '<tr><td>Plis</td>'+both(k=>r.tricks[k])+'</tr></table>'+
+    '<p class="muted">'+madeTxt+' : <b>'+(r.ok?'réussi':'chuté')+'</b></p>'+
+    '<table class="res calc"><tr><th colspan="2">Calcul du score</th></tr><tr><td>Nous</td><td>'+esc(r.calc[t])+'</td></tr><tr><td>Eux</td><td>'+esc(r.calc[o])+'</td></tr></table>'+
+    '<table class="res"><tr class="tot"><td>Cette manche</td><td>+'+r.delta[t]+'</td><td>+'+r.delta[o]+'</td></tr>'+
+    '<tr class="tot"><td>Total de la partie</td><td>'+v.scores[t]+'</td><td>'+v.scores[o]+'</td></tr></table>'+
+    '<button class="ob" id="nx" '+(iready?'disabled':'')+'>'+(iready?'En attente des autres…':(r.final?'Voir le résultat':'Manche suivante'))+'</button></div>');
   if($('nx'))$('nx').onclick=()=>sendAct({a:'ready'});
 }
 showHome();size();
