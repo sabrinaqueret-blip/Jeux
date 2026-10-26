@@ -1026,7 +1026,7 @@ function draw(g){
 /* ---------- Interface : commandes, écrans, sons, sauvegarde ---------- */
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ov=$('ov'),toastEl=$('toast');
-ctx=cv.getContext('2d');
+ctx=cv.getContext('2d',{alpha:false,desynchronized:true});
 ctx.imageSmoothingEnabled=false;
 const SAVE_KEY='rosine-la-lutine-v2';
 const NLV=LEVELS.length;
