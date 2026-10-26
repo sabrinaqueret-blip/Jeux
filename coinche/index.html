@@ -63,6 +63,9 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .bub.mine{position:absolute;left:50%;bottom:4px;transform:translateX(-50%)}
 .trick{position:absolute;left:50%;top:46%;width:calc(var(--tcw)*2.7);height:calc(var(--tcw)*2.5);transform:translate(-50%,-50%)}
 .slot{position:absolute}.slot.q0{left:50%;bottom:0;transform:translateX(-50%)}.slot.q2{left:50%;top:0;transform:translateX(-50%)}.slot.q1{left:0;top:50%;transform:translateY(-50%)}.slot.q3{right:0;top:50%;transform:translateY(-50%)}
+.slot.fly .card{animation:fly .24s ease-out}.slot.q0.fly .card{animation-duration:.16s}
+@keyframes fly{from{transform:translate(var(--fx,0),var(--fy,0)) scale(.7);opacity:.2}to{transform:none;opacity:1}}
+.slot.q0{--fy:90px}.slot.q2{--fy:-90px}.slot.q1{--fx:-90px}.slot.q3{--fx:90px}
 .slot.win .card{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}
 .msg{position:absolute;left:50%;top:calc(46% + var(--tcw)*1.45 + 4px);transform:translateX(-50%);font-weight:900;color:var(--gold);text-shadow:0 2px 4px #000;max-width:94%;text-align:center;line-height:1.25}
 .msg.wt{font-weight:600;color:var(--muted);font-size:13px;text-shadow:none;top:auto;bottom:2px}
@@ -253,7 +256,8 @@ class Game{
   pump(){
     clearTimeout(this.rt);
     if((this.phase==='bidding'||this.phase==='play')&&this.isBot(this.turn)){
-      this.rt=setTimeout(()=>this.botMove(),this.fast?0:rnd(750,1350)*this.pace);
+      const forced=this.phase==='play'&&legalMoves(this.hands[this.turn],this.trick,this.trump,this.turn).length===1;
+      this.rt=setTimeout(()=>this.botMove(),this.fast?0:(forced?rnd(260,480):rnd(650,1250))*this.pace);
     }
   }
   botMove(){
@@ -317,7 +321,7 @@ class Game{
         this.later(()=>{
           if(lastT){this.endHand();return;}
           this.trick=[];this.turn=w.seat;this.phase='play';this.push();
-        },1500);
+        },1150);
         return '';
       }
       this.turn=(seat+1)%4;this.push();return '';
@@ -551,6 +555,7 @@ function leave(silent){
 const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '+(s===1||s===2?'red':'blk')+' '+(cls||'')+'" data-id="'+id+'" '+(extra||'')+'><i>'+RANKS[r]+'<br>'+SUITS[s]+'</i><em>'+SUITS[s]+'</em></div>';};
 const suitHtml=s=>'<span class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</span>';
 function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===500?'Capot':b.val)+' '+suitHtml(b.suit);}
+const animSeen=new Set();
 function onView(v){
   const prev=view;view=v;me=v.me;
   if(mode!=='game')show('game');
@@ -560,7 +565,7 @@ function onView(v){
   render();
   if(P.auto!==false&&v.phase==='play'&&v.legal&&v.legal.length===1){
     const id=v.legal[0],key=lastTurnKey;
-    setTimeout(()=>{if(view&&view.phase==='play'&&view.legal&&view.legal.length===1&&view.legal[0]===id&&lastTurnKey===key&&!dragging){sel=-1;toast('Carte jouée automatiquement : c’était la seule possible.',1800);sendAct({a:'play',card:id});}},450);
+    setTimeout(()=>{if(view&&view.phase==='play'&&view.legal&&view.legal.length===1&&view.legal[0]===id&&lastTurnKey===key&&!dragging){sel=-1;sendAct({a:'play',card:id});}},280);
   }
 }
 const rel=s=>(s-me+4)%4;
@@ -581,7 +586,7 @@ function render(){
     h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+esc(v.names[s])+(v.kinds[s]!=='human'?' 🤖':'')+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+bidText(bid)+'</div>':'')+'</div>';
   }
   h+='<div class="trick">';
-  for(const t of v.trick)h+='<div class="slot q'+rel(t.seat)+(v.phase==='trickEnd'&&t.seat===v.winner?' win':'')+'">'+cardEl(t.card,'tc')+'</div>';
+  for(const t of v.trick){const k=v.handNo+'.'+t.card,fresh=!animSeen.has(k);animSeen.add(k);h+='<div class="slot q'+rel(t.seat)+(v.phase==='trickEnd'&&t.seat===v.winner?' win':'')+(fresh?' fly':'')+'">'+cardEl(t.card,'tc')+'</div>';}
   h+='</div>';
   const mb=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===me):null;
   if(mb)h+='<div class="bub mine">'+bidText(mb)+'</div>';
