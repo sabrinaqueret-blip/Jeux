@@ -147,7 +147,7 @@ const MIN=60000,DAY=86400000;
 const DUR={egg:3,baby:60,child:12*60,teen:24*60};          /* minutes passées dans chaque âge */
 const OLD_AGE=14*24*60;                                      /* départ paisible vers les étoiles */
 const SPECIES=[
-  {name:'Chatilou',emoji:'🐱',desc:'Un chaton espiègle, oreilles pointues et queue en point d’interrogation.'},
+  {name:'Chatilou',emoji:'🐈‍⬛',desc:'Un chaton noir aux yeux verts, espiègle, avec des oreilles pointues et une queue en point d’interrogation.'},
   {name:'Dragouille',emoji:'🐲',desc:'Un petit dragon gourmand qui rêve d’avoir de grandes ailes.'},
   {name:'Lapinou',emoji:'🐰',desc:'Un lapin tout doux aux longues oreilles et à la queue pompon.'},
   {name:'Licornette',emoji:'🦄',desc:'Une licorne à la corne dorée et à la crinière de rêve. Espèce très rare.',rare:true,price:150},
@@ -364,7 +364,7 @@ const VW=256,VH=160,FLOOR=122;
 const R=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));};
 function ell(cx,cy,rx,ry,c){for(let y=-ry;y<=ry;y++){const w=Math.floor(rx*Math.sqrt(1-(y*y)/(ry*ry+.01))+.5);R(cx-w,cy+y,w*2,1,c);}}
 const PAL=[
-  {body:'#ffb36b',dark:'#e88a3e',belly:'#fff0d9',acc:'#ff6fb5',egg:'#ffd9a8',spot:'#ff8f5a'},
+  {body:'#2d2a3a',dark:'#16141f',belly:'#4a4560',acc:'#ff6fb5',egg:'#8d86a8',spot:'#16141f'},
   {body:'#6fd08a',dark:'#3f9a5a',belly:'#e8ffd0',acc:'#ffd84a',egg:'#bff0c8',spot:'#6fd08a'},
   {body:'#cfe6ff',dark:'#9ac0ec',belly:'#ffffff',acc:'#ff9fc8',egg:'#e0eeff',spot:'#9ac0ec'},
   {body:'#fff0fa',dark:'#e0a8d8',belly:'#ffffff',acc:'#c98bff',egg:'#ffe6f6',spot:'#c98bff'},
@@ -373,7 +373,7 @@ const PAL=[
   {body:'#9fb4cc',dark:'#5f7690',belly:'#dce8f4',acc:'#5ee6d0',egg:'#c6d6e6',spot:'#5ee6d0'}
 ];
 const BADPAL=[
-  {body:'#8a5a9a',dark:'#5a3a6a',belly:'#d9b8e8',acc:'#ff4d7a'},
+  {body:'#3f2f52',dark:'#1d1429',belly:'#6a5a84',acc:'#ff4d7a'},
   {body:'#2f7a6a',dark:'#1f4a44',belly:'#a8d8c8',acc:'#ff4d7a'},
   {body:'#8a8fb8',dark:'#5a5f88',belly:'#d8daf0',acc:'#ff4d7a'},
   {body:'#8a6aa8',dark:'#4a2f6a',belly:'#d8c8e8',acc:'#ff4d7a'},
@@ -430,24 +430,24 @@ function drawPet(s,cx,base,t,mood){
   if(sp===4){U(-ex0-1,cy-2,3,4,p.dark);U(ex0-1,cy-2,3,4,p.dark);}
   if(sp===6){U(-z.rx+2,cy-3,2*z.rx-3,7,'#16222e');}
   if(sp===5){U(-z.rx+1,cy+2,3,2,p.belly);U(z.rx-3,cy+2,3,2,p.belly);}
-  if(sp===0&&L>0){U(-z.rx-1,cy,3,1,'#5a3a5a');U(z.rx-2,cy,3,1,'#5a3a5a');}
+  if(sp===0&&L>0){U(-z.rx-1,cy,3,1,'#cfc8e0');U(z.rx-2,cy,3,1,'#cfc8e0');}
   if(sp===0&&L>=3)U(-1,cy-z.ry+2,2,2,bad?'#ff4d7a':'#ffd84a');
   /* yeux */
-  const ey=cy-1,ex=Math.max(2,Math.floor(z.rx*.38)),ink=sp===4?'#ffffff':sp===6?'#5ee6d0':'#2b1740';
+  const ey=cy-1,ex=Math.max(2,Math.floor(z.rx*.38)),ink=sp===4?'#ffffff':sp===6?'#5ee6d0':sp===0?'#4dff7a':'#2b1740';const mink=sp===0?'#ff9fb0':ink;
   const eye=(x)=>{
     if(mood==='sleep'){U(x-1,ey+1,3,1,ink);}
     else if(mood==='sick'){U(x-1,ey,1,1,ink);U(x+1,ey,1,1,ink);U(x,ey+1,1,1,ink);U(x-1,ey+2,1,1,ink);U(x+1,ey+2,1,1,ink);}
     else if(mood==='happy'){U(x-1,ey+1,1,1,ink);U(x,ey,1,1,ink);U(x+1,ey+1,1,1,ink);}
     else if(mood==='sad'){U(x,ey,1,3,ink);U(x-1,ey+3,1,1,'#7ad7f0');}
-    else{U(x-1,ey,2,3,ink);if(sp!==4)U(x-1,ey,1,1,'#ffffff');}
+    else{U(x-1,ey,2,3,ink);if(sp!==4)U(x-1,ey,1,1,sp===0?'#d9ffe0':'#ffffff');}
   };
   eye(-ex);eye(ex);
   if(bad&&mood!=='sleep'){U(-ex-2,ey-2,4,1,ink);U(ex-1,ey-2,4,1,ink);}
   /* bouche */
   if(mood==='eat'){const o=(Math.floor(t/6)%2);U(-1,ey+4,2,1+o,'#7a2a4a');}
-  else if(mood==='sad'||mood==='sick')U(-1,ey+5,2,1,ink);
-  else if(mood==='happy'){U(-1,ey+4,3,1,ink);U(-2,ey+3,1,1,ink);U(2,ey+3,1,1,ink);}
-  else U(0,ey+4,1,1,ink);
+  else if(mood==='sad'||mood==='sick')U(-1,ey+5,2,1,mink);
+  else if(mood==='happy'){U(-1,ey+4,3,1,mink);U(-2,ey+3,1,1,mink);U(2,ey+3,1,1,mink);}
+  else U(0,ey+4,1,1,mink);
   if(bad&&mood!=='sleep'&&mood!=='sick'){U(-1,ey+5,1,1,'#ffffff');U(1,ey+5,1,1,'#ffffff');}
   /* accessoires portés */
   const top=cy-z.ry,hat=W.hat,fc=W.face,nk=W.neck,sd=W.side,gd='#ffd84a';
