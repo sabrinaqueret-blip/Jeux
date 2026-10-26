@@ -124,6 +124,8 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 <style>.annp{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:6;background:#0b2a1aee;border:2px solid var(--gold);border-radius:12px;padding:6px 10px;text-align:center;pointer-events:none;font-size:13px;animation:fly .3s ease-out;max-width:96%}.annp span{display:block;color:var(--gold);font-weight:800;margin:3px 0 2px}.annp .ac{display:flex;justify-content:center;gap:2px}.annp .ac .card{--tcw:calc(var(--cw)*.62);transform:none}</style>
 
 <style>.slot .card{box-shadow:0 0 0 3px var(--pc,transparent),0 2px 5px #0008}.slot.win .card{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}.tkb{display:inline-block;margin-left:5px;padding:0 6px;font-size:12px}.annl{width:100%;background:var(--panel);border-radius:12px;padding:6px 8px}.annl span{display:block;color:var(--gold);font-weight:800;margin-bottom:3px}.annl .ac{display:flex;gap:3px;justify-content:center}.res.calc td{font-size:13px;text-align:left}.res.calc td:first-child{width:46px}.endbox{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}.res td:nth-child(n+2){text-align:center}</style>
+
+<style>#valS{width:100%;font-size:20px;font-weight:800;padding:9px 10px;background:var(--panel);color:var(--ink);border:2px solid var(--gold);border-radius:10px;appearance:auto}#valS option{background:#1d3a2c;color:#fff}</style>
 <script src="peerjs.min.js"></script>
 <script>
 'use strict';
@@ -655,7 +657,7 @@ function bidPanel(v){
   const vals=[80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,500];
   let h='<div class="bidp">'+(P.aids?bidHint(v):'');
   if(!o.locked){
-    h+='<div class="vals">'+vals.map(x=>'<button data-v="'+x+'" class="'+(x===bidVal?'on':'')+'" '+(x<o.min||(x===500&&false)?'disabled':'')+'>'+(x===500?'Capot':x)+'</button>').join('')+'</div>';
+    h+='<select id="valS" aria-label="Points du contrat">'+vals.filter(x=>x>=o.min||x===500).map(x=>'<option value="'+x+'" '+(x===bidVal?'selected':'')+'>'+(x===500?'Capot':x+' points')+'</option>').join('')+'</select>';
     h+='<div class="suits">'+[0,1,3,2,4,5].map(s=>'<button data-s="'+s+'" class="'+(s===bidSuit?'on ':'')+(s===1||s===2?'rd':s>3?'bk wd':'bk')+'">'+(s>3?SUITS[s].replace(' atout','<br>atout'):SUITS[s])+'</button>').join('')+'</div>';
     h+='<div class="acts"><button class="ob" id="bidB" '+(bidSuit<0?'disabled':'')+'>'+(bidSuit<0?'Choisis une couleur':'Annoncer '+(bidVal===500?'Capot':bidVal)+' '+SUITS[bidSuit])+'</button>';
   }else h+='<div class="acts">';
@@ -667,7 +669,7 @@ function bidPanel(v){
 function wireBid(v){
   if(!v.opts)return;
   const g=$('game');
-  g.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{bidVal=+b.dataset.v;render();});
+  if($('valS'))$('valS').onchange=e=>{bidVal=+e.target.value;render();};
   g.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{bidSuit=+b.dataset.s;render();});
   if($('bidB'))$('bidB').onclick=()=>{if(bidSuit<0)return;const a={a:'bid',val:bidVal,suit:bidSuit};bidSuit=-1;sendAct(a);};
   $('passB').onclick=()=>sendAct({a:'pass'});
