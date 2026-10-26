@@ -1098,9 +1098,18 @@ const ptr=new Map();
 function keyAt(x,y){const el=document.elementFromPoint(x,y),b=el&&el.closest?el.closest('[data-k]'):null;return b?b.dataset.k:null;}
 function recalc(){tc.l=tc.r=tc.j=tc.a=0;for(const k of ptr.values())if(k)tc[k]=1;sync();}
 const ctl=$('controls');
-ctl.addEventListener('pointerdown',e=>{e.preventDefault();ensureAudio();ptr.set(e.pointerId,keyAt(e.clientX,e.clientY));recalc();});
-ctl.addEventListener('pointermove',e=>{if(ptr.has(e.pointerId)){ptr.set(e.pointerId,keyAt(e.clientX,e.clientY));recalc();}});
-['pointerup','pointercancel'].forEach(n=>ctl.addEventListener(n,e=>{ptr.delete(e.pointerId);recalc();}));
+/* tactile : on relit tous les doigts posés à chaque événement (fiable en multi-touch) */
+function touchSync(e){
+  e.preventDefault();ensureAudio();
+  tc.l=tc.r=tc.j=tc.a=0;
+  for(const t of e.touches){const k=keyAt(t.clientX,t.clientY);if(k)tc[k]=1;}
+  sync();
+}
+['touchstart','touchmove','touchend','touchcancel'].forEach(n=>ctl.addEventListener(n,touchSync,{passive:false}));
+const isTouch=e=>e.pointerType==='touch';
+ctl.addEventListener('pointerdown',e=>{if(isTouch(e))return;e.preventDefault();ensureAudio();ptr.set(e.pointerId,keyAt(e.clientX,e.clientY));recalc();});
+ctl.addEventListener('pointermove',e=>{if(isTouch(e))return;if(ptr.has(e.pointerId)){ptr.set(e.pointerId,keyAt(e.clientX,e.clientY));recalc();}});
+['pointerup','pointercancel'].forEach(n=>ctl.addEventListener(n,e=>{if(isTouch(e))return;ptr.delete(e.pointerId);recalc();}));
 ctl.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('blur',()=>{ptr.clear();kb.l=kb.r=kb.j=kb.a=0;recalc();});
 const KEYMAP={ArrowLeft:'l',q:'l',a:'l',ArrowRight:'r',d:'r',ArrowUp:'j',z:'j',w:'j',' ':'j',x:'a',j:'a',k:'a',Shift:'a'};
