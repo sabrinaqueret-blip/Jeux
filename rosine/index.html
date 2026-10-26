@@ -1083,7 +1083,7 @@ function playEvents(g){for(const e of g.ev)if(SFX[e])SFX[e]();g.ev.length=0;}
 
 /* commandes : clavier + boutons tactiles (glisser d'un bouton à l'autre possible) */
 const kb={l:0,r:0,j:0,a:0},tc={l:0,r:0,j:0,a:0},keys={l:0,r:0,j:0,a:0};
-let latchJ=false,latchA=false;
+let latchJ=false,latchA=false,holdJ=0;
 const padEls={};
 document.querySelectorAll('#controls [data-k]').forEach(b=>{padEls[b.dataset.k]=b;});
 function sync(){
@@ -1394,7 +1394,9 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.mode==='
 function step(){
   const g=S.g;
   if(S.mode==='play'){
-    const inp={l:keys.l,r:keys.r,jump:keys.j,jumpP:latchJ,atkP:latchA};
+    if(latchJ)holdJ=10;
+    const inp={l:keys.l,r:keys.r,jump:keys.j||holdJ>0,jumpP:latchJ,atkP:latchA};
+    if(holdJ>0)holdJ--;
     latchJ=latchA=false;
     update(g,inp);
     playEvents(g);
