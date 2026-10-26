@@ -120,6 +120,8 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .trick.end .slot .card{animation:sweep .38s ease-in .32s forwards}
 @keyframes sweep{to{transform:translate(var(--sx),var(--sy)) scale(.45);opacity:0}}
 .trick.w0{--sx:0;--sy:190px}.trick.w1{--sx:-170px;--sy:0}.trick.w2{--sx:0;--sy:-190px}.trick.w3{--sx:170px;--sy:0}</style>
+
+<style>.annp{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:6;background:#0b2a1aee;border:2px solid var(--gold);border-radius:12px;padding:6px 10px;text-align:center;pointer-events:none;font-size:13px;animation:fly .3s ease-out;max-width:96%}.annp span{display:block;color:var(--gold);font-weight:800;margin:3px 0 2px}.annp .ac{display:flex;justify-content:center;gap:2px}.annp .ac .card{--tcw:calc(var(--cw)*.62);transform:none}</style>
 <script src="peerjs.min.js"></script>
 <script>
 'use strict';
@@ -253,7 +255,7 @@ class Game{
     const deck=shuffle([...Array(32).keys()]);
     this.hands=[0,1,2,3].map(i=>sortHand(deck.slice(i*8,i*8+8),-1));
     this.bids=[];this.cb=null;this.passes=0;this.trump=null;this.trick=[];this.tricksWon=[0,0];this.pts=[0,0];this.played=[];
-    this.bel=null;this.belDone=false;this.ann=[[],[],[],[]];this.annTxt=[];this.annRes=null;this.annPts=[0,0];this.tricksDone=0;this.result=null;this.msg='';this.lastTrick=null;
+    this.bel=null;this.belDone=false;this.ann=[[],[],[],[]];this.annTxt=[];this.annRes=null;this.annCards=null;this.annPts=[0,0];this.tricksDone=0;this.result=null;this.msg='';this.lastTrick=null;
     this.phase='bidding';this.turn=(this.dealer+1)%4;this.ready=[true,true,true,true];
     this.push();
   }
@@ -341,7 +343,8 @@ class Game{
     if(best[0]&&best[1]){const c=annCmp(best[0],best[1],this.trump);win=c>0?0:c<0?1:((this.dealer+1)%4%2===0?0:1);}
     else win=best[0]?0:1;
     const list=all.filter(a=>a.seat%2===win);const total=list.reduce((s,a)=>s+a.val,0);
-    this.annRes={team:win,total,list:list.map(a=>({seat:a.seat,txt:annDesc(a),val:a.val}))};this.annPts[win]=total;
+    this.annRes={team:win,total,list:list.map(a=>({seat:a.seat,txt:annDesc(a),val:a.val}))};
+    this.annCards=list.map(a=>({seat:a.seat,txt:annDesc(a),cards:a.k==='carre'?[0,1,2,3].map(su=>su*8+a.high):[...Array(a.len)].map((_,i)=>a.suit*8+a.high-i)}));this.annPts[win]=total;
     this.msg='Annonces : '+(list.length>1?'':'')+this.annRes.list.map(x=>this.names[x.seat]+' '+x.txt).join(', ')+' = '+total;
   }
   startPlay(){
@@ -384,7 +387,7 @@ class Game{
     const my=this.hands?this.hands[seat]:[];
     const v={phase:this.phase,me:seat,names:this.names,kinds:this.kinds,hand:my,counts:this.hands?this.hands.map(h=>h.length):[8,8,8,8],
       dealer:this.dealer,turn:this.turn,bids:this.bids,cb:this.cb,trump:this.trump,trick:this.trick,scores:this.scores,target:this.target,
-      played:this.played||[],annTxt:this.annTxt||[],annRes:this.annRes||null,tricks:this.tricksWon,handNo:this.handNo,msg:this.msg,lastTrick:this.lastTrick,result:this.result,winner:this.winner,ready:this.ready};
+      played:this.played||[],annTxt:this.annTxt||[],annRes:this.annRes||null,annCards:this.annRes?this.annCards:null,tricks:this.tricksWon,handNo:this.handNo,msg:this.msg,lastTrick:this.lastTrick,result:this.result,winner:this.winner,ready:this.ready};
     if(this.phase==='play'&&this.turn===seat)v.legal=legalMoves(my,this.trick,this.trump,seat);
     if(this.phase==='bidding'&&this.turn===seat){const cb=this.cb;
       v.opts={min:this.minBid(),canCoinche:!!cb&&cb.seat%2!==seat%2&&cb.coinche===0,canSur:!!cb&&cb.coinche===1&&cb.seat===seat,locked:!!cb&&cb.coinche>0};}
@@ -563,7 +566,7 @@ function leave(silent){
 const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '+(s===1||s===2?'red':'blk')+' '+(cls||'')+'" data-id="'+id+'" '+(extra||'')+'><i>'+RANKS[r]+'<br>'+SUITS[s]+'</i><em>'+SUITS[s]+'</em></div>';};
 const suitHtml=s=>'<span class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</span>';
 function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===500?'Capot':b.val)+' '+suitHtml(b.suit);}
-const animSeen=new Set();
+const animSeen=new Set();let annShown=-1,annUntil=0;
 const annB=(v,s)=>{if(v.phase==='bidding'||v.phase==='redeal'||v.annRes)return '';const a=(v.annTxt||[]).find(x=>x.seat===s);return a?'<div class="bub ann">📣 '+esc(a.label)+'</div>':'';};
 function onView(v){
   const prev=view;view=v;me=v.me;
@@ -589,7 +592,9 @@ function render(){
   else if(v.annTxt&&v.annTxt.length&&v.phase!=='bidding')chip+='<span class="chip">📣 '+v.annTxt.map(a=>esc(v.names[a.seat])+' : '+a.label).join(' · ')+'</span>';
   const turnName=(v.phase==='play'||v.phase==='bidding')?v.names[v.turn]:'';
   let h='<div class="hd"><button id="menuB" aria-label="Menu">☰</button><div class="sc"><span>Nous <b>'+nous+'</b></span><span class="sl">/'+v.target+'</span><span>Eux <b>'+eux+'</b></span></div><button id="lastB" '+(v.lastTrick?'':'disabled')+'>Dernier pli</button></div><div class="ct">'+chip+(v.tricks&&v.phase!=='bidding'?'<span class="chip">Plis : nous '+v.tricks[myTeam]+' · eux '+v.tricks[1-myTeam]+'</span>':'')+'</div>';
+  if(v.annCards&&v.annCards.length&&v.phase!=='bidding'){if(annShown!==v.handNo){annShown=v.handNo;annUntil=Date.now()+5000;setTimeout(render,5100);}}
   h+='<div class="tbl">';
+  if(v.annCards&&Date.now()<annUntil)h+='<div class="annp"><b>📣 Annonces</b>'+v.annCards.map(a=>'<div><span>'+esc(v.names[a.seat])+' : '+esc(a.txt)+'</span><div class="ac">'+a.cards.map(c=>cardEl(c,'tc')).join('')+'</div></div>').join('')+'</div>';
   for(const r of [1,2,3]){
     const s=(me+r)%4,bid=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===s):null,on=(v.phase==='play'||v.phase==='bidding')&&v.turn===s;
     h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+esc(v.names[s])+(v.kinds[s]!=='human'?' 🤖':'')+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+bidText(bid)+'</div>':'')+(annB(v,s))+'</div>';
