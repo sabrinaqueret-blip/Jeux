@@ -565,7 +565,7 @@ function onView(v){
   render();
   if(P.auto!==false&&v.phase==='play'&&v.legal&&v.legal.length===1){
     const id=v.legal[0],key=lastTurnKey;
-    setTimeout(()=>{if(view&&view.phase==='play'&&view.legal&&view.legal.length===1&&view.legal[0]===id&&lastTurnKey===key&&!dragging){sel=-1;sendAct({a:'play',card:id});}},280);
+    setTimeout(()=>{if(view&&view.phase==='play'&&view.legal&&view.legal.length===1&&view.legal[0]===id&&lastTurnKey===key&&!dragging){sel=-1;sendAct({a:'play',card:id});}},1000);
   }
 }
 const rel=s=>(s-me+4)%4;
