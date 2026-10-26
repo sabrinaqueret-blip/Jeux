@@ -156,6 +156,24 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .tabs.wrap{flex-wrap:wrap;justify-content:center}
 .msg{top:auto;bottom:34px}
 </style>
+
+<style>
+.card.at,.card.ex{border-width:2px;overflow:hidden}
+.card.at::before,.card.ex::before{content:"";position:absolute;inset:3px;border:1px solid #0003;border-radius:calc(var(--cw)*.08);pointer-events:none}
+.card.at.t1{background:linear-gradient(165deg,#fff4dc,#f2c98a);color:#5a2d00;border-color:#b07a2c}
+.card.at.t2{background:linear-gradient(165deg,#e9fff0,#9fdcb0);color:#0b3a1c;border-color:#3f8f59}
+.card.at.t3{background:linear-gradient(165deg,#eaf0ff,#a9b9ff);color:#12206b;border-color:#4a5fc4}
+.card.at.bout,.card.ex{border-color:#e0a800;box-shadow:0 0 0 2px #ffd84a,0 2px 6px #000a}
+.card.at i,.card.ex i{font-size:calc(var(--cw)*.27);font-weight:900;line-height:1.05;left:7%;top:4%}
+.card.at i .ic,.card.ex i .ic{font-size:calc(var(--cw)*.22);display:inline-block;margin-top:1px}
+.card.at.tc i,.card.ex.tc i{font-size:calc(var(--tcw)*.27)}.card.at.tc i .ic,.card.ex.tc i .ic{font-size:calc(var(--tcw)*.22)}
+.card.at em,.card.ex em{font-size:calc(var(--cw)*.62);top:auto;bottom:16%;left:0;right:0;filter:drop-shadow(0 2px 2px #0005)}
+.card.at.tc em,.card.ex.tc em{font-size:calc(var(--tcw)*.62)}
+.card .nm{position:absolute;left:0;right:0;bottom:3%;text-align:center;font-size:calc(var(--cw)*.12);font-weight:800;line-height:1;white-space:nowrap;overflow:hidden;opacity:.85}
+.card.tc .nm{display:none}
+.card.ex{background:linear-gradient(165deg,#f3e8ff,#c9a8ff);color:#2b0a5a}
+.ghost.at,.ghost.ex{overflow:hidden}
+</style>
 <script src="peerjs.min.js"></script>
 <script>
 'use strict';
@@ -604,10 +622,12 @@ function leave(silent){
 }
 /* ---------- table ---------- */
 const animSeen=new Set();let pgShown='',pgUntil=0;
+const AT=[['🎩','Bateleur'],['📖','Papesse'],['👸','Impératr.'],['🤴','Empereur'],['⛪','Pape'],['💘','Amour.'],['🏇','Chariot'],['⚖️','Justice'],['🕯️','Ermite'],['🎡','Roue'],['🦁','Force'],['🙃','Pendu'],['💀','La Mort'],['🏺','Tempér.'],['😈','Diable'],['⚡','Maison-D.'],['⭐','Étoile'],['🌙','Lune'],['☀️','Soleil'],['📯','Jugem.'],['🌍','Monde']];
+const ROM=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'];
 function cardEl(id,cls,extra){
   let c='card '+(cls||''),inner;
-  if(id===EXC){c+=' ex';inner='<i>0</i><em>★</em>';}
-  else if(isT(id)){c+=' at'+(isBout(id)?' bout':'');inner='<i>'+tnum(id)+'</i><em>'+tnum(id)+'</em>';}
+  if(id===EXC){c+=' ex';inner='<i>0<br><span class="ic">🃏</span></i><em>🤡</em><b class="nm">Le Fou</b>';}
+  else if(isT(id)){const k=tnum(id),T=AT[k-1];c+=' at t'+(k<=7?1:k<=14?2:3)+(isBout(id)?' bout':'');inner='<i>'+k+'<br><span class="ic">'+T[0]+'</span></i><em>'+T[0]+'</em><b class="nm">'+ROM[k-1]+' · '+T[1]+'</b>';}
   else{const s=suitOf(id);c+=(s===1||s===2?' red':' blk');inner='<i>'+RN[rankOf(id)]+'<br>'+SUITS[s]+'</i><em>'+SUITS[s]+'</em>';}
   return '<div class="'+c+'" data-id="'+id+'" '+(extra||'')+'>'+inner+'</div>';
 }
