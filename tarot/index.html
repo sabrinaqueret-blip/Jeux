@@ -198,6 +198,8 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .card.at svg.art,.card.ex svg.art{display:none}
 </style>
 <style>.hand .card .nm{display:none}.card.at i,.card.ex i{z-index:1}</style>
+
+<style>.trick.end .slot .card{animation:sweep2 .4s ease-in var(--sd,.9s) forwards}</style>
 <script src="peerjs.min.js"></script>
 <script>
 'use strict';
@@ -337,7 +339,7 @@ class Game{
     this.chien=deck.slice(this.n*this.hs);
     this.bids=[];this.cur=null;this.spoken=0;this.taker=-1;this.level=0;this.call=-1;this.partner=-1;this.partnerShown=false;this.kingCard=-1;
     this.trick=[];this.tricksDone=0;this.pile=[[],[]];this.comp=[0,0];this.won=Array(this.n).fill(0);this.playedAll=[];this.poignees=[];this.pdone=Array(this.n).fill(false);
-    this.petitTeam=-1;this.lastTrick=null;this.result=null;this.msg='';this.chienShown=false;this.ecartMsg='';this.phase='bidding';this.turn=(this.dealer+1)%this.n;
+    this.petitTeam=-1;this.lastTrick=null;this.result=null;this.msg='';this.chienShown=false;this.ecartMsg='';this.ecartCards=[];this.phase='bidding';this.turn=(this.dealer+1)%this.n;
     this.ready=Array(this.n).fill(true);this.push();
   }
   push(){for(let s=0;s<this.n;s++)if(this.sink[s])this.sink[s](this.view(s));this.pump();}
@@ -382,7 +384,7 @@ class Game{
       if(cards.some(c=>isBout(c)||(c<56&&rankOf(c)===13)))return 'Pas de Roi ni de bout dans l’écart';
       const allowed=h.filter(c=>c<56&&rankOf(c)!==13).length,nt=cards.filter(c=>c<56).length;
       if(nt<Math.min(this.cs,allowed))return 'Écarte d’abord des cartes de couleur';
-      this.hands[seat]=h.filter(c=>!cards.includes(c));this.pile[1].push(...cards);
+      this.hands[seat]=h.filter(c=>!cards.includes(c));this.pile[1].push(...cards);this.ecartCards=cards.slice();
       const ats=cards.filter(isT);this.ecartMsg='';
       if(ats.length)this.msg=this.names[seat]+' écarte '+ats.length+' atout'+(ats.length>1?'s':'')+' : '+ats.map(c=>tnum(c)).join(', ');
       this.chienShown=false;this.beginPlay();return '';
@@ -433,7 +435,7 @@ class Game{
     const last=this.tricksDone===this.hs;
     if(last&&cards.includes(PETIT))this.petitTeam=tw;
     this.lastTrick={cards:this.trick.slice(),winner:w};this.push();
-    this.later(()=>{if(last){this.endHand();return;}this.trick=[];this.turn=w;this.phase='play';this.push();},1150);
+    this.later(()=>{if(last){this.endHand();return;}this.trick=[];this.turn=w;this.phase='play';this.push();},2300);
   }
   endHand(){
     const A=this.pile[1],D=this.pile[0];
@@ -455,7 +457,7 @@ class Game{
     else{const k=this.n-1;d[t]=k*S;for(let i=0;i<this.n;i++)if(i!==t)d[i]=-S;}
     for(let i=0;i<this.n;i++)this.scores[i]+=d[i];
     this.result={ok,taker:t,partner:this.partner,level:lv,bouts,need:need2/2,pts:ap2/2,diff,petit,poignees:this.poignees.map(p=>({seat:p.seat,pts:p.pts,label:p.label})),chelem,S,delta:d,
-      final:this.handNo>=this.nHands,alone:this.partner<0,call:this.call};
+      chien:this.chien.slice(),ecart:(this.ecartCards||[]).slice(),final:this.handNo>=this.nHands,alone:this.partner<0,call:this.call};
     this.phase='handEnd';this.ready=this.kinds.map(k=>k!=='human');this.trick=[];this.push();
     clearTimeout(this.timer);this.timer=setTimeout(()=>this.afterReady(),45000);
   }
@@ -465,7 +467,7 @@ class Game{
     const v={phase:this.phase,me:seat,n:this.n,names:this.names,kinds:this.kinds,hand:my,counts:this.hands?this.hands.map(h=>h.length):[],dealer:this.dealer,turn:this.turn,
       bids:this.bids,cur:this.cur,taker:this.taker,level:this.level,call:this.call,partner:this.partnerShown||this.phase==='handEnd'||this.phase==='gameEnd'?this.partner:(seat===this.partner?seat:-1),
       partnerShown:this.partnerShown,trick:this.trick,scores:this.scores,handNo:this.handNo,nHands:this.nHands,msg:this.msg,lastTrick:this.lastTrick,result:this.result,winner:this.winner,
-      ready:this.ready,poignees:this.poignees,cs:this.cs,hs:this.hs,tricksDone:this.tricksDone,won:this.won,played:this.playedAll||[]};
+      ready:this.ready,poignees:this.poignees,cs:this.cs,hs:this.hs,pace:this.pace,tricksDone:this.tricksDone,won:this.won,played:this.playedAll||[]};
     if(this.phase==='ecart'&&(this.chienShown||seat===this.taker))v.chien=this.chien;
     if(this.phase==='play'&&this.turn===seat)v.legal=legal(my,this.trick);
     if(this.phase==='bidding'&&this.turn===seat)v.opts={min:(this.cur?this.cur.level:0)+1};
@@ -696,7 +698,7 @@ function render(){
       (tk===s?'<span class="tk2">Preneur</span>':v.partner===s&&v.partner>=0&&tk>=0&&s!==tk?'<span class="tk2">Partenaire</span>':'')+
       '<div class="mini">'+Array.from({length:Math.min(v.counts[s]||0,12)},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+(bid.level?LV[bid.level]:'Passe')+'</div>':'')+'</div>';
   }
-  h+='<div class="trick'+(v.phase==='trickEnd'?' end':'')+'">';
+  h+='<div class="trick'+(v.phase==='trickEnd'?' end':'')+'" style="--sd:'+Math.max(.3,(2.3*(v.pace||.6)-.45)).toFixed(2)+'s">';
   const wr=v.phase==='trickEnd'?rel(v.winner):0,[wx,wy]=pos(wr,n,40,40);
   for(const t of v.trick){const r=rel(t.seat),[x,y]=pos(r,n,n===5?25:22,r===0?20:17),k=v.handNo+'.'+t.card,fresh=!animSeen.has(k);animSeen.add(k);
     const [fx,fy]=pos(r,n,60,60);
@@ -809,7 +811,7 @@ function endOverlay(v){
   const iready=v.ready[me];
   const rows=v.names.map((nm,i)=>'<tr><td>'+esc(nm)+(i===me?' (toi)':'')+(i===r.taker?' · preneur':i===r.partner?' · partenaire':'')+'</td><td>'+fmt(r.delta[i])+'</td><td>'+v.scores[i]+'</td></tr>').join('');
   openOv('<div class="endbox"><h2>'+(r.ok?'Contrat réussi':'Contrat chuté')+'</h2><p>'+esc(v.names[r.taker])+' : '+LV[r.level]+(r.partner>=0?' avec '+esc(v.names[r.partner]):r.alone&&v.n===5?' (seul)':'')+'</p>'+
-    '<table class="res"><tr><td>Points des preneurs</td><td colspan="2">'+r.pts+' pour '+r.need+' ('+r.bouts+' bout'+(r.bouts>1?'s':'')+')</td></tr>'+
+    '<p class="muted" style="margin:0">Le chien :</p><div class="pl">'+r.chien.map(c=>cardEl(c,'tc')).join('')+'</div>'+(r.ecart.length?'<p class="muted" style="margin:0">L’écart du preneur :</p><div class="pl">'+r.ecart.map(c=>cardEl(c,'tc')).join('')+'</div>':'')+'<table class="res"><tr><td>Points des preneurs</td><td colspan="2">'+r.pts+' pour '+r.need+' ('+r.bouts+' bout'+(r.bouts>1?'s':'')+')</td></tr>'+
     '<tr><td>Écart</td><td colspan="2">'+(r.ok?'+':'−')+r.diff+'</td></tr>'+
     (r.petit?'<tr><td>Petit au bout</td><td colspan="2">'+(r.petit>0?'preneurs':'défenseurs')+' ±10</td></tr>':'')+
     (r.poignees.length?'<tr><td>Poignée</td><td colspan="2">'+r.poignees.map(p=>esc(v.names[p.seat])+' +'+p.pts).join(', ')+'</td></tr>':'')+
