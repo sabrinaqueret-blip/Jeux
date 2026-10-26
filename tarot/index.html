@@ -182,6 +182,8 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .card.at i,.card.ex i{font-size:calc(var(--cw)*.3);left:8%;top:2%;line-height:1}
 .card.at.tc i,.card.ex.tc i{font-size:calc(var(--tcw)*.3)}
 </style>
+
+<style>.msg{top:6px!important;bottom:auto!important;font-size:15px}.msg.wt,.msg.mt{top:auto!important;bottom:4px!important}</style>
 <script src="peerjs.min.js"></script>
 <script>
 'use strict';
@@ -725,7 +727,7 @@ function render(){
   if(v.poignees&&v.poignees.length){const k=v.handNo+':'+v.poignees.length;if(pgShown!==k){pgShown=k;pgUntil=Date.now()+5000;setTimeout(render,5100);}
     if(Date.now()<pgUntil)h+='<div class="pgp"><b>📣 Poignée</b>'+v.poignees.map(p=>'<div><span>'+esc(v.names[p.seat])+' : poignée '+p.label+' (+'+p.pts+')</span><div class="ac">'+p.cards.map(c=>cardEl(c,'tc')).join('')+'</div></div>').join('')+'</div>';}
   if(v.msg&&v.phase!=='ecart')h+='<div class="msg">'+esc(v.msg)+'</div>';
-  if(v.phase==='play'&&v.turn===me)h+='<div class="msg mt">'+(sel>=0&&v.legal&&v.legal.includes(sel)?'Touche la table pour jouer cette carte':'À toi de jouer · glisse une carte sur la table')+'</div>';
+  if(v.phase==='play'&&v.turn===me){if(sel>=0&&v.legal&&v.legal.includes(sel))h+='<div class="msg mt">Touche la table pour jouer cette carte</div>';}
   else if(v.phase==='play'||v.phase==='bidding')h+='<div class="msg wt">'+esc(v.names[v.turn])+' réfléchit…</div>';
   else if(v.phase==='call'&&tk!==me)h+='<div class="msg wt">'+esc(v.names[tk])+' appelle un Roi…</div>';
   if(v.opts)h+=bidPanel(v);
