@@ -664,7 +664,7 @@ function update(g,inp){
         }
       }
     }
-    if(g.status==='play'&&b.cd<=0&&aabb(p,{x:b.x,y:b.hover?b.yy-8:b.y-60,w:b.w,h:b.hover?b.h+16:b.h+60}))g.status='duel';
+    if(g.status==='play'&&b.cd<=0&&(aabb(p,{x:b.x,y:b.hover?b.yy-8:b.y-60,w:b.w,h:b.hover?b.h+16:b.h+60})||(air&&p.x+p.w>=b.x)))g.status='duel';
   }
   if(g.status==='play'&&aabb(p,g.portal)&&(!b||b.defeated)){g.status='clear';g.ev.push('clear');}
   /* caméra, particules */
