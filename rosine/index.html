@@ -183,6 +183,10 @@ canvas{display:block;width:100%;height:100%;image-rendering:crisp-edges;image-re
 .chip{box-shadow:0 2px 6px #0005}
 </style>
 
+<style>/* style commun des jeux : pastilles sombres à bord doré */
+.chip{background:#0009!important;border:2px solid #f6c85f!important;border-radius:999px!important;padding:5px 12px!important;box-shadow:none!important;color:#fff}
+.hud .wallet,.hud .gemc{background:#0009;border-radius:999px;padding:4px 10px;font-weight:800}.hud .wallet{color:#f6c85f}
+</style>
 </head>
 <body>
 <main class="game">
@@ -1462,10 +1466,12 @@ function showPause(){
 function showDead(){
   show('<div class="ovbox"><h2 class="ttl2">Oups !</h2><p class="sub">Rosine a besoin de reprendre son souffle.</p><button class="ob" data-act="retry">Reprendre au point de reprise</button><button class="ob alt" data-act="menu">Menu</button></div>');
 }
+function walGain(n){try{let j=JSON.parse(localStorage.getItem('cartes-v1')||'null')||{v:1,gems:20,own:{}};j.gems=(typeof j.gems==='number'?j.gems:20)+n;localStorage.setItem('cartes-v1',JSON.stringify(j));}catch(e){}}
 function showClear(g){
   const last=g.li>=NLV-1;
+  if(!g.paid){g.paid=1;walGain(last?10:3);}
   const words=last?'Bravo ! Rosine a traversé le dernier portail.':'Le portail s’ouvre sur un nouveau monde.';
-  show('<div class="ovbox"><h2 class="ttl2">'+(last?'Fin du voyage !':'Niveau terminé !')+'</h2><p class="sub">'+words+'</p><p class="stat"><b>'+g.gemCount+'</b> gemmes gagnées · <b>'+g.deaths+'</b> reprise'+(g.deaths>1?'s':'')+'</p><p class="stat">Total : <b>'+prog.wallet+'</b> 💎</p>'+(last?'':'<button class="ob" data-act="start" data-li="'+(g.li+1)+'">Niveau suivant</button>')+'<button class="ob alt" data-act="shop2">Boutique</button><button class="ob alt" data-act="'+(last?'menu':'again')+'" data-li="'+g.li+'">'+(last?'Menu':'Rejouer')+'</button></div>');
+  show('<div class="ovbox"><h2 class="ttl2">'+(last?'Fin du voyage !':'Niveau terminé !')+'</h2><p class="sub">'+words+'</p><p class="stat"><b>'+g.gemCount+'</b> gemmes gagnées · <b>+'+(last?10:3)+' 💎</b> · <b>'+g.deaths+'</b> reprise'+(g.deaths>1?'s':'')+'</p><p class="stat">Total : <b>'+prog.wallet+'</b> 💎</p>'+(last?'':'<button class="ob" data-act="start" data-li="'+(g.li+1)+'">Niveau suivant</button>')+'<button class="ob alt" data-act="shop2">Boutique</button><button class="ob alt" data-act="'+(last?'menu':'again')+'" data-li="'+g.li+'">'+(last?'Menu':'Rejouer')+'</button></div>');
 }
 /* duel pierre-feuille-ciseaux : joué sur l'écran de jeu, Rosine face au gardien */
 const DU={st:null};
