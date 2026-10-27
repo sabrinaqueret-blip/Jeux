@@ -404,6 +404,7 @@ const CHATS={dir:'chats',paper:'#f4ead2',edge:'#5a4030',inner:'#b09060',red:'#a8
 const FOX={dir:'renards',paper:'#f6ead0',edge:'#6a3a1c',inner:'#c08a48',red:'#b0381c',black:'#2a2622',miniop:.3,minis:mk()};
 const VEN={dir:'venise',paper:'#f6ecd6',edge:'#6a4a22',inner:'#c9a24a',red:'#b0302c',black:'#24242c',miniop:.32,minis:mk()};
 const EGY={dir:'egypte',paper:'#f6ebd0',edge:'#6a4a22',inner:'#c9a030',red:'#b0302c',black:'#1c1c24',miniop:.32,minis:mk()};
+const JPN={dir:'japon',paper:'#f6ead2',edge:'#3a2a2a',inner:'#b8903a',red:'#b02a2a',black:'#1c1c28',miniop:.32,minis:mk()};
 const DRAG={dir:'dragons',paper:'#f6ecd4',edge:'#8a6420',inner:'#d0a840',red:'#b0302c',black:'#26263a',miniop:.3,minis:mk()};
 /* dos illustrés */
 [['alice','Alice : la maison trop petite',700,'back1'],['alice','Alice : le thé du Chapelier',800,'back2'],['alice','Alice : le croquet de la Reine',900,'back3'],
@@ -411,6 +412,7 @@ const DRAG={dir:'dragons',paper:'#f6ecd4',edge:'#8a6420',inner:'#d0a840',red:'#b
 ['renards','Renards : la pêche en forêt',740,'back1'],['renards','Renards : la forêt sous la lune',840,'back2'],['renards','Renards : le village sous la neige',940,'back3'],
 ['venise','Venise : la gondole de nuit',780,'back1'],['venise','Venise : le bal masqué',880,'back2'],['venise','Venise : la place Saint-Marc',980,'back3'],
 ['egypte','Égypte : pyramides au crépuscule',800,'back1'],['egypte','Égypte : la barque sur le Nil',900,'back2'],['egypte','Égypte : le temple et ses colonnes',1000,'back3'],
+['japon','Japon : la grande vague',820,'back1'],['japon','Japon : temple et cerisiers',920,'back2'],['japon','Japon : le pont rouge en automne',1020,'back3'],
 ['dragons','Dragon et tour',760,'back1'],['dragons','Licorne en forêt',860,'back2'],['dragons','Château des nuages',960,'back3']].forEach(([d,n,p,f])=>BACKS.push({n,p,f:u=>'<defs><clipPath id="bc'+u+'"><rect x="7" y="7" width="155" height="231" rx="6"/></clipPath></defs><rect width="169" height="245" rx="11" fill="#fff"/><image href="'+IMGBASE+d+'/'+f+'.webp" x="7" y="7" width="155" height="231" preserveAspectRatio="xMidYMid slice" clip-path="url(#bc'+u+')"/><rect x="7" y="7" width="155" height="231" rx="6" fill="none" stroke="#6a4426" stroke-width="1.6"/>'}));
 
 /* ---------- Données partagées : portefeuille, boutique, cartes ---------- */
@@ -439,11 +441,12 @@ const COURTS=[
  {n:'Renards des bois',p:820,art:'img',th:'FOX',v:''},
  {n:'Dragons et licornes',p:900,art:'img',th:'DRAG',v:''},
  {n:'Carnaval de Venise',p:960,art:'img',th:'VEN',v:''},
- {n:'Égypte des pharaons',p:1000,art:'img',th:'EGY',v:''}
+ {n:'Égypte des pharaons',p:1000,art:'img',th:'EGY',v:''},
+ {n:'Japon des estampes',p:1100,art:'img',th:'JPN',v:''}
 ];
 const BGS=[
  {n:'Tapis vert',p:0},{n:'Tapis bleu',p:20},{n:'Bois de noyer',p:40},{n:'Velours bordeaux',p:60},{n:'Océan',p:90},{n:'Prairie fleurie',p:120},
- {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice : papier peint',p:350,img:'alice/bg2'},{n:'Alice et la Chenille',p:700,img:'alice/bg1'},{n:'Chats : salon victorien',p:720,img:'chats/bg1'},{n:'Renards : sous-bois d\'automne',p:740,img:'renards/bg1'},{n:'Château dans les nuages',p:860,img:'dragons/bg1'},{n:'Venise : canal de nuit',p:800,img:'venise/bg1'},{n:'Le Nil au coucher du soleil',p:880,img:'egypte/bg1'}
+ {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice : papier peint',p:350,img:'alice/bg2'},{n:'Alice et la Chenille',p:700,img:'alice/bg1'},{n:'Chats : salon victorien',p:720,img:'chats/bg1'},{n:'Renards : sous-bois d\'automne',p:740,img:'renards/bg1'},{n:'Château dans les nuages',p:860,img:'dragons/bg1'},{n:'Venise : canal de nuit',p:800,img:'venise/bg1'},{n:'Le Nil au coucher du soleil',p:880,img:'egypte/bg1'},{n:'Japon : cerisiers et mont Fuji',p:900,img:'japon/bg1'}
 ];
 const CATS={back:{t:'Dos',items:BACKS},court:{t:'Têtes',items:COURTS},bg:{t:'Fonds',items:BGS}};
 let S={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};
