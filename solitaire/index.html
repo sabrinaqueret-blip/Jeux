@@ -33,7 +33,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bar button:disabled{opacity:.4}
 .card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);touch-action:none;will-change:transform;transition:transform .17s ease-out}
 .card.drag{transition:none;z-index:900!important}
-.card .fr,.card .bk{position:absolute;inset:0;border-radius:calc(var(--cw)*.11);overflow:hidden;box-sizing:border-box;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+.card .fr,.card .bk{position:absolute;inset:0;border-radius:calc(var(--cw)*.11);overflow:hidden;box-sizing:border-box;box-shadow:0 1px 2px rgba(0,0,0,.35)}
+.card.nsh .bk{box-shadow:none}
 .card .fr{background:#fff;padding:calc(var(--cw)*.045);border:1px solid rgba(0,0,0,.35)}
 .card .fr svg{width:100%;height:100%;display:block;border-radius:calc(var(--cw)*.05)}
 .card .bk{border:calc(var(--cw)*.04) solid #fff}
@@ -65,6 +66,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .shop{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
 .si{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;background:var(--panel);border:3px solid var(--uie);border-radius:14px}
 .si.on{border-color:var(--teal)}
+.si .vw{background:var(--panel2);color:var(--text);font-size:12px;padding:4px 10px}
+.pvbig{width:70%;margin:6px auto}.pvbig svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.pvbg{width:70%;aspect-ratio:9/16;margin:6px auto;border-radius:14px;border:3px solid var(--uie);position:relative;overflow:hidden}
+.pvall{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;--paper:#fff;width:100%}.pvall svg{width:100%;height:auto;aspect-ratio:169/245;fill:var(--ink,#000);border-radius:6px;background:var(--paper,#fff);display:block}
 .si b{font-size:13px}.si button{padding:6px 12px;font-weight:800;background:var(--pink);color:#2a0f3d;border:2px solid var(--uie);border-radius:10px}
 .si button:disabled{opacity:.4}.si .tag{color:var(--teal);font-weight:800;font-size:13px}
 .pv{width:100%;display:flex;align-items:center;justify-content:center;gap:2px}
@@ -475,11 +480,12 @@ function openShop(back){
   let h='<h2>Boutique</h2><p class="gold">'+S.gems+' 💎</p><div class="chips">'+Object.keys(CATS).map(k=>'<button data-t="'+k+'" class="'+(k===shopTab?'on':'')+'">'+CATS[k].t+'</button>').join('')+'</div><div class="shop">';
   cat.items.map((it,i)=>[it,i]).sort((a,b)=>a[0].p-b[0].p||a[1]-b[1]).forEach(([it,i])=>{
     const has=own.includes(i),on=S.sel[shopTab]===i;
-    h+='<div class="si'+(on?' on':'')+'">'+previewHTML(shopTab,i)+'<b>'+it.n+'</b>'+(on?'<span class="tag">Utilisé</span>':has?'<button data-use="'+i+'">Utiliser</button>':'<button data-buy="'+i+'"'+(S.gems<it.p?' disabled':'')+'>'+it.p+' 💎</button>')+'</div>';
+    h+='<div class="si'+(on?' on':'')+'">'+previewHTML(shopTab,i)+'<b>'+it.n+'</b><button class="vw" data-vw="'+i+'">👁 Voir</button>'+(on?'<span class="tag">Utilisé</span>':has?'<button data-use="'+i+'">Utiliser</button>':'<button data-buy="'+i+'"'+(S.gems<it.p?' disabled':'')+'>'+it.p+' 💎</button>')+'</div>';
   });
   h+='</div><button class="ob" id="shx">Retour</button>';
   modal(h);
   const o=$('ov');
+  o.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>openPreview(shopTab,+b.dataset.vw,()=>openShop(back)));
   o.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{shopTab=b.dataset.t;openShop(back);});
   o.querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>{S.sel[shopTab]=+b.dataset.use;saveS();applyCosm();back&&back();SND.put();openShop(back);});
   o.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const i=+b.dataset.buy,p=cat.items[i].p;if(S.gems<p)return;S.gems-=p;S.own[shopTab].push(i);S.sel[shopTab]=i;saveS();gemsUpdate();applyCosm();back&&back();SND.win();toast('Nouveau : '+cat.items[i].n+' !');openShop(back);});
@@ -515,6 +521,22 @@ function winRain(srcEls,done){
   requestAnimationFrame(step);
 }
 function rewardHTML(gain,lines){return '<div class="big">💎</div><p class="gold" style="font-size:26px;margin:0">+'+gain+'</p>'+lines.map(l=>'<p class="muted" style="margin:2px 0">'+l+'</p>').join('');}
+
+/* ---------- Aperçu plein écran ---------- */
+function faceHTML(CT,k){
+  if(CT.art==='img')return '<svg class="cd" viewBox="0 0 169.075 244.64">'+imgFace(eval(CT.th),k)+'</svg>';
+  const r=rankOf(k),su=SUITS[suitOf(k)];
+  if(CT.art&&r>=11)return '<svg class="cd" viewBox="0 0 169.075 244.64">'+courtArt(CT.art,su,({11:'jack',12:'queen',13:'king'})[r])+'</svg>';
+  return '<svg class="cd" viewBox="0 0 169.075 244.64"><use href="#'+cardId(k)+'"/></svg>';
+}
+function openPreview(cat,i,back){
+  let h='<h2>'+CATS[cat].items[i].n+'</h2>';
+  if(cat==='back')h+='<div class="pvbig">'+bkSVG(i,'v'+i)+'</div>';
+  else if(cat==='bg'){const B=BGS[i];h+='<div class="pvbg '+(B.img?'':'table bg'+i)+'" style="'+(B.img?'background:url('+IMGBASE+B.img+'.webp) center/cover':'')+'"></div>';}
+  else{const CT=COURTS[i];let g='';for(let r=0;r<13;r++)for(let s=0;s<4;s++)g+=faceHTML(CT,s*13+r);h+='<div class="pvall" style="'+(CT.v||'')+'">'+g+'</div>';}
+  h+='<button class="ob" id="pvx">Retour</button>';
+  modal(h);$('pvx').onclick=()=>{back&&back();};
+}
 
 /* ---------- Fonds de table (CSS + petits SVG) ---------- */
 (function(){
@@ -733,12 +755,13 @@ function drawStock(){
 }
 /* ---- affichage ---- */
 function render(){
+  Object.values(Bd.els).forEach(e=>e.classList.remove('nsh'));
   Bd.metrics(7,0);
   const cw=Bd.cw,ch=Bd.ch,top=6,tabY=top+ch+Math.round(ch*.22),availH=Bd.H-tabY-4;
   Bd.geo=[];Bd.loc={};
   /* pioche */
   Bd.slot('S',Bd.colX(0),top,st.stock.length||st.waste.length?'↻':'');
-  st.stock.forEach((v,k)=>{const c=cv_(v),e=Bd.els[c];e.classList.add('dn');Bd.place(e,Bd.colX(0),top,10+k);Bd.loc[c]={p:'S',i:k};});
+  st.stock.forEach((v,k)=>{const c=cv_(v),e=Bd.els[c];e.classList.add('dn');e.classList.toggle('nsh',k<st.stock.length-1);Bd.place(e,Bd.colX(0),top,10+k);Bd.loc[c]={p:'S',i:k};});
   /* talon : jusqu'à 3 cartes en éventail */
   const wn=st.waste.length,fan=Math.min(wn,st.draw===3?3:1);
   Bd.slot('W',Bd.colX(1),top,'');
