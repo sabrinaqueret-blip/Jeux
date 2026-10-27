@@ -44,7 +44,7 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 #ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:18px;max-width:380px;width:100%;text-align:center}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;z-index:10;max-width:90%;text-align:center}
 [hidden]{display:none!important}
-.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:44px;height:44px;border-radius:10px;border:3px solid transparent;padding:0;overflow:hidden}.themes button.on{border-color:var(--gold)}
+.pv{display:flex;justify-content:center;gap:4px;margin:8px 0}.pv img{width:22%;aspect-ratio:1;object-fit:contain;object-position:bottom}.gold{color:var(--gold);font-weight:800}.themes.pcs button{position:relative;background:#0004;display:flex;align-items:flex-end;justify-content:center;font-size:26px;color:var(--ink)}.themes.pcs button img{width:100%;height:100%;object-fit:contain;object-position:bottom}.themes.pcs button.lk img{opacity:.55}.themes.pcs em{position:absolute;right:0;top:0;font-style:normal;font-size:13px}.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:44px;height:44px;border-radius:10px;border:3px solid transparent;padding:0;overflow:hidden}.themes button.on{border-color:var(--gold)}
 .promo{display:flex;gap:8px;justify-content:center;margin:12px 0}.promo button{width:64px;height:64px;border-radius:12px;border:2px solid var(--gold);background:var(--l);padding:0;font-size:44px;position:relative}
 </style>
 </head>
@@ -205,7 +205,7 @@ const genCode=()=>Array.from({length:4},()=>CHARS[(Math.random()*CHARS.length)|0
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const KEY='echecs-v1';
-let P={name:'',code:'',level:1,theme:0,set:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+let P={name:'',code:'',level:1,theme:0,pieces:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
 // thèmes illustrés : mêmes dossiers que les cartes. pc:1 quand les 12 images de pièces existent (p_wk…p_bp.webp)
 const SETS=[
@@ -226,11 +226,20 @@ const SETS=[
  {n:'Aventuriers des mers',dir:'marins',pc:1,l:'#f1e4c4',d:'#1f5f8a'}
 ];
 function cur(){return SETS[P.theme]||SETS[0];}
+/* ---- portefeuille 💎 partagé avec les jeux de cartes (clé cartes-v1) ---- */
+const WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(!j.own)j.own={};if(!j.own.chess)j.own.chess=[0];if(typeof j.gems!=='number')j.gems=20;return j;}
+function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
+const PRICE=500;
+const owned=i=>i===0||wal().own.chess.includes(i);
+function pcur(){const i=P.pieces|0;const t=SETS[i]||SETS[0];return(i>0&&t.pc&&owned(i))?t:SETS[0];}
+function addGems(n){const j=wal();j.gems+=n;walSave(j);return j.gems;}
+
 function applyTheme(){const t=cur();const s=document.documentElement.style;s.setProperty('--l',t.l);s.setProperty('--d',t.d);
  document.body.style.backgroundImage=t.dir?'linear-gradient(#0009,#0007),url(../cartes-img/'+t.dir+'/bg1.webp)':'none';document.body.style.backgroundSize='cover';document.body.style.backgroundPosition='center';}
 const GL={k:'\u265A\uFE0E',q:'\u265B\uFE0E',r:'\u265C\uFE0E',b:'\u265D\uFE0E',n:'\u265E\uFE0E',p:'\u265F\uFE0E'};
 // jeux de pièces : pour l'instant « Classique » (caractères). Les jeux illustrés s'ajoutent ici : {dir, ext}.
-function pieceHTML(p){const w=isW(p),t=cur();if(t.pc)return '<span class="pc"><img alt="" src="../cartes-img/'+t.dir+'/p_'+(w?'w':'b')+p.toLowerCase()+'.webp"></span>';return '<span class="pc '+(w?'w':'b')+'">'+GL[p.toLowerCase()]+'</span>';}
+function pieceHTML(p){const w=isW(p),t=pcur();if(t.pc)return '<span class="pc"><img alt="" src="../cartes-img/'+t.dir+'/p_'+(w?'w':'b')+p.toLowerCase()+'.webp"></span>';return '<span class="pc '+(w?'w':'b')+'">'+GL[p.toLowerCase()]+'</span>';}
 function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
 function show(m){mode=m;['home','lobby','game'].forEach(k=>$(k).hidden=k!==m);}
 let mode='home',G=null,view=null,my=1,kind='solo',peer=null,conn=null,roomCode='',sel=-1,busy=false,names={1:'Toi','-1':'Ordinateur'};
@@ -244,10 +253,12 @@ function showHome(){
    '<button class="ob" id="solo">Jouer contre l’ordinateur</button>'+
    '<button class="ob alt" id="host">Créer une partie en ligne</button>'+
    '<div class="join"><input id="cd" maxlength="4" placeholder="CODE" value="'+esc(P.code)+'" aria-label="Code de la partie" autocapitalize="characters"><button class="ob alt" id="joinB">Rejoindre</button></div>'+
-   '<p class="muted" style="margin-top:14px">Thème : <b>'+cur().n+'</b></p><div class="themes">'+SETS.map((t,i)=>'<button data-th="'+i+'" class="'+(P.theme===i?'on':'')+'" style="background:linear-gradient(135deg,'+t.l+' 50%,'+t.d+' 50%)" aria-label="'+t.n+'"></button>').join('')+'</div>';
+   '<p class="muted" style="margin-top:14px">Plateau et fond (gratuit) : <b>'+cur().n+'</b></p><div class="themes">'+SETS.map((t,i)=>'<button data-th="'+i+'" class="'+(P.theme===i?'on':'')+'" style="background:linear-gradient(135deg,'+t.l+' 50%,'+t.d+' 50%)" aria-label="'+t.n+'"></button>').join('')+'</div>'+
+   '<p class="muted" style="margin-top:14px">Pièces : <b>'+(SETS[P.pieces|0]||SETS[0]).n+'</b> · <span class="gold">'+wal().gems+' 💎</span></p><div class="themes pcs">'+SETS.map((t,i)=>t.pc||i===0?'<button data-pc="'+i+'" class="'+((P.pieces|0)===i?'on':'')+(owned(i)?'':' lk')+'" aria-label="'+t.n+'">'+(i===0?'♞':'<img alt="" src="../cartes-img/'+t.dir+'/p_wn.webp">')+(owned(i)?'':'<em>🔒</em>')+'</button>':'').join('')+'</div>';
   const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
   $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.level=+b.dataset.l;saveP();showHome();});
   $('home').querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{P.theme=+b.dataset.th;saveP();applyTheme();showHome();});
+  $('home').querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pc;if(owned(i)){P.pieces=i;saveP();showHome();}else buyDlg(i);});
   $('solo').onclick=()=>startSolo(nm());
   $('host').onclick=()=>hostOnline(nm());
   $('joinB').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');P.code=c;joinOnline(nm(),c);};
@@ -328,8 +339,15 @@ function render(){
   if(!v.over)render.shown=0;
 }
 addEventListener('resize',()=>{if(mode==='game')render();});
+function buyDlg(i){const t=SETS[i],g=wal().gems,d='../cartes-img/'+t.dir+'/';
+  openOv('<h2>'+t.n+'</h2><div class="pv">'+['wk','wq','bk','bq'].map(k=>'<img alt="" src="'+d+'p_'+k+'.webp">').join('')+'</div><p class="muted">Jeu de pièces illustrées</p><p class="gold">'+g+' 💎</p>'+(g>=PRICE?'<button class="ob" id="by">Acheter · '+PRICE+' 💎</button>':'<p class="muted">Il te manque '+(PRICE-g)+' 💎. Gagne des parties (ici ou aux cartes) pour en obtenir.</p>')+'<button class="ob alt" id="cl">Fermer</button>');
+  $('cl').onclick=closeOv;const by=$('by');if(by)by.onclick=()=>{const j=wal();if(j.gems<PRICE)return;j.gems-=PRICE;j.own.chess.push(i);walSave(j);P.pieces=i;saveP();closeOv();showHome();};}
+let lastReward='';
+function reward(v){const key=JSON.stringify(v.b)+v.reason;if(key===lastReward)return;lastReward=key;
+  if(v.winner!==my||v.winner===0)return;const n=kind==='solo'?[5,10,20][P.level]||10:10;const g=addGems(n);toast('+'+n+' 💎 (total '+g+')',3000);}
 function endDialog(){
   if(!view||!view.over||mode!=='game')return;
+  reward(view);
   const v=view,t=v.winner===0?'Partie nulle':v.winner===my?'🎉 Victoire !':'Défaite';
   openOv('<h2>'+t+'</h2><p class="muted">'+esc(v.reason)+'</p><button class="ob" id="ag">'+(kind==='guest'?'Demander une revanche':'Nouvelle partie')+'</button><button class="ob alt" id="q">Menu</button>');
   $('ag').onclick=()=>{if(kind==='solo')startSolo(names[1]);else if(kind==='host'){G=new Game();closeOv();push();}else{try{conn.send({t:'again'});}catch(e){}closeOv();toast('Revanche demandée…');}};
