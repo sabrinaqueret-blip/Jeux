@@ -434,6 +434,7 @@ const HAT={hat_top:[.8,.22],hat_party:[.5,.1],hat_crown:[.7,.3],hat_wizard:[1.05
 function drawPet(s,cx,base,t,mood){
   const st=s.stage,spi=s.species|0,sp=SPN[spi]||'cat',sx=s.sex==='m'?'m':'f';
   const bad=(st==='teen'&&s.form)||(st==='adult'&&s.form2);
+  const hideAcc=bad||mood==='sick'||s.sick;
   const im=img(sp+'_'+sx+'_'+st+(bad?'_bad':'')+'.png');
   if(!imOk(im))return;
   const k=116/ADH[spi],w=im.naturalWidth*k,h=im.naturalHeight*k;
@@ -453,9 +454,9 @@ function drawPet(s,cx,base,t,mood){
   ctx.save();ctx.translate(cx,base+bob);ctx.rotate(rot);ctx.scale(sxs,sy);
   const a=st==='egg'?null:ANC[sp][STI[st]];
   const X=a?(a[0]-.5)*w:0,HW=a?a[3]*w:0,Y=f=>-h+f*h;
-  if(a&&!bad&&W.neck==='neck_cape')ai('neck_cape',0,Y(a[4])-h*.03,w*.95,'t');
+  if(a&&!hideAcc&&W.neck==='neck_cape')ai('neck_cape',0,Y(a[4])-h*.03,w*.95,'t');
   ctx.drawImage(src,-w/2,-h,w,h);
-  if(a&&!bad){
+  if(a&&!hideAcc){
     const hat=W.hat,fc=W.face,nk=W.neck,sd=W.side,top=Y(a[1]),ey=Y(a[2]),ny=Y(a[4]);
     if(hat){
       if(HAT[hat]){const c=HAT[hat],wd=HW*c[0],im2=img('acc/'+hat+'.png');if(imOk(im2)){const hh=wd*im2.naturalHeight/im2.naturalWidth;ai(hat,X+(hat==='hat_party'?HW*.12:0),top+hh*c[1],wd,'b');}}
