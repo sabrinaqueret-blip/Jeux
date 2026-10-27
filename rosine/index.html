@@ -424,6 +424,8 @@ function buildPlat(cfg){
     }
   }
   flat(W-x);
+  /* le point de reprise du boss ne doit jamais tomber au-dessus d'un trou */
+  for(let tx=Math.max(0,W-26);tx<W;tx++)if(SOLID[tiles[GR][tx]]!==1)col(tx,GR);
   let boss=null;
   if(cfg.boss>=0){
     boss={kind:cfg.boss,x:(W-14)*T,x0:(W-14)*T,y:GR*T-28,w:24,h:28,defeated:false,cd:0,fire:60};
@@ -555,6 +557,7 @@ function hurt(g,sx){
 function respawn(g){
   const p=g.p;
   p.x=g.cps[g.cpi];p.y=g.kind==='copter'?4*T:GR*T-p.h-1;p.vx=0;p.vy=0;p.inv=90;p.atkT=0;
+  if(g.kind!=='copter'){let tx=Math.floor(p.x/T);while(tx>2&&!(solidAt(g,tx,GR)&&solidAt(g,Math.floor((p.x+p.w)/T),GR))){tx--;p.x=tx*T+2;}}
   g.camX=Math.max(0,Math.min(g.W*T-VW,p.x-VW/2));
 }
 function updateEnemy(g,e){
