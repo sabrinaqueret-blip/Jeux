@@ -424,7 +424,7 @@ const ANC={
 };
 const STI={baby:0,child:1,teen:2,adult:3};
 const IM={};
-function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=4';IM[p]=i;}return i;}
+function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=5';IM[p]=i;}return i;}
 const imOk=i=>i&&i.complete&&i.naturalWidth>0;
 const TC={};
 function tinted(im,key,col,a){const k=key+col+a;let c=TC[k];if(c)return c;c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=a;x.fillStyle=col;x.fillRect(0,0,c.width,c.height);return TC[k]=c;}
@@ -453,9 +453,9 @@ function drawPet(s,cx,base,t,mood){
   ctx.save();ctx.translate(cx,base+bob);ctx.rotate(rot);ctx.scale(sxs,sy);
   const a=st==='egg'?null:ANC[sp][STI[st]];
   const X=a?(a[0]-.5)*w:0,HW=a?a[3]*w:0,Y=f=>-h+f*h;
-  if(a&&W.neck==='neck_cape')ai('neck_cape',0,Y(a[4])-h*.03,w*.95,'t');
+  if(a&&!bad&&W.neck==='neck_cape')ai('neck_cape',0,Y(a[4])-h*.03,w*.95,'t');
   ctx.drawImage(src,-w/2,-h,w,h);
-  if(a){
+  if(a&&!bad){
     const hat=W.hat,fc=W.face,nk=W.neck,sd=W.side,top=Y(a[1]),ey=Y(a[2]),ny=Y(a[4]);
     if(hat){
       if(HAT[hat]){const c=HAT[hat],wd=HW*c[0],im2=img('acc/'+hat+'.png');if(imOk(im2)){const hh=wd*im2.naturalHeight/im2.naturalWidth;ai(hat,X+(hat==='hat_party'?HW*.12:0),top+hh*c[1],wd,'b');}}
@@ -503,9 +503,9 @@ function drawWall(id,t){
 
 /* icônes illustrées pour la boutique */
 Object.keys(ITEMS).forEach(k=>{const it=ITEMS[k];
-  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=4" alt="">';
-  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=4" alt="">';
-  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=4" alt="">';});
+  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=5" alt="">';
+  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=5" alt="">';
+  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=5" alt="">';});
 const HYB={'0-1':'Dragochat','0-2':'Chatpin','0-3':'Licochat','0-4':'Pandichat','0-5':'Goupichat','0-6':'Chatbot','0-7':'Pastchat',
  '1-2':'Dragolap','1-3':'Licodrago','1-4':'Pandragon','1-5':'Dragoupil','1-6':'Dragobot','1-7':'Dragopastel',
  '2-3':'Licolap','2-4':'Pandilap','2-5':'Goulapin','2-6':'Lapbot','2-7':'Pastelap',
@@ -1015,7 +1015,7 @@ function showPick(){
   const draw=()=>{
     const sp=SPECIES[sel];
     openModal('<h2>Un œuf mystérieux</h2><p class="muted">Choisis un œuf. Selon tes soins, il deviendra une créature différente.</p><div class="eggs">'+
-      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=4" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
+      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=5" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
       '<div class="detail"><h3>'+sp.emoji+' '+sp.name+'</h3><p>'+sp.desc+'</p>'+(ok(sel)?'':'<p style="color:var(--gold);font-weight:800">🔒 À débloquer à la boutique (onglet Œufs) : '+sp.price+' 💎</p>')+'</div>'+
       '<div class="chips"><button data-sx="f" class="'+(sex==='f'?'on':'')+'">♀ Fille</button><button data-sx="m" class="'+(sex==='m'?'on':'')+'">♂ Garçon</button></div>'+
       '<input class="nm" id="nameIn" maxlength="12" placeholder="Son prénom" value="'+(window.__nm||'')+'" aria-label="Prénom">'+
