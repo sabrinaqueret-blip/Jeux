@@ -445,6 +445,13 @@ function faceAnc(sp,sx,si){
 const STI={baby:0,child:1,teen:2,adult:3};
 /* espèces croisées dessinées : hauteur de l'adulte (px) et repères du visage, comme ANC */
 const HYBD={
+'3-7':{ah:277,a:[[0.4,0.11,0.28,0.65,0.44],[0.28,0.15,0.33,0.5,0.55],[0.25,0.13,0.28,0.4,0.47],[0.27,0.14,0.27,0.35,0.46]]},
+'4-5':{ah:300,a:[[0.38,0.13,0.3,0.65,0.46],[0.33,0.13,0.31,0.5,0.53],[0.19,0.22,0.37,0.4,0.56],[0.26,0.23,0.36,0.35,0.55]]},
+'4-6':{ah:292,a:[[0.43,0.15,0.32,0.65,0.48],[0.38,0.16,0.34,0.5,0.56],[0.29,0.13,0.28,0.4,0.47],[0.28,0.15,0.28,0.35,0.47]]},
+'4-7':{ah:347,a:[[0.45,0.13,0.3,0.65,0.46],[0.46,0.12,0.3,0.5,0.52],[0.36,0.15,0.3,0.4,0.49],[0.41,0.13,0.26,0.35,0.45]]},
+'5-6':{ah:341,a:[[0.46,0.24,0.41,0.65,0.57],[0.35,0.16,0.34,0.5,0.56],[0.27,0.19,0.34,0.4,0.53],[0.22,0.19,0.32,0.35,0.51]]},
+'5-7':{ah:368,a:[[0.36,0.17,0.34,0.65,0.5],[0.4,0.16,0.34,0.5,0.56],[0.28,0.18,0.33,0.4,0.52],[0.32,0.2,0.33,0.35,0.52]]},
+'6-7':{ah:355,a:[[0.49,0.2,0.37,0.65,0.53],[0.48,0.2,0.38,0.5,0.6],[0.5,0.21,0.36,0.4,0.55],[0.5,0.22,0.35,0.35,0.54]]},
 '2-4':{ah:340,a:[[0.38,0.09,0.26,0.65,0.42],[0.4,0.24,0.42,0.5,0.64],[0.35,0.21,0.36,0.4,0.55],[0.25,0.26,0.39,0.35,0.58]]},
 '2-5':{ah:318,a:[[0.32,0.13,0.3,0.65,0.46],[0.27,0.23,0.41,0.5,0.63],[0.22,0.3,0.45,0.4,0.64],[0.22,0.31,0.44,0.35,0.63]]},
 '2-6':{ah:370,a:[[0.47,0.11,0.28,0.65,0.44],[0.48,0.18,0.36,0.5,0.58],[0.35,0.2,0.35,0.4,0.54],[0.26,0.26,0.39,0.35,0.58]]},
@@ -467,7 +474,7 @@ const HYBD={
 '0-6':{ah:333,a:[[.45,.20,.30,.75,.55],[.42,.15,.30,.55,.5],[.40,.15,.30,.4,.45],[.40,.15,.35,.4,.5]]},
 '0-7':{ah:311,a:[[.45,.12,.33,.7,.5],[.40,.13,.35,.6,.5],[.38,.25,.38,.4,.5],[.35,.25,.35,.3,.5]]}};
 const IM={};
-function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=16';IM[p]=i;}return i;}
+function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=17';IM[p]=i;}return i;}
 const imOk=i=>i&&i.complete&&i.naturalWidth>0;
 const TC={};
 function tinted(im,key,col,a){const k=key+col+a;let c=TC[k];if(c)return c;c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=a;x.fillStyle=col;x.fillRect(0,0,c.width,c.height);return TC[k]=c;}
@@ -550,9 +557,9 @@ function drawWall(id,t){
 
 /* icônes illustrées pour la boutique */
 Object.keys(ITEMS).forEach(k=>{const it=ITEMS[k];
-  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=16" alt="">';
-  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=16" alt="">';
-  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=16" alt="">';});
+  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=17" alt="">';
+  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=17" alt="">';
+  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=17" alt="">';});
 const HYB={'0-1':'Dragochat','0-2':'Chatpin','0-3':'Licochat','0-4':'Pandichat','0-5':'Goupichat','0-6':'Chatbot','0-7':'Pastchat',
  '1-2':'Dragolap','1-3':'Licodrago','1-4':'Pandragon','1-5':'Dragoupil','1-6':'Dragobot','1-7':'Dragopastel',
  '2-3':'Licolap','2-4':'Pandilap','2-5':'Goulapin','2-6':'Lapbot','2-7':'Pastelap',
@@ -1068,7 +1075,7 @@ function showPick(){
   const draw=()=>{
     const sp=SPECIES[sel];
     openModal('<h2>Un œuf mystérieux</h2><p class="muted">Choisis un œuf. Selon tes soins, il deviendra une créature différente.</p><div class="eggs">'+
-      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=16" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
+      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=17" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
       '<div class="detail"><h3>'+sp.emoji+' '+sp.name+'</h3><p>'+sp.desc+'</p>'+(ok(sel)?'':'<p style="color:var(--gold);font-weight:800">🔒 À débloquer à la boutique (onglet Œufs) : '+sp.price+' 💎</p>')+'</div>'+
       '<div class="chips"><button data-sx="f" class="'+(sex==='f'?'on':'')+'">♀ Fille</button><button data-sx="m" class="'+(sex==='m'?'on':'')+'">♂ Garçon</button></div>'+
       '<input class="nm" id="nameIn" maxlength="12" placeholder="Son prénom" value="'+(window.__nm||'')+'" aria-label="Prénom">'+
