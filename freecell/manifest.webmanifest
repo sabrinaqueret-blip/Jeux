@@ -1,0 +1,32 @@
+{
+  "name": "FreeCell",
+  "short_name": "FreeCell",
+  "description": "FreeCell sans publicité : donnes numérotées, gagne des diamants pour débloquer de beaux dos de cartes, figures et fonds.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c1d4a",
+  "theme_color": "#0c1d4a",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
