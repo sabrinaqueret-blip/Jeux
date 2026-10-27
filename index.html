@@ -38,6 +38,7 @@ a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
 <a class="g" href="solitaire/"><img src="solitaire/icons/icon-192.png" alt=""><div><b>Solitaire</b><span>Le classique · gagne des 💎 pour de beaux dos de cartes</span></div></a>
 <a class="g" href="freecell/"><img src="freecell/icons/icon-192.png" alt=""><div><b>FreeCell</b><span>Donnes numérotées · figures et fonds à débloquer</span></div></a>
 <a class="g" href="coinche/"><img src="coinche/icons/icon-192.png" alt=""><div><b>Coinche entre amis</b><span>Cartes à 4 · robots ou en ligne avec un code</span></div></a>
+<a class="g" href="dames/"><img src="dames/icons/icon-192.png" alt=""><div><b>Dames</b><span>Dames françaises 10×10 · robot ou en ligne avec un code</span></div></a>
 <a class="g" href="tama/"><img src="tama/icons/icon-192.png" alt=""><div><b>Mon petit compagnon</b><span>Tamagotchi · 7 espèces, musiques, jeux, boutique</span></div></a>
 <a class="g" href="rosine/"><img src="rosine/icons/icon-192.png" alt=""><div><b>Rosine la Lutine</b><span>Plateformes · 10 mondes, vélo, libellule, boutique</span></div></a>
 <a class="g" href="sudoku/"><img src="sudoku/icons/icon-192.png" alt=""><div><b>Sudoku Expert</b><span>4 niveaux, indices, notes</span></div></a>
@@ -62,7 +63,7 @@ a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
 </script>
 <script>
 (function(){
-  const VERSION='n°45 · 27/10 07:15';
+  const VERSION='n°46 · 27/10 07:20';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
   document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));});
