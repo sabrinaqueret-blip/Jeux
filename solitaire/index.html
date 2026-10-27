@@ -78,6 +78,19 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pvg{height:110px;position:relative;border-radius:10px;overflow:hidden}
 .sw{display:flex;justify-content:space-between;width:100%;padding:12px;background:var(--panel);border:3px solid var(--uie);border-radius:12px;font-weight:700}
 @media (prefers-reduced-motion:reduce){.card{transition:none}}
+/*UIKIT*/
+#ov{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#ov>div{border-radius:26px!important;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset,0 0 40px #a65cff22;background-image:linear-gradient(165deg,#ffffff12,#ffffff00 40%)}
+#ov h2,#ov h1{letter-spacing:.3px;text-shadow:0 2px 8px #0008}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.ob{background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);border-radius:16px!important;text-shadow:0 1px 0 #ffffff55;transition:transform .08s,box-shadow .08s}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));text-shadow:none}
+.chips button,.tabs button{transition:transform .08s}
+.chips button.on,.tabs button.on{box-shadow:0 0 14px #f6c85f99}
+.si,.it{border-radius:18px!important;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
+.si.on,.it.on{box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
+.chip{box-shadow:0 2px 6px #0005}
 </style>
 </head>
 <body>
@@ -944,3 +957,5 @@ function boot(){
 boot();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
+
+<script>/*UIKIT*/(function(){const ov=document.getElementById('ov');if(!ov||!window.MutationObserver)return;const mo=new MutationObserver(()=>{const d=ov.firstElementChild;if(!d||ov.hidden||d.querySelector('.mi')||!d.querySelector('h1,h2'))return;const i=new Image();i.src='icons/icon-192.png';i.className='mi';i.alt='';d.insertBefore(i,d.firstChild);});mo.observe(ov,{childList:true,attributes:true});})();</script>

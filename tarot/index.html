@@ -109,6 +109,19 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
   .seat.r1,.seat.r3{top:38%}.mini u{width:9px;height:13px}
   .bidp{left:20%;right:20%;border:2px solid var(--gold);border-bottom:0;border-radius:12px 12px 0 0}.vals{flex-wrap:wrap;overflow:visible}.vals button{padding:4px 8px;min-width:42px}.suits{flex:1 1 100%}.acts{flex:1 1 100%}.acts .ob{padding:5px}
 }
+/*UIKIT*/
+#ov{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#ov>div{border-radius:26px!important;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset,0 0 40px #a65cff22;background-image:linear-gradient(165deg,#ffffff12,#ffffff00 40%)}
+#ov h2,#ov h1{letter-spacing:.3px;text-shadow:0 2px 8px #0008}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.ob{background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);border-radius:16px!important;text-shadow:0 1px 0 #ffffff55;transition:transform .08s,box-shadow .08s}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));text-shadow:none}
+.chips button,.tabs button{transition:transform .08s}
+.chips button.on,.tabs button.on{box-shadow:0 0 14px #f6c85f99}
+.si,.it{border-radius:18px!important;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
+.si.on,.it.on{box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
+.chip{box-shadow:0 2px 6px #0005}
 </style>
 <div id="home" class="screen"></div>
 <div id="lobby" class="screen" hidden></div>
@@ -920,3 +933,5 @@ function showMemo(){
 }
 
 </script>
+
+<script>/*UIKIT*/(function(){const ov=document.getElementById('ov');if(!ov||!window.MutationObserver)return;const mo=new MutationObserver(()=>{const d=ov.firstElementChild;if(!d||ov.hidden||d.querySelector('.mi')||!d.querySelector('h1,h2'))return;const i=new Image();i.src='icons/icon-192.png';i.className='mi';i.alt='';d.insertBefore(i,d.firstChild);});mo.observe(ov,{childList:true,attributes:true});})();</script>

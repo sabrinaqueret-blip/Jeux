@@ -46,6 +46,19 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 [hidden]{display:none!important}
 .pv{display:flex;justify-content:center;gap:4px;margin:8px 0}.pv img{width:22%;aspect-ratio:1;object-fit:contain;object-position:bottom}.gold{color:var(--gold);font-weight:800}.themes.pcs button{position:relative;background:#0004;display:flex;align-items:flex-end;justify-content:center;font-size:26px;color:var(--ink)}.themes.pcs button img{width:100%;height:100%;object-fit:contain;object-position:bottom}.themes.pcs button.lk img{opacity:.55}.themes.pcs em{position:absolute;right:0;top:0;font-style:normal;font-size:13px}.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:44px;height:44px;border-radius:10px;border:3px solid transparent;padding:0;overflow:hidden}.themes button.on{border-color:var(--gold)}
 .promo{display:flex;gap:8px;justify-content:center;margin:12px 0}.promo button{width:64px;height:64px;border-radius:12px;border:2px solid var(--gold);background:var(--l);padding:0;font-size:44px;position:relative}
+/*UIKIT*/
+#ov{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#ov>div{border-radius:26px!important;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset,0 0 40px #a65cff22;background-image:linear-gradient(165deg,#ffffff12,#ffffff00 40%)}
+#ov h2,#ov h1{letter-spacing:.3px;text-shadow:0 2px 8px #0008}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.ob{background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);border-radius:16px!important;text-shadow:0 1px 0 #ffffff55;transition:transform .08s,box-shadow .08s}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));text-shadow:none}
+.chips button,.tabs button{transition:transform .08s}
+.chips button.on,.tabs button.on{box-shadow:0 0 14px #f6c85f99}
+.si,.it{border-radius:18px!important;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
+.si.on,.it.on{box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
+.chip{box-shadow:0 2px 6px #0005}
 </style>
 </head>
 <body>
@@ -388,5 +401,6 @@ $('menu').onclick=()=>{if(view&&!view.over&&kind!=='solo'){openOv('<h2>Quitter l
 applyTheme();showHome();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
+<script>/*UIKIT*/(function(){const ov=document.getElementById('ov');if(!ov||!window.MutationObserver)return;const mo=new MutationObserver(()=>{const d=ov.firstElementChild;if(!d||ov.hidden||d.querySelector('.mi')||!d.querySelector('h1,h2'))return;const i=new Image();i.src='icons/icon-192.png';i.className='mi';i.alt='';d.insertBefore(i,d.firstChild);});mo.observe(ov,{childList:true,attributes:true});})();</script>
 </body>
 </html>
