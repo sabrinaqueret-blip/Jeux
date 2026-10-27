@@ -8,6 +8,7 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 - `echecs/` : Échecs complets (robot ou en ligne via un code, PeerJS)
 - `mahjong/` : Mahjong solitaire (tortue, 144 tuiles, donne toujours solvable)
 - `2048/` : 2048 (décors et tuiles en 💎)
+- `mots/` : Mots mêlés (mots français ou définitions → mots anglais)
 - `snake/` : Snake (accessoires, nourriture, décors payants en 💎)
 - `blocs/` : Blocs (tétrominos, réserve, styles de blocs)
 - `maze/` : Croque-labyrinthe (gommes, ennemis, accessoires)

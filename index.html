@@ -69,6 +69,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 <div class="grid">
 <a class="g" href="tama/" data-n="Mon petit compagnon"><span class="ic"><img src="tama/icons/icon-192.png" alt=""></span><b>Mon petit compagnon</b></a>
 <a class="g" href="rosine/" data-n="Rosine la Lutine"><span class="ic"><img src="rosine/icons/icon-192.png" alt=""></span><b>Rosine la Lutine</b></a>
+<a class="g" href="mots/" data-n="Mots mêlés"><span class="ic"><img src="mots/icons/icon-192.png" alt=""></span><b>Mots mêlés</b></a>
 <a class="g" href="sudoku/" data-n="Sudoku Expert"><span class="ic"><img src="sudoku/icons/icon-192.png" alt=""></span><b>Sudoku Expert</b></a>
 </div>
 <div id="ver"></div>
@@ -92,7 +93,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 </script>
 <script>
 (function(){
-  const VERSION='n°88 · 27/10 17:44';
+  const VERSION='n°89 · 27/10 17:45';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
   document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));const im=x.querySelector('img');if(im)im.src=im.getAttribute('src')+'?v='+encodeURIComponent(VERSION);x.addEventListener('click',()=>{try{localStorage.setItem('hub-last',x.dataset.n+'|'+x.getAttribute('href')+'|'+im.getAttribute('src'));}catch(e){}});});

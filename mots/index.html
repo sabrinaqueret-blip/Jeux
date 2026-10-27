@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14202e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mots mêlés">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Mots mêlés</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#f6f3e6;--muted:#b6c4d6;--gold:#f0c060}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none;overflow:hidden;touch-action:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom);background:var(--bg) center/cover no-repeat}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0;font-weight:800;text-shadow:0 1px 3px #000a}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #sc{flex:1;text-align:center}
+#main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+#bw{width:min(100%,calc(100vh - 330px));aspect-ratio:1;position:relative;background:#0a1420cc;border-radius:16px;padding:6px;box-shadow:0 12px 30px #000a,0 0 0 2px #ffffff22 inset;touch-action:none}
+#gr{position:relative;width:100%;height:100%;display:grid;touch-action:none}
+#gr b{display:flex;align-items:center;justify-content:center;font-weight:800;color:#f6f3e6;position:relative;z-index:2;pointer-events:none}
+#hl{position:absolute;inset:0;z-index:1;pointer-events:none}
+#wl{width:100%;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-height:150px;overflow:auto;touch-action:pan-y}
+#wl span{background:#0009;border-radius:999px;padding:4px 10px;font-weight:700;font-size:13px}
+#wl span.ok{color:var(--gold);text-decoration:line-through;opacity:.8}
+#main.def #bw{width:min(100%,calc(100vh - 440px))}#wl.def{max-height:230px;flex-direction:column;flex-wrap:nowrap;align-items:stretch}
+#wl.def span{border-radius:12px;text-align:left}
+#wl.def span.ok b{text-decoration:none;color:var(--gold)}
+#ctl{display:flex;gap:8px;padding:8px 0;width:100%}
+#ctl button{flex:1;padding:12px 4px;border-radius:14px;border:2px solid var(--gold);background:#0008;color:var(--ink);font:inherit;font-weight:900;font-size:16px;touch-action:manipulation}
+#ctl button:active{background:#f0c06055}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:16px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center;touch-action:pan-y}
+#ov h2{margin:4px 0 8px}
+.ob{display:block;width:100%;margin:8px 0;padding:13px;border-radius:14px;border:2px solid var(--gold);background:var(--gold);color:#12202e;font:inherit;font-weight:800}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted)}
+.muted{color:var(--muted)}.gold{color:var(--gold);font-weight:800}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.tabs button{padding:7px 12px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font:inherit;font-weight:700;font-size:14px}
+.tabs button.on{background:var(--gold);color:#12202e;border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.it{background:#0006;border:2px solid transparent;border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700}
+.it.on{border-color:var(--gold)}
+.it .pv{width:100%;aspect-ratio:1;border-radius:8px;background:#0004 center/cover no-repeat;display:flex;align-items:center;justify-content:center;gap:3px;overflow:hidden}
+.it .pv b{width:30%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#222}
+.it button{width:100%;padding:6px 2px;border-radius:8px;border:0;background:var(--gold);color:#12202e;font:inherit;font-weight:800;font-size:12px}
+.it button.u{background:#fff2;color:var(--ink)}.it button.no{background:#fff1;color:var(--muted)}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#000d;padding:10px 16px;border-radius:12px;z-index:60;max-width:90%;text-align:center}
+[hidden]{display:none!important}
+/*UIKIT*/
+#ov{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#ov>div{border-radius:26px!important;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset,0 0 40px #a65cff22;background-image:linear-gradient(165deg,#ffffff12,#ffffff00 40%)}
+#ov h2,#ov h1{letter-spacing:.3px;text-shadow:0 2px 8px #0008}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.ob{background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);border-radius:16px!important;text-shadow:0 1px 0 #ffffff55}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));text-shadow:none}
+.tabs button.on{box-shadow:0 0 14px #f6c85f99}
+.it{border-radius:18px!important;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
+.it.on{box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="sc">0/0</span><span class="gm" id="gm">0 💎</span><button type="button" id="bshop" aria-label="Boutique">🛍</button></div>
+  <div id="main">
+    <div id="bw"><div id="gr"></div><svg id="hl"></svg></div>
+    <div id="wl"></div>
+    <div id="ctl"><button id="hint">💡 Indice</button><button id="nw">Nouvelle grille</button></div>
+  </div>
+</div>
+<div id="ov" hidden></div>
+<div id="toast" hidden></div>
+<script src="data.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const GAME='mots',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}
+  if(!j)j={v:1,gems:20,own:{}};if(!j.own)j.own={};if(!j.own[GAME])j.own[GAME]={};if(typeof j.gems!=='number')j.gems=20;return j;}
+function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
+function gems(){return wal().gems;}
+function gmUpdate(){$('gm').textContent=gems()+' 💎';}
+function addGems(n){const j=wal();j.gems+=n;walSave(j);gmUpdate();return j.gems;}
+function owned(c,i){return i===0||(wal().own[GAME][c]||[]).includes(i);}
+const SK='mots-v1';
+let ST={mode:'fr',lvl:'moyen',theme:'Tous',sel:{},done:0};try{ST=Object.assign(ST,JSON.parse(localStorage.getItem(SK)||'{}'));}catch(e){}
+ST.sel=ST.sel||{};
+function saveST(){try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}}
+function selc(c){const i=ST.sel[c]|0;return owned(c,i)?i:0;}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2200);}
+const BGS=[{n:'Nuit',p:0}].concat([['Alice','alice'],['Chats victoriens','chats'],['Renards des bois','renards'],['Dragons et licornes','dragons'],['Venise','venise'],['Égypte','egypte'],['Japon','japon'],['Astronaute','astro'],['Baroque','baroque'],['Art déco','deco'],['Royaume enchanté','fee'],['Steampunk','steampunk'],['Monde des fées','feesbois'],['Aventuriers des mers','marins']].map(a=>({n:a[0],dir:a[1],p:60})));
+const bgUrl=b=>'../cartes-img/'+b.dir+'/bg1.webp';
+function applyBg(){const b=BGS[selc('bg')]||BGS[0];$('app').style.backgroundImage=b.dir?'linear-gradient(#0008,#0008),url('+bgUrl(b)+')':'none';}
+function shop(){
+  let h='<h2>Boutique</h2><p class="gold">'+gems()+' 💎</p><div class="grid">';
+  BGS.forEach((it,i)=>{const has=owned('bg',i),on=selc('bg')===i;
+    h+='<div class="it'+(on?' on':'')+'"><div class="pv" style="'+(it.dir?'background-image:url('+bgUrl(it)+')':'background:#14202e')+'"></div><span>'+it.n+'</span>'+(on?'<button class="no">Utilisé</button>':has?'<button class="u" data-u="'+i+'">Utiliser</button>':(gems()>=it.p?'<button data-b="'+i+'">'+it.p+' 💎</button>':'<button class="no">'+it.p+' 💎</button>'))+'</div>';});
+  h+='</div><button class="ob alt" id="cl">Fermer</button>';openOv(h);
+  const o=$('ov');
+  o.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{ST.sel.bg=+b.dataset.u;saveST();applyBg();shop();});
+  o.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,p=BGS[i].p,j=wal();if(j.gems<p)return;j.gems-=p;(j.own[GAME].bg=j.own[GAME].bg||[0]).push(i);walSave(j);ST.sel.bg=i;saveST();gmUpdate();applyBg();shop();});
+  $('cl').onclick=closeOv;
+}
+/* ====== jeu ====== */
+const LV={facile:{n:8,w:6,d:[[1,0],[0,1]],g:2},moyen:{n:10,w:9,d:[[1,0],[0,1],[-1,0],[0,-1]],g:4},difficile:{n:12,w:12,d:[[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]],g:7}};
+let S=null;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pool(){
+  if(ST.mode==='en')return EN.map(e=>({w:e[0],d:e[1]}));
+  const th=ST.theme==='Tous'?Object.keys(FR):[ST.theme];
+  return th.flatMap(t=>FR[t].split(' ').map(w=>({w,d:''})));
+}
+function build(){
+  const L=LV[ST.lvl],n=L.n;
+  for(let att=0;att<40;att++){
+    const grid=new Array(n*n).fill('');const words=[];
+    const cand=shuffle(pool().filter(x=>x.w.length<=n&&x.w.length>=3));
+    const used=new Set();
+    for(const c of cand){
+      if(words.length>=L.w)break;if(used.has(c.w))continue;
+      let ok=false;
+      for(let t=0;t<80&&!ok;t++){
+        const d=L.d[(Math.random()*L.d.length)|0],len=c.w.length;
+        const x0=(Math.random()*n)|0,y0=(Math.random()*n)|0,x1=x0+d[0]*(len-1),y1=y0+d[1]*(len-1);
+        if(x1<0||x1>=n||y1<0||y1>=n)continue;
+        let fit=true;for(let i=0;i<len;i++){const v=grid[(y0+d[1]*i)*n+x0+d[0]*i];if(v&&v!==c.w[i]){fit=false;break;}}
+        if(!fit)continue;
+        for(let i=0;i<len;i++)grid[(y0+d[1]*i)*n+x0+d[0]*i]=c.w[i];
+        words.push({w:c.w,d:c.d,x0,y0,x1,y1,found:false});used.add(c.w);ok=true;
+      }
+    }
+    if(words.length>=Math.min(L.w,6)){
+      const ab='EEEEEEAAAAIIIISSSNNNRRRTTTOOOLLUUDCMPGBVHFQJXYZKW';
+      for(let i=0;i<n*n;i++)if(!grid[i])grid[i]=ab[(Math.random()*ab.length)|0];
+      return {n,grid,words,hints:0,done:false};
+    }
+  }
+}
+function newGrid(){S=build();render();}
+function render(){
+  const n=S.n,gr=$('gr');
+  gr.style.gridTemplateColumns='repeat('+n+',1fr)';gr.style.gridTemplateRows='repeat('+n+',1fr)';
+  const fs=Math.floor(($('bw').clientWidth-12)/n*.6);
+  gr.innerHTML=S.grid.map(l=>'<b style="font-size:'+fs+'px">'+l+'</b>').join('');
+  drawHL();
+  $('main').className=ST.mode==='en'?'def':'';const wl=$('wl');wl.className=ST.mode==='en'?'def':'';
+  wl.innerHTML=S.words.map(w=>ST.mode==='en'?'<span class="'+(w.found?'ok':'')+'">'+(w.found?'<b>'+w.w+'</b> · ':'')+w.d+' <small class="muted">('+w.w.length+' lettres)</small></span>':'<span class="'+(w.found?'ok':'')+'">'+w.w+'</span>').join('');
+  $('sc').textContent=S.words.filter(w=>w.found).length+' / '+S.words.length+' · '+(ST.mode==='en'?'EN':'FR');
+  gmUpdate();
+}
+const COLS=['#f0c06088','#ff8bb088','#7ee0c888','#8fb8ff88','#c79bff88','#ffa86a88'];
+function drawHL(){
+  const n=S.n,svg=$('hl'),W=$('bw').clientWidth-12,c=W/n;
+  svg.setAttribute('viewBox','0 0 '+W+' '+W);svg.style.inset='6px';svg.style.width=W+'px';svg.style.height=W+'px';
+  let h='';S.words.forEach((w,i)=>{if(!w.found)return;h+='<line x1="'+((w.x0+.5)*c)+'" y1="'+((w.y0+.5)*c)+'" x2="'+((w.x1+.5)*c)+'" y2="'+((w.y1+.5)*c)+'" stroke="'+COLS[i%COLS.length]+'" stroke-width="'+c*.78+'" stroke-linecap="round"/>';});
+  if(drag&&drag.cur){const a=drag.s,b=drag.cur;h+='<line x1="'+((a.x+.5)*c)+'" y1="'+((a.y+.5)*c)+'" x2="'+((b.x+.5)*c)+'" y2="'+((b.y+.5)*c)+'" stroke="#ffffff66" stroke-width="'+c*.78+'" stroke-linecap="round"/>';}
+  if(hintCell)h+='<circle cx="'+((hintCell.x+.5)*c)+'" cy="'+((hintCell.y+.5)*c)+'" r="'+c*.5+'" fill="none" stroke="#f0c060" stroke-width="3"/>';
+  svg.innerHTML=h;
+}
+let drag=null,hintCell=null;
+function cellAt(e){const r=$('gr').getBoundingClientRect(),c=r.width/S.n;const x=Math.floor((e.clientX-r.left)/c),y=Math.floor((e.clientY-r.top)/c);return {x:Math.max(0,Math.min(S.n-1,x)),y:Math.max(0,Math.min(S.n-1,y))};}
+function snap(s,p){ // aligne p sur une des 8 directions depuis s
+  const dx=p.x-s.x,dy=p.y-s.y;if(!dx&&!dy)return s;
+  const a=Math.atan2(dy,dx),k=Math.round(a/(Math.PI/4)),d=[Math.round(Math.cos(k*Math.PI/4)),Math.round(Math.sin(k*Math.PI/4))];
+  let len=(d[0]&&d[1])?Math.min(Math.abs(dx),Math.abs(dy)):Math.max(Math.abs(dx),Math.abs(dy));
+  if(d[0]&&d[1])len=Math.round((Math.abs(dx)+Math.abs(dy))/2);
+  let x=s.x+d[0]*len,y=s.y+d[1]*len;
+  while(x<0||x>=S.n||y<0||y>=S.n){len--;x=s.x+d[0]*len;y=s.y+d[1]*len;}
+  return {x,y};
+}
+const bw=$('bw');
+bw.addEventListener('pointerdown',e=>{if(S.done)return;hintCell=null;drag={s:cellAt(e),cur:null};try{bw.setPointerCapture(e.pointerId);}catch(x){}drag.cur=drag.s;drawHL();});
+bw.addEventListener('pointermove',e=>{if(!drag)return;drag.cur=snap(drag.s,cellAt(e));drawHL();});
+bw.addEventListener('pointerup',e=>{if(!drag)return;const a=drag.s,b=drag.cur||a;drag=null;check(a,b);drawHL();});
+bw.addEventListener('pointercancel',()=>{drag=null;drawHL();});
+function check(a,b){
+  const dx=Math.sign(b.x-a.x),dy=Math.sign(b.y-a.y),len=Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y))+1;if(len<2)return;
+  let s='';for(let i=0;i<len;i++)s+=S.grid[(a.y+dy*i)*S.n+a.x+dx*i];
+  const r=s.split('').reverse().join('');
+  const w=S.words.find(w=>!w.found&&(w.w===s||w.w===r));
+  if(!w){return;}
+  w.found=true;if(w.w===r&&w.w!==s){const t=[w.x0,w.y0];}
+  w.x0=a.x;w.y0=a.y;w.x1=b.x;w.y1=b.y;
+  try{navigator.vibrate&&navigator.vibrate(15);}catch(e){}
+  render();
+  if(S.words.every(x=>x.found))win();
+}
+function win(){
+  S.done=true;const L=LV[ST.lvl],g=Math.max(1,L.g-S.hints);addGems(g);ST.done=(ST.done|0)+1;saveST();
+  setTimeout(()=>{openOv('<div style="font-size:54px">🎉</div><h2>Bravo !</h2><p>Tous les mots sont trouvés.</p><p class="gold">+'+g+' 💎</p><button class="ob" id="rp">Nouvelle grille</button><button class="ob alt" id="cl2">Fermer</button>');$('rp').onclick=()=>{closeOv();newGrid();};$('cl2').onclick=closeOv;},500);
+}
+$('hint').onclick=()=>{if(S.done)return;const w=S.words.find(w=>!w.found);if(!w)return;S.hints++;hintCell={x:w.x0,y:w.y0};drawHL();toast(S.hints+' indice'+(S.hints>1?'s':'')+' : −1 💎 au gain final');setTimeout(()=>{hintCell=null;drawHL();},2500);};
+$('nw').onclick=()=>{if(S.done||S.words.every(w=>!w.found)){newGrid();return;}openOv('<h2>Nouvelle grille ?</h2><p class="muted">La grille en cours sera perdue.</p><button class="ob" id="y">Oui</button><button class="ob alt" id="no">Non</button>');$('y').onclick=()=>{closeOv();newGrid();};$('no').onclick=closeOv;};
+$('bshop').onclick=shop;
+function menu(){
+  const th=['Tous'].concat(Object.keys(FR));
+  openOv('<img class="mi" src="icons/icon-192.png" alt=""><h2>Mots mêlés</h2>'+
+  '<p class="muted">Mode</p><div class="tabs"><button data-m="fr" class="'+(ST.mode==='fr'?'on':'')+'">Mots français</button><button data-m="en" class="'+(ST.mode==='en'?'on':'')+'">Définition → mot anglais</button></div>'+
+  '<p class="muted">Niveau</p><div class="tabs">'+['facile','moyen','difficile'].map(l=>'<button data-l="'+l+'" class="'+(ST.lvl===l?'on':'')+'">'+l[0].toUpperCase()+l.slice(1)+'</button>').join('')+'</div>'+
+  (ST.mode==='fr'?'<p class="muted">Thème</p><div class="tabs">'+th.map(t=>'<button data-t="'+t+'" class="'+(ST.theme===t?'on':'')+'">'+t+'</button>').join('')+'</div>':'<p class="muted">Les mots à trouver sont en anglais ; la liste donne leur définition en français.</p>')+
+  '<button class="ob" id="go">Nouvelle grille</button><button class="ob alt" id="rs">Reprendre</button><button class="ob alt" id="hm">Retour aux jeux</button>');
+  const o=$('ov');
+  o.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ST.mode=b.dataset.m;saveST();menu();});
+  o.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{ST.lvl=b.dataset.l;saveST();menu();});
+  o.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ST.theme=b.dataset.t;saveST();menu();});
+  $('go').onclick=()=>{closeOv();newGrid();};$('rs').onclick=closeOv;$('hm').onclick=()=>{location.href='../';};
+}
+$('bmenu').onclick=menu;
+applyBg();newGrid();
+window.addEventListener('resize',()=>{if(S)render();});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
