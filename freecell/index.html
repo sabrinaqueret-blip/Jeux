@@ -32,8 +32,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bar button:disabled{opacity:.4}
 .card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);touch-action:none;will-change:transform;transition:transform .17s ease-out}
 .card.drag{transition:none;z-index:900!important}
-.card .fr,.card .bk{position:absolute;inset:0;border-radius:calc(var(--cw)*.07);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.45)}
-.card .fr svg,.card .bk svg{width:100%;height:100%;display:block}
+.card .fr,.card .bk{position:absolute;inset:0;border-radius:calc(var(--cw)*.11);overflow:hidden;box-sizing:border-box;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+.card .fr{background:#fff;padding:calc(var(--cw)*.045);border:1px solid rgba(0,0,0,.35)}
+.card .fr svg{width:100%;height:100%;display:block;border-radius:calc(var(--cw)*.05)}
+.card .bk{border:calc(var(--cw)*.04) solid #fff}
+.card .bk svg{width:100%;height:100%;display:block}
 .card svg.cd{fill:var(--ink,#000)}
 .card.dn .fr{display:none}.card:not(.dn) .bk{display:none}
 .card.sel .fr{outline:3px solid #ffe45a;outline-offset:-2px;box-shadow:0 0 10px 2px #ffe45a}
