@@ -6,6 +6,7 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 - `coinche/` : Coinche à 4 joueurs (robots ou en ligne via un code de partie, PeerJS/WebRTC)
 - `dames/` : Dames françaises 10x10 (robot ou en ligne via un code, PeerJS)
 - `echecs/` : Échecs complets (robot ou en ligne via un code, PeerJS)
+- `mahjong/` : Mahjong solitaire (tortue, 144 tuiles, donne toujours solvable)
 - `tama/` : Mon petit compagnon (Tamagotchi en temps réel, œuf à 3 espèces, mini-jeux, boutique, notifications)
 - `sudoku/` : Sudoku Expert
 

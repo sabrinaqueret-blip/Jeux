@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0f3a2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mahjong">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Mahjong</title>
+<style>
+:root{--bg:#0f3a2a;--panel:#17503a;--ink:#f6f3e6;--muted:#b9d4c5;--gold:#f0c060}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none;overflow:hidden}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom);background:var(--bg) center/cover no-repeat}
+#top{display:flex;justify-content:space-between;align-items:center;padding:6px 4px;font-weight:800;text-shadow:0 1px 3px #000a}
+#top span{background:#0008;padding:3px 10px;border-radius:999px}
+#fld{flex:1;position:relative;min-height:0}
+#bd{position:absolute;left:50%;top:50%}
+.t{position:absolute;border-radius:calc(var(--a)*.3);background:linear-gradient(160deg,#fffdf4,#efe6c8);border:1px solid #b9ab80;box-shadow:calc(var(--a)*.22) calc(var(--a)*.28) 0 #3f7a58,calc(var(--a)*.22) calc(var(--a)*.28) 0 1px #1f4a34,0 0 0 1px #0003;cursor:pointer;transition:filter .12s,transform .12s;overflow:hidden}
+.t svg{width:100%;height:100%;display:block;padding:7%}
+.t.lock{filter:brightness(.62) saturate(.8)}
+.t.sel{outline:3px solid #ffd84a;outline-offset:-1px;filter:brightness(1.08);z-index:999!important}
+.t.hint{animation:hn .5s infinite alternate}
+@keyframes hn{from{filter:brightness(1)}to{filter:brightness(1.35) drop-shadow(0 0 6px #ffd84a)}}
+.t.gone{display:none}
+#bar{display:flex;gap:6px;padding:8px 0}
+#bar button{flex:1;padding:11px 4px;border-radius:12px;border:2px solid var(--gold);background:#0006;color:var(--ink);font:inherit;font-weight:800;font-size:14px}
+#bar button:disabled{opacity:.4}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:18px;max-width:380px;width:100%;text-align:center}
+#ov h2{margin:6px 0}.ob{display:block;width:100%;margin:8px 0;padding:14px;border-radius:14px;border:2px solid var(--gold);background:var(--gold);color:#123;font:inherit;font-weight:800}.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted)}
+.muted{color:var(--muted)}
+.bgs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.bgs button{width:52px;height:68px;border-radius:10px;border:3px solid transparent;background:#1c5;background-size:cover;background-position:center bottom;padding:0}.bgs button.on{border-color:var(--gold)}
+[hidden]{display:none!important}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;z-index:60;max-width:90%;text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top"><span id="tm">0:00</span><span id="lf">144 tuiles</span><span id="mv">Paires : 0</span></div>
+  <div id="fld"><div id="bd"></div></div>
+  <div id="bar"><button id="undo">↶ Annuler</button><button id="hint">💡 Indice</button><button id="shuf">🔀 Mélanger</button><button id="menu">☰ Menu</button></div>
+</div>
+<div id="ov" hidden></div><div id="toast" hidden></div>
+<script>
+"use strict";
+/* ---------- disposition « tortue » : 144 tuiles, coordonnées en demi-tuiles ---------- */
+function layout(){
+  const L=[];const row=(z,y,x0,x1)=>{for(let x=x0;x<=x1;x+=2)L.push({x,y,z});};
+  row(0,0,2,24);row(0,2,6,20);row(0,4,4,22);row(0,6,2,24);row(0,8,2,24);row(0,10,4,22);row(0,12,6,20);row(0,14,2,24);
+  L.push({x:0,y:7,z:0},{x:26,y:7,z:0},{x:28,y:7,z:0});
+  for(let y=2;y<=12;y+=2)row(1,y,8,18);
+  for(let y=4;y<=10;y+=2)row(2,y,10,16);
+  for(let y=6;y<=8;y+=2)row(3,y,12,14);
+  L.push({x:13,y:7,z:4});
+  return L;
+}
+/* ---------- faces ---------- */
+// types 0..8 cercles, 9..17 bambous, 18..26 caractères, 27..30 vents, 31..33 dragons ; bonus : 'F' fleurs, 'S' saisons
+const TYPES=[];for(let i=0;i<34;i++)TYPES.push(i);
+const CH='一二三四五六七八九',WIND='東南西北',DRG=['中','發','白'];
+const DOTS={1:[[50,65]],2:[[50,35],[50,95]],3:[[25,30],[50,65],[75,100]],4:[[28,38],[72,38],[28,92],[72,92]],5:[[28,32],[72,32],[50,65],[28,98],[72,98]],6:[[30,30],[70,30],[30,65],[70,65],[30,100],[70,100]],7:[[24,25],[50,38],[76,51],[30,80],[70,80],[30,105],[70,105]],8:[[30,24],[70,24],[30,48],[70,48],[30,82],[70,82],[30,106],[70,106]],9:[[22,28],[50,28],[78,28],[22,65],[50,65],[78,65],[22,102],[50,102],[78,102]]};
+const DCOL=['#1b7a3c','#c0392b','#1d5fa8'];
+function stick(x,y,h,col){return '<rect x="'+(x-6)+'" y="'+y+'" width="12" height="'+h+'" rx="5" fill="'+col+'" stroke="#0b3d1e" stroke-width="1.5"/><rect x="'+(x-6)+'" y="'+(y+h/2-1.5)+'" width="12" height="3" fill="#0b3d1e" opacity=".55"/>';}
+function faceSVG(f){
+  let g='';
+  if(typeof f==='string'){
+    if(f[0]==='F'){const c=['#e84a7a','#f2a21d','#8a4ae0','#2aa6c9'][+f[1]];g='<g transform="translate(50 62)">'+[0,72,144,216,288].map(a=>'<ellipse cx="0" cy="-17" rx="11" ry="17" fill="'+c+'" transform="rotate('+a+')" stroke="#0004"/>').join('')+'<circle r="9" fill="#ffe27a" stroke="#a86a00"/></g><text x="50" y="118" text-anchor="middle" font-size="16" fill="#2a8a3a" font-weight="700">花</text>';}
+    else{const c=['#2a8a3a','#d4442a','#c9861a','#2a6ab8'][+f[1]];g='<text x="50" y="82" text-anchor="middle" font-size="62" font-weight="700" fill="'+c+'">'+'春夏秋冬'[+f[1]]+'</text><rect x="14" y="14" width="72" height="102" rx="8" fill="none" stroke="'+c+'" stroke-width="3"/>';}
+  }else if(f<9){const n=f+1;g=DOTS[n].map(([x,y],i)=>'<circle cx="'+x+'" cy="'+y+'" r="'+(n===1?24:n>6?11:13)+'" fill="'+DCOL[(n===1?1:(i%3))]+'" stroke="#0005" stroke-width="1.5"/><circle cx="'+x+'" cy="'+y+'" r="'+(n===1?12:n>6?5:6)+'" fill="#fffbe6" opacity=".85"/>').join('');}
+  else if(f<18){const n=f-8,col='#1f8a3a';
+    if(n===1)g='<path d="M50 20c18 6 22 30 8 50-4 6-4 14 0 26l-16 0c4-12 4-20 0-26C28 50 32 26 50 20z" fill="#1f8a3a" stroke="#0b3d1e" stroke-width="2"/><circle cx="46" cy="38" r="4" fill="#c0392b"/><path d="M42 98h16v16H42z" fill="#c0392b"/>';
+    else{const lay={2:[[50,[22,42]],[50,[72,42]]],3:[[50,[16,36]],[30,[70,40]],[70,[70,40]]],4:[[30,[18,40]],[70,[18,40]],[30,[72,40]],[70,[72,40]]],5:[[26,[18,40]],[74,[18,40]],[50,[48,34]],[26,[76,40]],[74,[76,40]]],6:[[24,[18,40]],[50,[18,40]],[76,[18,40]],[24,[72,40]],[50,[72,40]],[76,[72,40]]],7:[[50,[12,32]],[24,[52,32]],[50,[52,32]],[76,[52,32]],[24,[88,32]],[50,[88,32]],[76,[88,32]]],8:[[22,[12,40]],[40,[12,40]],[60,[12,40]],[78,[12,40]],[22,[72,40]],[40,[72,40]],[60,[72,40]],[78,[72,40]]],9:[[24,[12,32]],[50,[12,32]],[76,[12,32]],[24,[48,32]],[50,[48,32]],[76,[48,32]],[24,[84,32]],[50,[84,32]],[76,[84,32]]]}[n];
+      g=lay.map(([x,[y,h]],i)=>stick(x,y,h,(n>4&&i%3===1)?'#c0392b':col)).join('');}
+  }else if(f<27){const n=f-18;g='<text x="50" y="62" text-anchor="middle" font-size="52" font-weight="700" fill="#1a1a22">'+CH[n]+'</text><text x="50" y="112" text-anchor="middle" font-size="44" font-weight="700" fill="#c0392b">萬</text>';}
+  else if(f<31){g='<text x="50" y="86" text-anchor="middle" font-size="66" font-weight="700" fill="#1a1a22">'+WIND[f-27]+'</text>';}
+  else{const d=f-31;g=d===2?'<rect x="20" y="22" width="60" height="86" rx="6" fill="none" stroke="#1d5fa8" stroke-width="7"/>':'<text x="50" y="88" text-anchor="middle" font-size="68" font-weight="700" fill="'+(d===0?'#c0392b':'#1f8a3a')+'">'+DRG[d]+'</text>';}
+  return '<svg viewBox="0 0 100 130" font-family="\'Noto Serif CJK JP\',\'Hiragino Mincho ProN\',\'Yu Mincho\',\'PingFang SC\',\'Microsoft YaHei\',serif">'+g+'</svg>';
+}
+const keyOf=f=>typeof f==='string'?f[0]:f;
+/* ---------- génération d'une donne garantie solvable ---------- */
+const POS=layout();
+function isFree(T,i,alive){
+  const t=T[i];let left=false,right=false;
+  for(const j of alive){if(j===i)continue;const o=T[j];
+    if(o.z===t.z+1&&Math.abs(o.x-t.x)<2&&Math.abs(o.y-t.y)<2)return false;
+    if(o.z===t.z&&Math.abs(o.y-t.y)<2){if(o.x===t.x-2)left=true;else if(o.x===t.x+2)right=true;}}
+  return !(left&&right);
+}
+function makePairs(faces){ // faces restantes -> liste de paires de faces qui se correspondent
+  const by={};faces.forEach(f=>{const k=keyOf(f);(by[k]=by[k]||[]).push(f);});
+  const pairs=[];for(const k in by){const a=by[k];for(let i=0;i+1<a.length;i+=2)pairs.push([a[i],a[i+1]]);}
+  return pairs;
+}
+function assign(T,idx,faces){
+  for(let tries=0;tries<200;tries++){
+    const pairs=makePairs(faces).sort(()=>Math.random()-.5);
+    const alive=new Set(idx),res={};let ok=true;
+    for(const [a,b] of pairs){
+      const fr=[...alive].filter(i=>isFree(T,i,alive));
+      if(fr.length<2){ok=false;break;}
+      const x=fr.splice((Math.random()*fr.length)|0,1)[0],y=fr[(Math.random()*fr.length)|0];
+      res[x]=a;res[y]=b;alive.delete(x);alive.delete(y);
+    }
+    if(ok){for(const i of idx)T[i].f=res[i];return true;}
+  }
+  return false;
+}
+function newDeal(){
+  const T=POS.map(p=>({x:p.x,y:p.y,z:p.z,f:0,gone:false}));
+  const faces=[];for(let t=0;t<34;t++)for(let k=0;k<4;k++)faces.push(t);for(let k=0;k<4;k++){faces.push('F'+k);faces.push('S'+k);}
+  assign(T,T.map((_,i)=>i),faces);return T;
+}
+/* ---------- état ---------- */
+const $=id=>document.getElementById(id);
+const KEY='mahjong-v1';
+let P={bg:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
+const BGS=[{n:'Tapis vert',c:'#0f3a2a'},{n:'Alice',i:'alice/bg1'},{n:'Venise',i:'venise/bg1'},{n:'Japon',i:'japon/bg1'},{n:'Égypte',i:'egypte/bg1'},{n:'Fées',i:'feesbois/bg1'},{n:'Steampunk',i:'steampunk/bg1'},{n:'Chats',i:'chats/bg1'},{n:'Dragons',i:'dragons/bg1'},{n:'Astronaute',i:'astro/bg1'}];
+function applyBg(){const b=BGS[P.bg]||BGS[0],a=$('app');if(b.i){a.style.backgroundImage='url(../cartes-img/'+b.i+'.webp)';a.style.backgroundColor='#222';}else{a.style.backgroundImage='none';a.style.backgroundColor=b.c;}}
+let T=[],alive=new Set(),sel=-1,hist=[],hintP=null,secs=0,tmr=null,pairs=0,over=false;
+function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2200);}
+function fmt(s){return ((s/60)|0)+':'+String(s%60).padStart(2,'0');}
+function start(){
+  T=newDeal();alive=new Set(T.map((_,i)=>i));sel=-1;hist=[];hintP=null;secs=0;pairs=0;over=false;clearInterval(tmr);tmr=setInterval(()=>{if(!over){secs++;$('tm').textContent=fmt(secs);}},1000);
+  build();closeOv();
+}
+let A=20,els=[];
+function build(){
+  const fld=$('fld'),W=fld.clientWidth,H=fld.clientHeight;
+  const port=H>W*1.15;
+  // tuile : largeur 2a, hauteur 2.6a ; demi-pas vertical = 1.3a
+  const k=1.3;let bw,bh;
+  if(port){bw=14+2;bh=28*k+2*k;A=Math.min(W/(bw+0.6),H/(bh+0.6)*1);}
+  else{bw=30;bh=14*k+2*k;A=Math.min(W/(bw+0.6),H/(bh+0.6));}
+  A=Math.floor(A*10)/10;
+  const bd=$('bd');bd.innerHTML='';bd.style.setProperty('--a',A+'px');
+  let wpx,hpx;
+  if(port){wpx=(14+2)*A;hpx=(28*k+2*k)*A;}else{wpx=30*A;hpx=(14*k+2*k)*A;}
+  bd.style.width=wpx+'px';bd.style.height=hpx+'px';bd.style.marginLeft=-wpx/2+'px';bd.style.marginTop=-hpx/2+'px';
+  els=T.map((t,i)=>{
+    const d=document.createElement('div');d.className='t';
+    let X,Y;
+    if(port){X=t.y*A;Y=t.x*k*A;d.style.width=2*A+'px';d.style.height=2*k*A+'px';}
+    else{X=t.x*A;Y=t.y*k*A;d.style.width=2*A+'px';d.style.height=2*k*A+'px';}
+    X-=t.z*A*0.22;Y-=t.z*A*0.28;
+    d.style.left=X+'px';d.style.top=Y+'px';d.style.zIndex=t.z*100+(port?t.x:t.y)+1;
+    d.innerHTML=faceSVG(t.f);d.onclick=()=>tap(i);bd.appendChild(d);return d;
+  });
+  refresh();
+}
+addEventListener('resize',()=>{if(T.length)build();});
+function freeSet(){return new Set([...alive].filter(i=>isFree(T,i,alive)));}
+function moves(){
+  const fr=[...freeSet()],m=[];
+  for(let a=0;a<fr.length;a++)for(let b=a+1;b<fr.length;b++)if(keyOf(T[fr[a]].f)===keyOf(T[fr[b]].f))m.push([fr[a],fr[b]]);
+  return m;
+}
+function refresh(){
+  const fr=freeSet();
+  els.forEach((d,i)=>{const gone=!alive.has(i);d.classList.toggle('gone',gone);d.classList.toggle('lock',!gone&&!fr.has(i));d.classList.toggle('sel',i===sel);d.classList.toggle('hint',!!hintP&&hintP.includes(i));});
+  $('lf').textContent=alive.size+' tuiles';$('mv').textContent='Paires : '+pairs;$('undo').disabled=!hist.length;
+}
+function tap(i){
+  if(over||!alive.has(i))return;
+  hintP=null;
+  if(!isFree(T,i,alive)){toast('Cette tuile est bloquée.',1200);return;}
+  if(sel===i){sel=-1;refresh();return;}
+  if(sel<0){sel=i;refresh();return;}
+  if(keyOf(T[sel].f)===keyOf(T[i].f)){
+    hist.push([sel,i]);alive.delete(sel);alive.delete(i);sel=-1;pairs++;refresh();after();
+  }else{sel=i;refresh();}
+}
+function after(){
+  if(!alive.size){over=true;clearInterval(tmr);setTimeout(()=>openOv('<h2>🎉 Bravo !</h2><p class="muted">Tableau terminé en '+fmt(secs)+'.</p><button class="ob" id="nw">Nouvelle partie</button><button class="ob alt" id="cl">Fermer</button>'),400);$('nw').onclick=start;return;}
+  if(!moves().length){setTimeout(()=>openOv('<h2>Plus de paire possible</h2><p class="muted">Tu peux mélanger les tuiles restantes (la donne reste solvable) ou annuler un coup.</p><button class="ob" id="sh">Mélanger</button><button class="ob alt" id="cl">Fermer</button>'),300);}
+}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;const c=$('cl');if(c)c.onclick=closeOv;const s=$('sh');if(s)s.onclick=()=>{closeOv();shuffle();};const n=$('nw');if(n)n.onclick=start;}
+function closeOv(){$('ov').hidden=true;}
+function shuffle(){
+  if(over)return;const idx=[...alive];const faces=idx.map(i=>T[i].f);
+  const old=idx.map(i=>T[i].f);
+  if(!assign(T,idx,faces)){idx.forEach((i,k)=>T[i].f=old[k]);toast('Mélange impossible.');return;}
+  sel=-1;hintP=null;els.forEach((d,i)=>{if(alive.has(i))d.innerHTML=faceSVG(T[i].f);});refresh();toast('Tuiles mélangées !');
+}
+$('undo').onclick=()=>{if(over||!hist.length)return;const [a,b]=hist.pop();alive.add(a);alive.add(b);pairs--;sel=-1;hintP=null;refresh();};
+$('hint').onclick=()=>{if(over)return;const m=moves();if(!m.length){toast('Aucune paire : mélange les tuiles.');return;}hintP=m[(Math.random()*m.length)|0];sel=-1;refresh();};
+$('shuf').onclick=shuffle;
+$('menu').onclick=()=>{
+  openOv('<h2>Mahjong</h2><button class="ob" id="nw">Nouvelle partie</button><p class="muted" style="margin:10px 0 0">Fond de table</p><div class="bgs">'+BGS.map((b,i)=>'<button data-b="'+i+'" class="'+(P.bg===i?'on':'')+'" aria-label="'+b.n+'" style="'+(b.i?'background-image:url(../cartes-img/'+b.i+'.webp)':'background:'+b.c)+'"></button>').join('')+'</div><button class="ob alt" id="cl">Reprendre</button><button class="ob alt" id="hm">Retour aux jeux</button>');
+  $('ov').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.bg=+b.dataset.b;saveP();applyBg();$('ov').querySelectorAll('[data-b]').forEach(x=>x.classList.toggle('on',x===b));});
+  $('hm').onclick=()=>{location.href='../';};
+};
+applyBg();start();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
