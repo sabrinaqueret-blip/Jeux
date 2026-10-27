@@ -383,14 +383,13 @@ function imgFace(T,c){
   let s='<rect width="169.075" height="244.64" fill="'+T.paper+'"/>';
   if(T.tex)s+='<rect width="169.075" height="244.64" fill="'+T.tex+'" opacity=".5"/>';
   s+='<rect x="7" y="7" width="155" height="230.6" rx="9" fill="none" stroke="'+T.edge+'" stroke-width="2.2"/><rect x="11.5" y="11.5" width="146" height="221.6" rx="6" fill="none" stroke="'+T.inner+'" stroke-width=".8"/>';
-  s+='<rect x="31" y="20" width="107" height="204.6" rx="12" fill="'+T.panel+'" stroke="'+T.edge+'" stroke-width="1.5"/><rect x="34" y="23" width="101" height="198.6" rx="9" fill="none" stroke="'+T.inner+'" stroke-width=".7"/>';
   const im=(f,x,y,w,h,al,op)=>'<image href="'+IMGBASE+T.dir+'/'+f+'.webp" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" preserveAspectRatio="'+(al||'xMidYMid meet')+'"'+(op?' opacity="'+op+'"':'')+'/>';
-  if(rk>=11){const nm=su+'_'+({11:'jack',12:'queen',13:'king'})[rk];s+=im(nm,35,26,99,192,'xMidYMax meet');}
-  else if(rk===1){s+=im('ace_'+su,36,52,97,140,'xMidYMid meet');}
+  if(rk>=11){const nm=su+'_'+({11:'jack',12:'queen',13:'king'})[rk];s+=im(nm,19,18,131,210,'xMidYMax meet');}
+  else if(rk===1){s+=im('ace_'+su,20,40,129,165,'xMidYMid meet');}
   else{
     const mini=T.minis&&T.minis[rk];
-    if(mini)s+=im(mini,44,56,81,132,'xMidYMid meet',T.miniop||.3);
-    for(const [cx,r] of PIPLAY[rk]){const x=[57,84.5,112][cx],y=44+r*(140/6)*1.0+ (r*0),inv=r>3;s+=pip(su,x,y+6,rk>8?21:24,col,inv?180:0);}
+    if(mini)s+=im(mini,26,48,117,152,'xMidYMid meet',T.miniop||.3);
+    for(const [cx,r] of PIPLAY[rk]){const x=[54,84.5,115][cx],y=48+r*(150/6),inv=r>3;s+=pip(su,x,y,rk>8?23:26,col,inv?180:0);}
   }
   const L=({1:'A',11:'V',12:'D',13:'R'})[rk]||String(rk);
   const ix=(x,y,rot)=>'<g transform="translate('+x+' '+y+') rotate('+rot+')"><text text-anchor="middle" y="0" font-family="AliceFell,Georgia,serif" font-weight="700" font-size="'+(L==='10'?17:21)+'" fill="'+col+'">'+L+'</text>'+pip(su,0,13,12,col)+'</g>';
