@@ -142,6 +142,85 @@ const BACKS=[
 ];
 const bkSVG=(i,u)=>'<svg viewBox="0 0 169 245" class="bsv" preserveAspectRatio="xMidYMid meet">'+BACKS[i].f(u||('x'+i))+'</svg>';
 
+/* ---------- Dos ornés (filigranes, mandalas, roses…) ---------- */
+const TAU=Math.PI*2,f1=v=>v.toFixed(1);
+function spir(cx,cy,r,turns,dir,a0){let d='';const n=46;for(let i=0;i<=n;i++){const t=i/n,rr=r*(1-.9*t),a=a0+dir*t*turns*TAU;d+=(i?'L':'M')+f1(cx+rr*Math.cos(a))+' '+f1(cy+rr*Math.sin(a));}return d;}
+function spStart(cx,cy,r,a0){return [cx+r*Math.cos(a0),cy+r*Math.sin(a0)];}
+function Q(inner){return '<g>'+inner+'</g><g transform="translate(169 0) scale(-1 1)">'+inner+'</g><g transform="translate(0 245) scale(1 -1)">'+inner+'</g><g transform="translate(169 245) scale(-1 -1)">'+inner+'</g>';}
+function leaf(x,y,l,w,a,fill){return '<path d="M0 0Q'+f1(l/2)+' '+f1(-w)+' '+l+' 0Q'+f1(l/2)+' '+f1(w)+' 0 0z" fill="'+fill+'" transform="translate('+f1(x)+' '+f1(y)+') rotate('+f1(a)+')"/>';}
+/* filigrane d'un quart de carte (coin haut-gauche) */
+function scrolls(seed,col,sw,fillLeaf){
+  const r=rng2(seed),S=[[30,30,12,1],[52,21,9,-1],[22,54,9,-1],[70,26,8,1],[83,34,6,-1],[26,80,10,1],[22,104,7,-1],[50,50,15,1],[69,66,10,-1],[44,88,12,-1],[68,96,10,1],[80,112,6,-1],[40,114,8,1],[60,40,6,1],[36,66,6,1]];
+  let s='<g fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round">',prev=null;
+  S.forEach(([x,y,rad,dir],i)=>{const rr=rad*(.9+r()*.25),a0=r()*TAU;s+='<path d="'+spir(x,y,rr,1.6+r()*.6,dir,a0)+'"/>';
+    const st=spStart(x,y,rr,a0);if(prev){const mx=(prev[0]+st[0])/2+(r()-.5)*14,my=(prev[1]+st[1])/2+(r()-.5)*14;s+='<path d="M'+f1(prev[0])+' '+f1(prev[1])+'Q'+f1(mx)+' '+f1(my)+' '+f1(st[0])+' '+f1(st[1])+'"/>';}
+    prev=st;
+    s+='<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="1.2" fill="'+col+'" stroke="none"/>';});
+  s+='</g>';
+  for(let i=0;i<14;i++){const x=16+r()*66,y=16+r()*104;s+=leaf(x,y,5+r()*5,1.6+r()*1.2,r()*360,fillLeaf||col);}
+  for(let i=0;i<10;i++)s+='<circle cx="'+f1(16+r()*66)+'" cy="'+f1(16+r()*104)+'" r=".9" fill="'+col+'"/>';
+  return s;
+}
+function guil(cx,cy,R,n,col,sw,ratio){let s='<g fill="none" stroke="'+col+'" stroke-width="'+sw+'">';for(let i=0;i<n;i++)s+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+f1(R*ratio)+'" ry="'+R+'" transform="rotate('+f1(i*180/n)+' '+cx+' '+cy+')"/>';return s+'</g>';}
+function rays(cx,cy,n,r0,r1,col,sw,op){let s='<g stroke="'+col+'" stroke-width="'+sw+'" opacity="'+op+'">';for(let i=0;i<n;i++){const a=i*TAU/n;s+='<path d="M'+f1(cx+r0*Math.cos(a))+' '+f1(cy+r0*Math.sin(a))+'L'+f1(cx+r1*Math.cos(a))+' '+f1(cy+r1*Math.sin(a))+'"/>';}return s+'</g>';}
+function rose(x,y,r,c1,c2,ln){return '<g><circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+c1+'" stroke="'+ln+'" stroke-width=".8"/><path d="'+spir(x,y,r*.85,2.4,1,.5)+'" fill="none" stroke="'+ln+'" stroke-width="'+f1(Math.max(.7,r/9))+'"/><circle cx="'+x+'" cy="'+y+'" r="'+f1(r*.3)+'" fill="'+c2+'" stroke="'+ln+'" stroke-width=".6"/></g>';}
+const frame=(c,w,i)=>'<rect x="'+i+'" y="'+i+'" width="'+(169-2*i)+'" height="'+(245-2*i)+'" rx="4" fill="none" stroke="'+c+'" stroke-width="'+w+'"/>';
+const CLIPF=u=>'<clipPath id="cf'+u+'"><rect x="7" y="7" width="155" height="231" rx="6"/></clipPath>';
+BACKS.forEach((b,i)=>{b.p=[0,15,25,40,80,110,90,100,130,70,160,180,250,0][i]??b.p;});
+BACKS[13].p=250;
+BACKS.push(
+ {n:'Treillis bleu',p:120,f:u=>'<defs><pattern id="p'+u+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#f4efe2"/><path d="M0 0H8M0 0V8" stroke="#2c4aa0" stroke-width=".7"/></pattern>'+CLIPF(u)+'</defs>'+bkBase('url(#p'+u+')','#2c4aa0')+frame('#2c4aa0',3,10)+frame('#2c4aa0',.8,15)
+   +'<circle cx="'+CX+'" cy="'+CY+'" r="52" fill="#fff" stroke="#2c4aa0" stroke-width="2"/><circle cx="'+CX+'" cy="'+CY+'" r="47" fill="none" stroke="#2c4aa0" stroke-width=".7"/>'
+   +'<g transform="translate('+CX+' '+CY+')">'+[0,1,2,3,4,5,6,7].map(k=>'<g transform="rotate('+k*45+')"><path d="M0 -44C-10 -38 -12 -28 -4 -22C4 -18 10 -24 6 -30" fill="none" stroke="#2c4aa0" stroke-width="2.4" stroke-linecap="round"/><circle cx="0" cy="-45" r="2" fill="#2c4aa0"/></g>').join('')+'</g>'
+   +guil(CX,CY,30,16,'#2c4aa0',.9,.55)+'<circle cx="'+CX+'" cy="'+CY+'" r="9" fill="#2c4aa0"/><circle cx="'+CX+'" cy="'+CY+'" r="5" fill="#fff"/>'
+   +[[22,22],[147,22],[22,223],[147,223]].map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="5" fill="#2c4aa0"/><circle cx="'+x+'" cy="'+y+'" r="2" fill="#fff"/>').join('')},
+ {n:'Baroque noir & blanc',p:200,f:u=>'<defs>'+CLIPF(u)+'</defs><rect width="169" height="245" rx="11" fill="#fff"/><rect x="7" y="7" width="155" height="231" rx="6" fill="#000"/><g clip-path="url(#cf'+u+')">'+rays(CX,CY,64,10,170,'#fff',.9,.55)+'</g>'
+   +'<rect x="13" y="13" width="143" height="219" rx="3" fill="#000" stroke="#fff" stroke-width="1.6"/>'+Q(scrolls(7,'#fff',1.7))
+   +'<ellipse cx="'+CX+'" cy="'+CY+'" rx="40" ry="52" fill="#000" stroke="#fff" stroke-width="2.4"/><ellipse cx="'+CX+'" cy="'+CY+'" rx="35" ry="47" fill="none" stroke="#fff" stroke-width=".8"/>'+guil(CX,CY,30,18,'#fff',.8,.5)+'<circle cx="'+CX+'" cy="'+CY+'" r="6" fill="#fff"/><circle cx="'+CX+'" cy="'+CY+'" r="2.5" fill="#000"/>'},
+ {n:'Mandala pourpre',p:300,f:u=>{let s='<defs><radialGradient id="g'+u+'" cx="50%" cy="50%" r="70%"><stop offset="0" stop-color="#7a1426"/><stop offset="1" stop-color="#40081a"/></radialGradient><path id="t'+u+'" d="M'+(CX-47)+' '+CY+'A47 47 0 1 1 '+(CX+47)+' '+CY+'A47 47 0 1 1 '+(CX-47)+' '+CY+'"/></defs>'+bkBase('url(#g'+u+')','#d8b04a')+frame('#d8b04a',2.6,10);
+   s+=Q(scrolls(21,'#d8b04a',1.5,'#8c9a40'))+'<circle cx="'+CX+'" cy="'+CY+'" r="62" fill="#f6efe0"/><circle cx="'+CX+'" cy="'+CY+'" r="59" fill="#5a0e22" stroke="#d8b04a" stroke-width="2"/>';
+   s+='<text font-family="Georgia,serif" font-size="8.5" font-weight="700" fill="#d8b04a" letter-spacing="2.2"><textPath href="#t'+u+'" startOffset="0">MMXXVI · MMXXVI · MMXXVI · MMXXVI ·</textPath></text>';
+   s+='<circle cx="'+CX+'" cy="'+CY+'" r="38" fill="#7a1426" stroke="#d8b04a" stroke-width="1.5"/>'+petals(12,24,13,6.5,'#8c9a40','#d8b04a')+petals(12,13,9,4.5,'#d8b04a','#5a0e22',15)+guil(CX,CY,16,12,'#5a0e22',.8,.5)+'<circle cx="'+CX+'" cy="'+CY+'" r="5" fill="#f6efe0" stroke="#d8b04a"/>';
+   return s;}},
+ {n:'Grimoire runique',p:420,f:u=>{let s='<defs><linearGradient id="c'+u+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0b868"/><stop offset=".5" stop-color="#c47a30"/><stop offset="1" stop-color="#8a4c1c"/></linearGradient><path id="t'+u+'" d="M'+(CX-25)+' '+CY+'A25 25 0 1 1 '+(CX+25)+' '+CY+'A25 25 0 1 1 '+(CX-25)+' '+CY+'"/></defs>'+bkBase('#233868','url(#c'+u+')');
+   s+='<rect x="13" y="13" width="143" height="219" fill="#3a5a98" stroke="url(#c'+u+')" stroke-width="2.4"/><rect x="21" y="21" width="127" height="203" fill="#6a8ab8" opacity=".35"/>'+Q(scrolls(33,'#b4cce8',1.6,'#a8c0e0'));
+   for(const [x,y,rt] of [[20,20,0],[149,20,90],[149,225,180],[20,225,270]])s+='<g transform="translate('+x+' '+y+') rotate('+rt+')"><path d="M-8 -8H22L-8 22z" fill="url(#c'+u+')" stroke="#4a280c" stroke-width="1"/><circle cx="3" cy="3" r="5.5" fill="#233868" stroke="#f0b868" stroke-width="1"/><path d="M0 6L3 0L6 6z" fill="#f0b868"/></g>';
+   s+='<path d="M'+CX+' 52L'+(CX+14)+' '+(CY-30)+'L'+(CX+50)+' '+CY+'L'+(CX+14)+' '+(CY+30)+'L'+CX+' 193L'+(CX-14)+' '+(CY+30)+'L'+(CX-50)+' '+CY+'L'+(CX-14)+' '+(CY-30)+'z" fill="url(#c'+u+')" stroke="#4a280c" stroke-width="1.4"/>';
+   s+='<circle cx="'+CX+'" cy="'+CY+'" r="31" fill="#f0b868" stroke="#4a280c" stroke-width="1.2"/><circle cx="'+CX+'" cy="'+CY+'" r="28" fill="#233868"/><text font-family="Georgia,serif" font-size="6.2" font-weight="700" fill="#f0b868" letter-spacing="1.4"><textPath href="#t'+u+'">ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈ</textPath></text>';
+   s+='<rect x="'+(CX-9)+'" y="'+(CY-9)+'" width="18" height="18" fill="none" stroke="#f0b868" stroke-width="1"/><rect x="'+(CX-9)+'" y="'+(CY-9)+'" width="18" height="18" fill="none" stroke="#f0b868" stroke-width="1" transform="rotate(45 '+CX+' '+CY+')"/><circle cx="'+CX+'" cy="'+CY+'" r="6" fill="#d8283c" stroke="#fff" stroke-width=".8"/><circle cx="'+(CX-1.5)+'" cy="'+(CY-1.5)+'" r="1.6" fill="#fff" opacity=".8"/>';
+   for(const [y,c] of [[CY-52,'#3ac8b8'],[CY+52,'#3ac8b8']])s+='<circle cx="'+CX+'" cy="'+y+'" r="5.5" fill="'+c+'" stroke="#f0b868" stroke-width="1.6"/>';
+   for(const y of [CY-72,CY+72])s+='<path d="M'+CX+' '+(y-8)+'L'+(CX+6)+' '+y+'L'+CX+' '+(y+8)+'L'+(CX-6)+' '+y+'z" fill="#c070d8" stroke="#f0b868" stroke-width="1.2"/>';
+   return s;}},
+ {n:'Alice 1865',p:540,f:u=>{let s='<defs><radialGradient id="g'+u+'" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#f0dcb0"/><stop offset=".7" stop-color="#dcc08a"/><stop offset="1" stop-color="#b8935a"/></radialGradient>'+CLIPF(u)+'</defs>'+bkBase('url(#g'+u+')','#8a2c20');
+   const r=rng2(2);for(let i=0;i<14;i++)s+='<circle cx="'+f1(15+r()*139)+'" cy="'+f1(15+r()*215)+'" r="'+f1(3+r()*9)+'" fill="#8a5a28" opacity="'+f1(.04+r()*.07)+'"/>';
+   s+=frame('#8a2c20',2.4,11)+frame('#8a2c20',.8,16)+Q(scrolls(44,'#8a2c20',1.4,'#a8443a'));
+   s+='<g clip-path="url(#cf'+u+')">'+rays(CX,CY,36,12,120,'#8a2c20',.9,.35)+'</g><circle cx="'+CX+'" cy="'+CY+'" r="30" fill="#f0dcb0" stroke="#8a2c20" stroke-width="1.8"/><circle cx="'+CX+'" cy="'+CY+'" r="25" fill="none" stroke="#8a2c20" stroke-width=".8" stroke-dasharray="1.4 1.8"/>'+rays(CX,CY,24,8,22,'#8a2c20',1,.9)+'<circle cx="'+CX+'" cy="'+CY+'" r="7" fill="#8a2c20"/><circle cx="'+CX+'" cy="'+CY+'" r="3" fill="#f0dcb0"/>';
+   s+='<path d="M24 '+(CY-40)+'Q'+CX+' '+(CY-52)+' 145 '+(CY-40)+'L139 '+(CY-30)+'L145 '+(CY-20)+'Q'+CX+' '+(CY-32)+' 24 '+(CY-20)+'L30 '+(CY-30)+'z" fill="#a8443a" stroke="#4a140c" stroke-width="1"/><text x="'+CX+'" y="'+(CY-29)+'" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="12" fill="#f6e6c0">Alice</text>';
+   s+='<path d="M24 '+(CY+20)+'Q'+CX+' '+(CY+32)+' 145 '+(CY+20)+'L139 '+(CY+30)+'L145 '+(CY+40)+'Q'+CX+' '+(CY+52)+' 24 '+(CY+40)+'L30 '+(CY+30)+'z" fill="#a8443a" stroke="#4a140c" stroke-width="1"/><text x="'+CX+'" y="'+(CY+34)+'" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="8.4" fill="#f6e6c0">in Wonderland</text>';
+   s+='<text x="'+CX+'" y="26" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#8a2c20" letter-spacing="2">1865</text><text x="'+CX+'" y="224" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#8a2c20">♥ ♠ ♦ ♣</text>';
+   return s;}},
+ {n:'Roses victoriennes',p:660,f:u=>{let s='<defs><radialGradient id="g'+u+'" cx="50%" cy="50%" r="70%"><stop offset="0" stop-color="#fbf3e4"/><stop offset="1" stop-color="#ead8b8"/></radialGradient></defs>'+bkBase('url(#g'+u+')','#2e5a3a')+frame('#2e5a3a',2.4,10)+frame('#b8943c',.9,14.5);
+   s+=Q(scrolls(55,'#2e5a3a',1.3,'#3f7a4c'));
+   const rs=[[28,28,10],[141,28,10],[28,217,10],[141,217,10],[CX,22,7],[CX,223,7],[22,CY,7],[147,CY,7]];
+   rs.forEach(([x,y,rr],i)=>{s+=leaf(x-rr*1.5,y+rr*.4,rr*1.5,rr*.5,200,'#2e5a3a')+leaf(x+rr*1.5,y+rr*.4,-rr*1.5,rr*.5,-20,'#2e5a3a')+rose(x,y,rr,i%2?'#e07a98':'#c8344e','#f6c8d4','#6a1228');});
+   s+='<ellipse cx="'+CX+'" cy="'+CY+'" rx="42" ry="56" fill="#fbf3e4" stroke="#b8943c" stroke-width="2.2"/><ellipse cx="'+CX+'" cy="'+CY+'" rx="37" ry="51" fill="none" stroke="#2e5a3a" stroke-width="1"/>';
+   for(let k=0;k<10;k++){const a=k*TAU/10;s+=leaf(CX+30*Math.cos(a),CY+44*Math.sin(a),10,3,a*180/Math.PI+90,'#3f7a4c');}
+   s+=rose(CX-9,CY+6,12,'#c8344e','#f6c8d4','#6a1228')+rose(CX+11,CY-8,10,'#e07a98','#fbe0e8','#6a1228')+rose(CX+4,CY+18,8,'#f4b8c8','#fff','#6a1228');
+   return s;}},
+ {n:'Éventails de gala',p:780,f:u=>{let s='<defs><pattern id="p'+u+'" width="30" height="22" patternUnits="userSpaceOnUse"><rect width="30" height="22" fill="#14224e"/>';
+   for(const ox of [0,30]){const cols=['#2f7fd8','#bfe8c8','#e8487a','#bfe8c8','#2f7fd8','#e8487a','#bfe8c8'];for(let k=0;k<7;k++){const a1=Math.PI+k*Math.PI/7,a2=Math.PI+(k+1)*Math.PI/7;s+='<path d="M'+(ox)+' 22L'+f1(ox+22*Math.cos(a1))+' '+f1(22+22*Math.sin(a1))+'A22 22 0 0 1 '+f1(ox+22*Math.cos(a2))+' '+f1(22+22*Math.sin(a2))+'z" fill="'+cols[k]+'" stroke="#14224e" stroke-width=".7"/>';}}
+   s+='<circle cx="15" cy="9" r="2.4" fill="#e8487a"/></pattern></defs>'+bkBase('url(#p'+u+')','#f6e6a8')+frame('#f6e6a8',2.4,10);
+   s+='<path d="M'+CX+' 44L134 '+CY+'L'+CX+' 201L35 '+CY+'z" fill="#14224e" stroke="#f6e6a8" stroke-width="2.6"/><path d="M'+CX+' 54L124 '+CY+'L'+CX+' 191L45 '+CY+'z" fill="none" stroke="#e8487a" stroke-width="1.2"/>';
+   s+=rays(CX,CY,28,10,50,'#f6e6a8',1.1,.9)+'<circle cx="'+CX+'" cy="'+CY+'" r="26" fill="#14224e" stroke="#f6e6a8" stroke-width="2"/>'+petals(8,13,10,5.5,'#e8487a','#f6e6a8')+petals(8,6,6,3,'#bfe8c8','#14224e',22)+'<circle cx="'+CX+'" cy="'+CY+'" r="3.4" fill="#f6e6a8"/>';
+   return s;}},
+ {n:'Filigrane royal',p:900,shine:true,f:u=>{let s='<defs><linearGradient id="h'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#e8b83c"/><stop offset="1" stop-color="#a8761c"/></linearGradient><radialGradient id="g'+u+'" cx="50%" cy="50%" r="75%"><stop offset="0" stop-color="#3a1068"/><stop offset="1" stop-color="#12062c"/></radialGradient>'+CLIPF(u)+'</defs>'+bkBase('url(#g'+u+')','url(#h'+u+')');
+   s+='<g clip-path="url(#cf'+u+')">'+rays(CX,CY,72,10,170,'#e8b83c',.7,.4)+'</g>'+frame('url(#h'+u+')',2.8,11)+frame('url(#h'+u+')',.8,16)+Q(scrolls(91,'url(#h'+u+')',1.7));
+   s+='<ellipse cx="'+CX+'" cy="'+CY+'" rx="44" ry="58" fill="#1a0a3a" stroke="url(#h'+u+')" stroke-width="3"/><ellipse cx="'+CX+'" cy="'+CY+'" rx="39" ry="53" fill="none" stroke="url(#h'+u+')" stroke-width="1"/>'+guil(CX,CY,34,24,'#e8b83c',.7,.5);
+   s+='<path d="M'+(CX-24)+' '+(CY+14)+'L'+(CX-28)+' '+(CY-14)+'L'+(CX-13)+' '+(CY+1)+'L'+CX+' '+(CY-22)+'L'+(CX+13)+' '+(CY+1)+'L'+(CX+28)+' '+(CY-14)+'L'+(CX+24)+' '+(CY+14)+'z" fill="url(#h'+u+')" stroke="#fff3b0" stroke-width="1"/><rect x="'+(CX-24)+'" y="'+(CY+14)+'" width="48" height="7" rx="2" fill="url(#h'+u+')"/>';
+   for(const [x,y,c] of [[CX,CY-22,'#ff5a7a'],[CX-28,CY-14,'#5ad0ff'],[CX+28,CY-14,'#5ad0ff'],[CX,CY+17.5,'#5affc0']])s+='<circle cx="'+x+'" cy="'+y+'" r="3.2" fill="'+c+'" stroke="#fff" stroke-width=".8"/>';
+   return s;}}
+);
+
 /* ---------- Données partagées : portefeuille, boutique, cartes ---------- */
 const $=id=>document.getElementById(id);
 const SKEY='cartes-v1';
@@ -208,7 +287,7 @@ function previewHTML(cat,i){
 function openShop(back){
   const cat=CATS[shopTab],own=S.own[shopTab];
   let h='<h2>Boutique</h2><p class="gold">'+S.gems+' 💎</p><div class="chips">'+Object.keys(CATS).map(k=>'<button data-t="'+k+'" class="'+(k===shopTab?'on':'')+'">'+CATS[k].t+'</button>').join('')+'</div><div class="shop">';
-  cat.items.forEach((it,i)=>{
+  cat.items.map((it,i)=>[it,i]).sort((a,b)=>a[0].p-b[0].p||a[1]-b[1]).forEach(([it,i])=>{
     const has=own.includes(i),on=S.sel[shopTab]===i;
     h+='<div class="si'+(on?' on':'')+'">'+previewHTML(shopTab,i)+'<b>'+it.n+'</b>'+(on?'<span class="tag">Utilisé</span>':has?'<button data-use="'+i+'">Utiliser</button>':'<button data-buy="'+i+'"'+(S.gems<it.p?' disabled':'')+'>'+it.p+' 💎</button>')+'</div>';
   });
