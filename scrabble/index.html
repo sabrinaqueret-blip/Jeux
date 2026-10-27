@@ -83,6 +83,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1
 </div>
 <div id="ov" hidden></div>
 <div id="toast" hidden></div>
+<script src="peerjs.min.js"></script>
 <script>
 "use strict";
 const $=id=>document.getElementById(id);
@@ -138,6 +139,45 @@ function buildTrie(txt){
 }
 function child(node,ch){for(let c=TC[node];c>=0;c=TN[c])if(TL[c]===ch)return c;return -1;}
 function isWord(s){let nd=0;for(let i=0;i<s.length;i++){nd=child(nd,s.charCodeAt(i)-65);if(nd<0)return false;}return TW[nd]===1;}
+class FakeConn{
+  constructor(ch,me,other,isHost){this.ch=ch;this.me=me;this.other=other;this.h={};this.open=false;this.peer=other;
+    ch.addEventListener('message',e=>{const m=e.data;if(m.to!==me||m.from!==other)return;
+      if(m.k==='data')this.h.data&&this.h.data(JSON.parse(JSON.stringify(m.d)));
+      if(m.k==='close')this.h.close&&this.h.close();
+      if(m.k==='open'&&!this.open){this.open=true;this.h.open&&this.h.open();this.ch.postMessage({k:'ack',from:me,to:other});}
+      if(m.k==='ack'&&!this.open){this.open=true;this.h.open&&this.h.open();}});}
+  on(n,f){this.h[n]=f;}
+  send(d){this.ch.postMessage({k:'data',from:this.me,to:this.other,d:JSON.parse(JSON.stringify(d))});}
+  close(){this.ch.postMessage({k:'close',from:this.me,to:this.other});}
+}
+class FakePeer{
+  constructor(id){this.id=id||('c'+Math.random().toString(36).slice(2,8));this.ch=new BroadcastChannel('scrabble-fake');this.h={};
+    this.ch.addEventListener('message',e=>{const m=e.data;if(m.to===this.id&&m.k==='hello'){const c=new FakeConn(this.ch,this.id,m.from,true);c.open=false;this.h.connection&&this.h.connection(c);c.ch.postMessage({k:'open',from:this.id,to:m.from});}});
+    setTimeout(()=>this.h.open&&this.h.open(this.id),20);}
+  on(n,f){this.h[n]=f;}
+  connect(id){const c=new FakeConn(this.ch,this.id,id,false);setTimeout(()=>this.ch.postMessage({k:'hello',from:this.id,to:id}),30);return c;}
+  destroy(){}
+}
+function mkPeer(id){
+  if(/net=bc/.test(location.search))return new FakePeer(id);
+  if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  return id?new Peer(id,cfg):new Peer(cfg);
+}
+
+
+function mkPeer(id){
+  if(/net=bc/.test(location.search))return new FakePeer(id);
+  if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  return id?new Peer(id,cfg):new Peer(cfg);
+}
+const CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const genCode=()=>Array.from({length:4},()=>CHARS[(Math.random()*CHARS.length)|0]).join('');
+let kind='solo',peer=null,conn=null,roomCode='',names={me:'Toi',opp:'Ordinateur'};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function send(m){try{if(conn)conn.send(m);}catch(e){}}
+function leave(){try{if(conn)conn.close();}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conn=null;}
 /* ================= règles ================= */
 const N=15,C=7;
 const PTS={A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:10,L:1,M:2,N:1,O:1,P:3,Q:8,R:1,S:1,T:1,U:1,V:4,W:10,X:10,Y:10,Z:10,'?':0};
@@ -151,10 +191,10 @@ let pend=[]; // [{r,c,l,j,ri}] tuiles posées ce tour (rack index)
 let selRack=-1,zoomed=false;
 function newGame(){
   const bag=newBag();G={board:Array.from({length:N},()=>Array(N).fill(null)),rack:[],aiRack:[],bag,sc:[0,0],turn:0,pass:0,over:false,last:[],level:ST.level,moves:0};
-  draw(G.rack,C);draw(G.aiRack,C);pend=[];selRack=-1;saveG();render();
+  draw(G.rack,C);draw(G.aiRack,C);pend=[];selRack=-1;if(kind==='solo')saveG();render();if(kind==='host')pushState();
 }
 function draw(rack,n){while(rack.length<n&&G.bag.length)rack.push(G.bag.pop());}
-function saveG(){try{localStorage.setItem(GK,JSON.stringify(G));}catch(e){}}
+function saveG(){if(kind!=='solo')return;try{localStorage.setItem(GK,JSON.stringify(G));}catch(e){}}
 function loadG(){try{const j=JSON.parse(localStorage.getItem(GK)||'null');if(j&&j.board){G=j;return true;}}catch(e){}return false;}
 const at=(b,r,c)=>(r>=0&&r<N&&c>=0&&c<N)?b[r][c]:null;
 /* évalue un coup (placements sur la grille G.board) */
@@ -293,25 +333,106 @@ function endCheck(){
   return false;
 }
 function finish(){
+  if(G.fin)return;G.fin=true;
   const win=G.sc[0]>G.sc[1],tie=G.sc[0]===G.sc[1];let g=0;
-  if(win){g=[3,6,10][G.level];addGems(g);ST.wins++;saveST();}
+  if(win){g=kind==='solo'?[3,6,10][G.level]:8;addGems(g);ST.wins++;saveST();}
   try{localStorage.removeItem(GK);}catch(e){}
   render();
-  setTimeout(()=>{openOv('<div style="font-size:54px">'+(win?'🏆':tie?'🤝':'😌')+'</div><h2>'+(win?'Victoire !':tie?'Égalité':'Défaite…')+'</h2><p>Toi <b>'+G.sc[0]+'</b> · Ordinateur <b>'+G.sc[1]+'</b></p>'+(g?'<p class="gold">+'+g+' 💎</p>':'')+'<button class="ob" id="rp">Nouvelle partie</button><button class="ob alt" id="cl2">Voir la grille</button>');$('rp').onclick=()=>{closeOv();newGame();};$('cl2').onclick=closeOv;},500);
+  setTimeout(()=>{openOv('<div style="font-size:54px">'+(win?'🏆':tie?'🤝':'😌')+'</div><h2>'+(win?'Victoire !':tie?'Égalité':'Défaite…')+'</h2><p>Toi <b>'+G.sc[0]+'</b> · '+esc(names.opp)+' <b>'+G.sc[1]+'</b></p>'+(g?'<p class="gold">+'+g+' 💎</p>':'')+'<button class="ob" id="rp">Nouvelle partie</button><button class="ob alt" id="cl2">Voir la grille</button>');$('rp').onclick=()=>{if(kind==='solo'){closeOv();newGame();}else rematch();};$('cl2').onclick=closeOv;},500);
 }
 function recallAll(){pend=[];selRack=-1;render();}
+function myTurn(){return !G.over&&G.turn===0&&!G.waiting;}
+function afterMine(msg){
+  if(kind==='solo'){saveG();render();if(!endCheck())setTimeout(aiTurn,700);}
+  else{render();endCheck();pushState(msg);}
+}
 function playHuman(){
-  if(G.over||G.turn!==0)return;
+  if(!myTurn())return;
   if(!DICT){toast('Le dictionnaire se charge…');return;}
   const pl=pend.map(p=>({r:p.r,c:p.c,l:p.l,j:p.j}));
-  const ev=evaluate(pl);
   if(!pl.length){toast('Pose d’abord des lettres.');return;}
+  const ev=evaluate(pl);
   if(!ev.ok){toast(ev.msg||'Coup invalide.',3200);return;}
-  // retire du rack
+  if(kind==='guest'){G.waiting=true;send({t:'move',pl});render();return;}
   const used=pend.map(p=>p.ri).sort((a,b)=>b-a);used.forEach(i=>G.rack.splice(i,1));
   applyMove(pl,0);pend=[];selRack=-1;draw(G.rack,C);
-  toast(ev.words.join(', ')+' : +'+ev.score+(ev.bingo?' · SCRABBLE ! +50':''),2800);
-  G.turn=1;saveG();render();if(!endCheck())setTimeout(aiTurn,700);
+  const msg=ev.words.join(', ')+' : +'+ev.score+(ev.bingo?' · SCRABBLE ! +50':'');
+  toast(msg,2800);G.turn=1;afterMine(names.me+' : '+msg);
+}
+function shuffleBag(){for(let i=G.bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[G.bag[i],G.bag[j]]=[G.bag[j],G.bag[i]];}}
+function doPass(){if(kind==='guest'){G.waiting=true;send({t:'pass'});render();return;}pend=[];G.pass++;G.turn=1;afterMine(names.me+' passe.');}
+function doExch(idx){
+  if(kind==='guest'){G.waiting=true;send({t:'exch',idx});render();return;}
+  idx=idx.slice().sort((a,b)=>b-a);const out=idx.map(i=>G.rack.splice(i,1)[0]);draw(G.rack,C);G.bag.unshift(...out);shuffleBag();G.pass++;G.turn=1;afterMine(names.me+' échange '+idx.length+' lettre'+(idx.length>1?'s':'')+'.');
+}
+/* ---- en ligne ---- */
+function viewFor(){return {board:G.board,rack:G.aiRack.slice(),sc:[G.sc[1],G.sc[0]],bag:G.bag.length,oppN:G.rack.length,turn:1-G.turn,pass:G.pass,over:G.over,last:G.last,moves:G.moves};}
+function pushState(msg){send({t:'state',v:viewFor(),msg:msg||'',names:{me:names.opp,opp:names.me}});}
+function hostGame(name){
+  leave();kind='host';names={me:name,opp:'…'};roomCode=genCode();
+  openOv('<h2>Création de la partie…</h2>');
+  const open=tries=>{
+    try{peer=mkPeer('scrabble-'+roomCode);}catch(e){toast(e.message,5000);return menu();}
+    peer.on('open',()=>{openOv('<h2>Ta partie</h2><p class="muted">Donne ce code à ton ami (il le saisit dans « Rejoindre ») :</p><div style="font-size:52px;font-weight:900;letter-spacing:10px;color:var(--gold);border:3px dashed var(--gold);border-radius:16px;padding:6px 10px 6px 20px;margin:10px 0">'+roomCode+'</div><p class="muted">En attente de ton adversaire…</p><button class="ob alt" id="bk">Annuler</button>');$('bk').onclick=()=>{leave();kind='solo';names={me:'Toi',opp:'Ordinateur'};menu();};});
+    peer.on('error',e=>{if(e.type==='unavailable-id'&&tries<5){roomCode=genCode();open(tries+1);}else{toast('Connexion impossible ('+(e.type||'erreur')+').',5000);}});
+    peer.on('connection',c=>{
+      if(conn&&conn.open){c.on('open',()=>c.send({t:'full'}));return;}
+      conn=c;c.on('data',onMsg);
+      c.on('close',()=>{if(conn===c){conn=null;if(G&&!G.over)toast(names.opp+' a quitté la partie.',4000);}});
+    });
+  };open(0);
+}
+function joinGame(name,code){
+  leave();kind='guest';names={me:name,opp:'…'};
+  openOv('<h2>Connexion…</h2><p class="muted">Recherche de la partie '+esc(code)+'</p><button class="ob alt" id="bk">Annuler</button>');$('bk').onclick=()=>{leave();kind='solo';names={me:'Toi',opp:'Ordinateur'};menu();};
+  let opened=false;
+  try{peer=mkPeer();}catch(e){toast(e.message,5000);return menu();}
+  const fail=m=>{toast(m,5000);leave();kind='solo';names={me:'Toi',opp:'Ordinateur'};menu();};
+  peer.on('error',e=>fail(e.type==='peer-unavailable'?'Aucune partie avec ce code.':'Connexion impossible ('+(e.type||'erreur')+').'));
+  peer.on('open',()=>{
+    conn=peer.connect('scrabble-'+code,{reliable:true});
+    conn.on('open',()=>{opened=true;conn.send({t:'hello',name});});
+    conn.on('data',onMsg);
+    conn.on('close',()=>{if(G&&!G.over)toast('Connexion perdue.',4000);});
+  });
+  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},15000);
+}
+let again=[false,false];
+function rematch(){
+  if(kind==='host'){again[0]=true;if(again[1])startOnline();else{toast('En attente de '+names.opp+'…');}}
+  else{send({t:'again'});toast('En attente de '+names.opp+'…');}
+}
+function startOnline(){again=[false,false];closeOv();G=null;newGame();}
+function onMsg(m){
+  if(m.t==='full'){toast('La partie est déjà complète.',4000);leave();kind='solo';return;}
+  if(kind==='host'){
+    if(m.t==='hello'){names.opp=String(m.name||'Invité').slice(0,12);send({t:'welcome',name:names.me});startOnline();return;}
+    if(m.t==='again'){again[1]=true;if(again[0])startOnline();else toast(names.opp+' veut rejouer.');return;}
+    if(!G||G.over||G.turn!==1)return;
+    if(m.t==='move'){
+      const pl=(m.pl||[]).map(p=>({r:+p.r,c:+p.c,l:String(p.l),j:!!p.j}));
+      const rk=G.aiRack.slice();let ok=pl.length>0&&pl.length<=C&&pl.every(p=>p.r>=0&&p.r<N&&p.c>=0&&p.c<N&&!G.board[p.r][p.c]);
+      for(const p of pl){const k=rk.indexOf(p.j?'?':p.l);if(k<0){ok=false;break;}rk.splice(k,1);}
+      const ev=ok?evaluate(pl):{ok:false,msg:'Coup invalide.'};
+      if(!ok||!ev.ok){send({t:'reject',msg:ev.msg||'Coup invalide.'});return;}
+      G.aiRack=rk;applyMove(pl,1);draw(G.aiRack,C);
+      const msg=names.opp+' : '+ev.words.join(', ')+' +'+ev.score+(ev.bingo?' · SCRABBLE !':'');
+      toast(msg,3200);G.turn=0;render();endCheck();pushState(msg);
+    }else if(m.t==='pass'){G.pass++;G.turn=0;toast(names.opp+' passe.');render();endCheck();pushState(names.opp+' passe.');}
+    else if(m.t==='exch'){
+      const idx=[...new Set((m.idx||[]).map(Number))].filter(i=>i>=0&&i<G.aiRack.length).sort((a,b)=>b-a);
+      if(!idx.length||G.bag.length<C){send({t:'reject',msg:'Échange impossible.'});return;}
+      const out=idx.map(i=>G.aiRack.splice(i,1)[0]);draw(G.aiRack,C);G.bag.unshift(...out);shuffleBag();G.pass++;G.turn=0;
+      const msg=names.opp+' échange '+idx.length+' lettre'+(idx.length>1?'s':'')+'.';toast(msg);render();endCheck();pushState(msg);
+    }
+  }else if(kind==='guest'){
+    if(m.t==='welcome'){names.opp=String(m.name||'Hôte').slice(0,12);}
+    else if(m.t==='state'){
+      const v=m.v;G={board:v.board,rack:v.rack,aiRack:new Array(v.oppN).fill('?'),bag:new Array(v.bag).fill(0),sc:v.sc,turn:v.turn,pass:v.pass,over:v.over,last:v.last||[],moves:v.moves,level:0,waiting:false,fin:G&&G.over&&v.over?G.fin:false};
+      if(m.names)names=m.names;pend=[];selRack=-1;closeOv();if(m.msg)toast(m.msg,3000);render();
+      if(G.over)finish();
+    }else if(m.t==='reject'){if(G)G.waiting=false;toast(m.msg||'Coup refusé.',3200);render();}
+  }
 }
 function aiTurn(){
   if(G.over)return;
@@ -350,22 +471,23 @@ function render(){
   const used=new Set(pend.map(p=>p.ri));
   $('rack').innerHTML=G.rack.map((t,i)=>used.has(i)?'':'<div class="tile'+(i===selRack?' sel':'')+(exMode&&exSel.has(i)?' ex':'')+'" data-i="'+i+'">'+(t==='?'?'★':t)+(t==='?'?'':'<i>'+PTS[t]+'</i>')+'</div>').join('');
   $('rack').querySelectorAll('.tile').forEach(el=>el.onclick=()=>tapRack(+el.dataset.i));
-  let st='Toi '+G.sc[0]+' · Ordi '+G.sc[1]+' · sac '+G.bag.length;
-  if(!G.over&&G.turn===1)st='L’ordinateur réfléchit…';
+  let st='Toi '+G.sc[0]+' · '+names.opp.slice(0,8)+' '+G.sc[1]+' · sac '+G.bag.length;
+  if(!G.over&&G.waiting)st='Vérification…';
+  else if(!G.over&&G.turn===1)st=kind==='solo'?'L’ordinateur réfléchit…':'Tour de '+names.opp+'…';
   else if(pend.length&&DICT){const ev=evaluate(pend.map(p=>({r:p.r,c:p.c,l:p.l,j:p.j})));if(ev.ok)st=ev.words.join(', ')+' : '+ev.score+' pts';}
   $('sc').textContent=st;
-  const mine=!G.over&&G.turn===0;
+  const mine=myTurn();
   $('play').disabled=!mine||!pend.length;$('recall').disabled=!pend.length;$('shuf').disabled=!mine;$('exch').disabled=!mine||G.bag.length<C;$('pass').disabled=!mine;
   $('bwrap').className=zoomed?'zoom':'';
 }
 let exMode=false,exSel=new Set();
 function tapRack(i){
-  if(G.over||G.turn!==0)return;
+  if(!myTurn())return;
   if(exMode){exSel.has(i)?exSel.delete(i):exSel.add(i);render();return;}
   selRack=selRack===i?-1:i;render();
 }
 function tapSq(r,c){
-  if(G.over||G.turn!==0)return;
+  if(!myTurn())return;
   const pi=pend.findIndex(p=>p.r===r&&p.c===c);
   if(pi>=0){pend.splice(pi,1);selRack=-1;render();return;}
   if(G.board[r][c]||selRack<0)return;
@@ -379,23 +501,31 @@ function chooseLetter(cb){
 }
 $('play').onclick=playHuman;$('recall').onclick=recallAll;
 $('zoom').onclick=()=>{zoomed=!zoomed;render();};
-$('shuf').onclick=()=>{if(G.turn!==0||G.over)return;pend=[];selRack=-1;for(let i=G.rack.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[G.rack[i],G.rack[j]]=[G.rack[j],G.rack[i]];}render();};
-$('pass').onclick=()=>{if(G.over||G.turn!==0)return;openOv('<h2>Passer ton tour ?</h2><button class="ob" id="y">Passer</button><button class="ob alt" id="n">Annuler</button>');$('y').onclick=()=>{closeOv();pend=[];G.pass++;G.turn=1;saveG();render();if(!endCheck())setTimeout(aiTurn,500);};$('n').onclick=closeOv;};
+$('shuf').onclick=()=>{if(!myTurn())return;pend=[];selRack=-1;for(let i=G.rack.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[G.rack[i],G.rack[j]]=[G.rack[j],G.rack[i]];}render();};
+$('pass').onclick=()=>{if(!myTurn())return;openOv('<h2>Passer ton tour ?</h2><button class="ob" id="y">Passer</button><button class="ob alt" id="n">Annuler</button>');$('y').onclick=()=>{closeOv();doPass();};$('n').onclick=closeOv;};
 $('exch').onclick=()=>{
-  if(G.over||G.turn!==0||G.bag.length<C)return;
+  if(!myTurn()||G.bag.length<C)return;
   pend=[];selRack=-1;exMode=true;exSel=new Set();render();
   openOv('<h2>Échanger</h2><p class="muted">Touche les lettres à échanger dans ton chevalet, puis valide.</p><button class="ob" id="y">Échanger</button><button class="ob alt" id="n">Annuler</button>');
   const ovEl=$('ov');ovEl.style.background='transparent';ovEl.style.alignItems='flex-end';ovEl.style.pointerEvents='none';ovEl.firstChild.style.pointerEvents='auto';ovEl.firstChild.style.maxWidth='340px';ovEl.firstChild.style.padding='10px';
   const end=()=>{exMode=false;ovEl.style.cssText='';closeOv();render();};
   $('n').onclick=end;
-  $('y').onclick=()=>{if(!exSel.size){toast('Choisis des lettres.');return;}const idx=[...exSel].sort((a,b)=>b-a);const out=idx.map(i=>G.rack.splice(i,1)[0]);draw(G.rack,C);G.bag.unshift(...out);for(let i=G.bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[G.bag[i],G.bag[j]]=[G.bag[j],G.bag[i]];}G.pass++;G.turn=1;end();saveG();render();if(!endCheck())setTimeout(aiTurn,500);};
+  $('y').onclick=()=>{if(!exSel.size){toast('Choisis des lettres.');return;}const idx=[...exSel];end();doExch(idx);};
 };
 $('bshop').onclick=shop;
 function menu(){
   const sv=G&&!G.over;
-  openOv('<img class="mi" src="icons/icon-192.png" alt=""><h2>Scrabble</h2><p class="muted">Contre l’ordinateur · niveau</p><div class="tabs">'+['Facile','Moyen','Fort'].map((n,i)=>'<button data-l="'+i+'" class="'+(ST.level===i?'on':'')+'">'+n+'</button>').join('')+'</div><button class="ob" id="go">Nouvelle partie</button>'+(sv?'<button class="ob alt" id="rs">Reprendre</button>':'')+'<button class="ob alt" id="hm">Retour aux jeux</button><p class="muted" style="font-size:12px">Dictionnaire français de plus de 300 000 mots (sans accents). Bonus de 50 points si tu poses tes 7 lettres.</p>');
-  $('ov').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{ST.level=+b.dataset.l;saveST();menu();});
-  $('go').onclick=()=>{closeOv();newGame();};if($('rs'))$('rs').onclick=closeOv;$('hm').onclick=()=>{location.href='../';};
+  openOv('<img class="mi" src="icons/icon-192.png" alt=""><h2>Scrabble</h2>'+
+  '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(ST.name||'')+'" style="width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);background:#0006;color:var(--ink);font:inherit;text-align:center;font-weight:700;margin-bottom:6px">'+
+  '<p class="muted">Contre l’ordinateur · niveau</p><div class="tabs">'+['Facile','Moyen','Fort'].map((n,i)=>'<button data-l="'+i+'" class="'+(ST.level===i?'on':'')+'">'+n+'</button>').join('')+'</div><button class="ob" id="go">Jouer contre l’ordinateur</button>'+
+  '<button class="ob alt" id="host">Créer une partie en ligne</button><div style="display:flex;gap:8px"><input id="cd" maxlength="4" placeholder="CODE" value="'+esc(ST.code||'')+'" autocapitalize="characters" style="flex:1;min-width:0;padding:12px;border-radius:12px;border:2px solid var(--muted);background:#0006;color:var(--ink);font:inherit;text-align:center;font-weight:800;letter-spacing:6px;text-transform:uppercase"><button class="ob alt" id="jn" style="width:auto;margin:0;padding:0 18px">Rejoindre</button></div>'+
+  (sv?'<button class="ob alt" id="rs">Reprendre</button>':'')+'<button class="ob alt" id="hm">Retour aux jeux</button><p class="muted" style="font-size:12px">Dictionnaire français de plus de 300 000 mots (sans accents). 50 points de bonus si tu poses tes 7 lettres.</p>');
+  const nm=()=>{const v=($('nm').value.trim().slice(0,12))||'Joueur';ST.name=v;saveST();return v;};
+  $('ov').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{ST.level=+b.dataset.l;nm();saveST();menu();});
+  $('go').onclick=()=>{leave();kind='solo';names={me:nm(),opp:'Ordinateur'};closeOv();newGame();};
+  $('host').onclick=()=>hostGame(nm());
+  $('jn').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');ST.code=c;saveST();joinGame(nm(),c);};
+  if($('rs'))$('rs').onclick=closeOv;$('hm').onclick=()=>{location.href='../';};
 }
 $('bmenu').onclick=menu;
 applyBg();
