@@ -409,6 +409,8 @@ const ASTRO={dir:'astro',paper:'#f6ecd6',edge:'#3a4a6a',inner:'#c0a060',red:'#b8
 const BAR={dir:'baroque',paper:'#f6efdc',edge:'#6a1c26',inner:'#c0983c',red:'#9a1c2c',black:'#1c1c20',miniop:.34,minis:mk()};
 const DECO={dir:'deco',paper:'#f8f0dc',edge:'#2a2a3a',inner:'#c9a030',red:'#b0282c',black:'#16161e',miniop:.32,minis:mk()};
 const FEE={dir:'fee',paper:'#f4e8cc',edge:'#5a4026',inner:'#b8944a',red:'#a8342c',black:'#26242a',miniop:.3,minis:mk()};
+const STEAM={dir:'steampunk',paper:'#f2e4c8',edge:'#4a3020',inner:'#b07838',red:'#a8402a',black:'#241c18',miniop:.32,minis:mk()};
+const FEES={dir:'feesbois',paper:'#f4ead0',edge:'#4a5a3a',inner:'#b8944a',red:'#b0383c',black:'#242a2a',miniop:.34,minis:mk()};
 const DRAG={dir:'dragons',paper:'#f6ecd4',edge:'#8a6420',inner:'#d0a840',red:'#b0302c',black:'#26263a',miniop:.3,minis:mk()};
 /* dos illustrés */
 [['alice','Alice : la maison trop petite',700,'back1'],['alice','Alice : le thé du Chapelier',800,'back2'],['alice','Alice : le croquet de la Reine',900,'back3'],
@@ -421,6 +423,8 @@ const DRAG={dir:'dragons',paper:'#f6ecd4',edge:'#8a6420',inner:'#d0a840',red:'#b
 ['baroque','Baroque : vitrail aux angelots',900,'back1'],['baroque','Baroque : rideau de velours',1000,'back2'],['baroque','Baroque : monogramme royal',1100,'back3'],
 ['deco','Art déco : l\'éventail d\'or',780,'back1'],['deco','Art déco : le soleil levant',880,'back2'],['deco','Art déco : le paon',980,'back3'],
 ['fee','Royaume : le château au crépuscule',800,'back1'],['fee','Royaume : la chaumière des fées',900,'back2'],['fee','Royaume : la tour aux roses',1000,'back3'],
+['steampunk','Steampunk : le dirigeable sur Paris',860,'back1'],['steampunk','Steampunk : l\'atelier d\'horloger',960,'back2'],['steampunk','Steampunk : la locomotive de nuit',1060,'back3'],
+['feesbois','Fées : la maison-champignon',850,'back1'],['feesbois','Fées : le bal sous la lune',950,'back2'],['feesbois','Fées : la cascade de fleurs',1050,'back3'],
 ['dragons','Dragon et tour',760,'back1'],['dragons','Licorne en forêt',860,'back2'],['dragons','Château des nuages',960,'back3']].forEach(([d,n,p,f])=>BACKS.push({n,p,f:u=>'<defs><clipPath id="bc'+u+'"><rect x="7" y="7" width="155" height="231" rx="6"/></clipPath></defs><rect width="169" height="245" rx="11" fill="#fff"/><image href="'+IMGBASE+d+'/'+f+'.webp" x="7" y="7" width="155" height="231" preserveAspectRatio="xMidYMid slice" clip-path="url(#bc'+u+')"/><rect x="7" y="7" width="155" height="231" rx="6" fill="none" stroke="#6a4426" stroke-width="1.6"/>'}));
 
 /* ---------- Données partagées : portefeuille, boutique, cartes ---------- */
@@ -454,11 +458,13 @@ const COURTS=[
  {n:'Astronaute rétro',p:940,art:'img',th:'ASTRO',v:''},
  {n:'Baroque doré',p:1050,art:'img',th:'BAR',v:''},
  {n:'Art déco',p:880,art:'img',th:'DECO',v:''},
- {n:'Royaume enchanté',p:820,art:'img',th:'FEE',v:''}
+ {n:'Royaume enchanté',p:820,art:'img',th:'FEE',v:''},
+ {n:'Steampunk',p:930,art:'img',th:'STEAM',v:''},
+ {n:'Monde des fées',p:960,art:'img',th:'FEES',v:''}
 ];
 const BGS=[
  {n:'Tapis vert',p:0},{n:'Tapis bleu',p:20},{n:'Bois de noyer',p:40},{n:'Velours bordeaux',p:60},{n:'Océan',p:90},{n:'Prairie fleurie',p:120},
- {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice : papier peint',p:350,img:'alice/bg2'},{n:'Alice et la Chenille',p:700,img:'alice/bg1'},{n:'Chats : salon victorien',p:720,img:'chats/bg1'},{n:'Renards : sous-bois d\'automne',p:740,img:'renards/bg1'},{n:'Château dans les nuages',p:860,img:'dragons/bg1'},{n:'Venise : canal de nuit',p:800,img:'venise/bg1'},{n:'Le Nil au coucher du soleil',p:880,img:'egypte/bg1'},{n:'Japon : cerisiers et mont Fuji',p:900,img:'japon/bg1'},{n:'Rêverie spatiale',p:780,img:'astro/bg1'},{n:'Salon de velours',p:900,img:'baroque/bg1'},{n:'Éventails dorés',p:700,img:'deco/bg1'},{n:'Forêt enchantée',p:760,img:'fee/bg1'}
+ {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice : papier peint',p:350,img:'alice/bg2'},{n:'Alice et la Chenille',p:700,img:'alice/bg1'},{n:'Chats : salon victorien',p:720,img:'chats/bg1'},{n:'Renards : sous-bois d\'automne',p:740,img:'renards/bg1'},{n:'Château dans les nuages',p:860,img:'dragons/bg1'},{n:'Venise : canal de nuit',p:800,img:'venise/bg1'},{n:'Le Nil au coucher du soleil',p:880,img:'egypte/bg1'},{n:'Japon : cerisiers et mont Fuji',p:900,img:'japon/bg1'},{n:'Rêverie spatiale',p:780,img:'astro/bg1'},{n:'Salon de velours',p:900,img:'baroque/bg1'},{n:'Éventails dorés',p:700,img:'deco/bg1'},{n:'Forêt enchantée',p:760,img:'fee/bg1'},{n:'Cité de cuivre',p:800,img:'steampunk/bg1'},{n:'Clairière aux lucioles',p:820,img:'feesbois/bg1'}
 ];
 const CATS={back:{t:'Dos',items:BACKS},court:{t:'Têtes',items:COURTS},bg:{t:'Fonds',items:BGS}};
 let S={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};
