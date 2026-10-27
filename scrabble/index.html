@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14202e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Scrabble">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Scrabble</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#f6f3e6;--muted:#b6c4d6;--gold:#f0c060}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none;overflow:hidden;touch-action:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom);background:var(--bg) center/cover no-repeat}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0;font-weight:800;text-shadow:0 1px 3px #000a}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #sc{flex:1;text-align:center}
+#main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+#main{justify-content:flex-start;gap:6px}
+#bwrap{width:100%;aspect-ratio:1;max-height:calc(100vh - 290px);overflow:auto;border-radius:10px;touch-action:pan-x pan-y;background:#0a1420cc;box-shadow:0 8px 22px #000a,0 0 0 2px #ffffff22 inset;flex:none}
+#bd{display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);gap:1px;padding:2px;aspect-ratio:1;width:100%}
+#bwrap.zoom #bd{width:200%}
+.sq{position:relative;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#fff9;background:#2c6b4a;min-width:0;min-height:0}
+.sq.tw{background:#c0392b}.sq.dw{background:#e58aa0}.sq.tl{background:#2a6fb0}.sq.dl{background:#8fc7ea;color:#0b3a5c}.sq.c{background:#e58aa0;font-size:15px;color:#fff}
+.tile{position:absolute;inset:0;border-radius:4px;background:linear-gradient(145deg,#f7e6bd,#e2c78a);color:#2a1a08;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px #0008,0 0 0 1px #8a6a2a inset;font-size:clamp(11px,4.4vw,17px);line-height:1}
+#bwrap.zoom .tile{font-size:clamp(18px,7vw,28px)}
+.tile i{position:absolute;right:2px;bottom:1px;font-style:normal;font-size:.48em;font-weight:800}
+.tile.jk{color:#b3262e}.tile.pend{background:linear-gradient(145deg,#fff3c4,#ffd96a);box-shadow:0 0 0 2px #f0c060,0 2px 6px #000a}.tile.last{box-shadow:0 0 0 2px #7ee0c8,0 1px 2px #0008}
+#rack{display:flex;gap:6px;justify-content:center;padding:4px 0;min-height:54px}
+#rack .tile{position:relative;inset:auto;width:min(12.5vw,50px);height:min(12.5vw,50px);font-size:24px;flex:none;cursor:pointer}
+#rack .tile.sel{transform:translateY(-8px);box-shadow:0 0 0 3px #f0c060,0 6px 10px #000a}
+#rack .tile.ex{opacity:.45}
+#ctl{flex-wrap:wrap;gap:6px;padding:2px 0}#ctl button{padding:10px 4px;font-size:14px;min-width:30%}
+#ctl button.go{background:var(--gold);color:#12202e;border-color:var(--gold)}
+#ctl button:disabled{opacity:.4}
+.alpha{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:8px 0}.alpha button{padding:10px 0;border-radius:10px;border:2px solid var(--muted);background:transparent;color:var(--ink);font:inherit;font-weight:800}
+#ctl{display:flex;gap:8px;padding:8px 0;width:100%}
+#ctl button{flex:1;padding:12px 4px;border-radius:14px;border:2px solid var(--gold);background:#0008;color:var(--ink);font:inherit;font-weight:900;font-size:16px;touch-action:manipulation}
+#ctl button:active{background:#f0c06055}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:16px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center;touch-action:pan-y}
+#ov h2{margin:4px 0 8px}
+.ob{display:block;width:100%;margin:8px 0;padding:13px;border-radius:14px;border:2px solid var(--gold);background:var(--gold);color:#12202e;font:inherit;font-weight:800}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted)}
+.muted{color:var(--muted)}.gold{color:var(--gold);font-weight:800}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.tabs button{padding:7px 12px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font:inherit;font-weight:700;font-size:14px}
+.tabs button.on{background:var(--gold);color:#12202e;border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.it{background:#0006;border:2px solid transparent;border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700}
+.it.on{border-color:var(--gold)}
+.it .pv{width:100%;aspect-ratio:1;border-radius:8px;background:#0004 center/cover no-repeat;display:flex;align-items:center;justify-content:center;gap:3px;overflow:hidden}
+.it .pv b{width:30%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#222}
+.it button{width:100%;padding:6px 2px;border-radius:8px;border:0;background:var(--gold);color:#12202e;font:inherit;font-weight:800;font-size:12px}
+.it button.u{background:#fff2;color:var(--ink)}.it button.no{background:#fff1;color:var(--muted)}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#000d;padding:10px 16px;border-radius:12px;z-index:60;max-width:90%;text-align:center}
+[hidden]{display:none!important}
+/*UIKIT*/
+#ov{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#ov>div{border-radius:26px!important;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset,0 0 40px #a65cff22;background-image:linear-gradient(165deg,#ffffff12,#ffffff00 40%)}
+#ov h2,#ov h1{letter-spacing:.3px;text-shadow:0 2px 8px #0008}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.ob{background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);border-radius:16px!important;text-shadow:0 1px 0 #ffffff55}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));text-shadow:none}
+.tabs button.on{box-shadow:0 0 14px #f6c85f99}
+.it{border-radius:18px!important;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
+.it.on{box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="sc">Scrabble</span><span class="gm" id="gm">0 💎</span><button type="button" id="bshop" aria-label="Boutique">🛍</button></div>
+  <div id="main">
+    <div id="bwrap"><div id="bd"></div></div>
+    <div id="rack"></div>
+    <div id="ctl"><button class="go" id="play">✔ Jouer</button><button id="recall">↺ Rappel</button><button id="zoom">🔍</button><button id="shuf">🔀</button><button id="exch">⇄ Échanger</button><button id="pass">Passer</button></div>
+  </div>
+</div>
+<div id="ov" hidden></div>
+<div id="toast" hidden></div>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const GAME='scrabble',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}
+  if(!j)j={v:1,gems:20,own:{}};if(!j.own)j.own={};if(!j.own[GAME])j.own[GAME]={};if(typeof j.gems!=='number')j.gems=20;return j;}
+function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
+function gems(){return wal().gems;}
+function gmUpdate(){$('gm').textContent=gems()+' 💎';}
+function addGems(n){const j=wal();j.gems+=n;walSave(j);gmUpdate();return j.gems;}
+function owned(c,i){return i===0||(wal().own[GAME][c]||[]).includes(i);}
+const SK='scrabble-v1',GK='scrabble-game-v1';
+let ST={level:1,sel:{},wins:0};try{ST=Object.assign(ST,JSON.parse(localStorage.getItem(SK)||'{}'));}catch(e){}
+ST.sel=ST.sel||{};
+function saveST(){try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}}
+function selc(c){const i=ST.sel[c]|0;return owned(c,i)?i:0;}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2200);}
+const BGS=[{n:'Nuit',p:0}].concat([['Alice','alice'],['Chats victoriens','chats'],['Renards des bois','renards'],['Dragons et licornes','dragons'],['Venise','venise'],['Égypte','egypte'],['Japon','japon'],['Astronaute','astro'],['Baroque','baroque'],['Art déco','deco'],['Royaume enchanté','fee'],['Steampunk','steampunk'],['Monde des fées','feesbois'],['Aventuriers des mers','marins']].map(a=>({n:a[0],dir:a[1],p:60})));
+const bgUrl=b=>'../cartes-img/'+b.dir+'/bg1.webp';
+function applyBg(){const b=BGS[selc('bg')]||BGS[0];$('app').style.backgroundImage=b.dir?'linear-gradient(#0008,#0008),url('+bgUrl(b)+')':'none';}
+function shop(){
+  let h='<h2>Boutique</h2><p class="gold">'+gems()+' 💎</p><div class="grid">';
+  BGS.forEach((it,i)=>{const has=owned('bg',i),on=selc('bg')===i;
+    h+='<div class="it'+(on?' on':'')+'"><div class="pv" style="'+(it.dir?'background-image:url('+bgUrl(it)+')':'background:#14202e')+'"></div><span>'+it.n+'</span>'+(on?'<button class="no">Utilisé</button>':has?'<button class="u" data-u="'+i+'">Utiliser</button>':(gems()>=it.p?'<button data-b="'+i+'">'+it.p+' 💎</button>':'<button class="no">'+it.p+' 💎</button>'))+'</div>';});
+  h+='</div><button class="ob alt" id="cl">Fermer</button>';openOv(h);
+  const o=$('ov');
+  o.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{ST.sel.bg=+b.dataset.u;saveST();applyBg();shop();});
+  o.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,p=BGS[i].p,j=wal();if(j.gems<p)return;j.gems-=p;(j.own[GAME].bg=j.own[GAME].bg||[0]).push(i);walSave(j);ST.sel.bg=i;saveST();gmUpdate();applyBg();shop();});
+  $('cl').onclick=closeOv;
+}
+/* ================= dictionnaire : trie compact ================= */
+let TL,TW,TC,TN,TCNT=0,DICT=false;
+function buildTrie(txt){
+  const cap=640000;TL=new Uint8Array(cap);TW=new Uint8Array(cap);TC=new Int32Array(cap).fill(-1);TN=new Int32Array(cap).fill(-1);
+  const LC=new Int32Array(cap).fill(-1); // dernier enfant
+  TCNT=1;const stack=[0];let prev='';
+  let pos=0;const n=txt.length;
+  while(pos<n){
+    let e=txt.indexOf('\n',pos);if(e<0)e=n;
+    const w=txt.slice(pos,e);pos=e+1;if(!w)continue;
+    let k=0;const m=Math.min(prev.length,w.length);while(k<m&&prev.charCodeAt(k)===w.charCodeAt(k))k++;
+    stack.length=k+1;
+    for(let i=k;i<w.length;i++){
+      const par=stack[i],id=TCNT++;TL[id]=w.charCodeAt(i)-65;
+      if(TC[par]<0)TC[par]=id;else TN[LC[par]]=id;
+      LC[par]=id;stack.push(id);
+    }
+    TW[stack[w.length]]=1;prev=w;
+  }
+  DICT=true;
+}
+function child(node,ch){for(let c=TC[node];c>=0;c=TN[c])if(TL[c]===ch)return c;return -1;}
+function isWord(s){let nd=0;for(let i=0;i<s.length;i++){nd=child(nd,s.charCodeAt(i)-65);if(nd<0)return false;}return TW[nd]===1;}
+/* ================= règles ================= */
+const N=15,C=7;
+const PTS={A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:10,L:1,M:2,N:1,O:1,P:3,Q:8,R:1,S:1,T:1,U:1,V:4,W:10,X:10,Y:10,Z:10,'?':0};
+const DIST={A:9,B:2,C:2,D:3,E:15,F:2,G:2,H:2,I:8,J:1,K:1,L:5,M:3,N:6,O:6,P:2,Q:1,R:6,S:6,T:6,U:6,V:2,W:1,X:1,Y:1,Z:1,'?':2};
+const PREM=(()=>{const m=Array.from({length:N},()=>Array(N).fill(''));
+ const set=(t,l)=>l.forEach(([r,c])=>{[[r,c],[r,14-c],[14-r,c],[14-r,14-c],[c,r],[c,14-r],[14-c,r],[14-c,14-r]].forEach(([a,b])=>m[a][b]=t);});
+ set('tw',[[0,0],[0,7]]);set('dw',[[1,1],[2,2],[3,3],[4,4]]);set('tl',[[1,5],[5,1],[5,5]]);set('dl',[[0,3],[2,6],[3,0],[6,2],[6,6],[7,3]]);m[7][7]='c';return m;})();
+function newBag(){const b=[];for(const k in DIST)for(let i=0;i<DIST[k];i++)b.push(k);for(let i=b.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[b[i],b[j]]=[b[j],b[i]];}return b;}
+let G=null; // {board:15x15 of null|{l,j}, rack:[], aiRack:[], bag:[], sc:[0,0], turn:0, pass:0, over:false, last:[]}
+let pend=[]; // [{r,c,l,j,ri}] tuiles posées ce tour (rack index)
+let selRack=-1,zoomed=false;
+function newGame(){
+  const bag=newBag();G={board:Array.from({length:N},()=>Array(N).fill(null)),rack:[],aiRack:[],bag,sc:[0,0],turn:0,pass:0,over:false,last:[],level:ST.level,moves:0};
+  draw(G.rack,C);draw(G.aiRack,C);pend=[];selRack=-1;saveG();render();
+}
+function draw(rack,n){while(rack.length<n&&G.bag.length)rack.push(G.bag.pop());}
+function saveG(){try{localStorage.setItem(GK,JSON.stringify(G));}catch(e){}}
+function loadG(){try{const j=JSON.parse(localStorage.getItem(GK)||'null');if(j&&j.board){G=j;return true;}}catch(e){}return false;}
+const at=(b,r,c)=>(r>=0&&r<N&&c>=0&&c<N)?b[r][c]:null;
+/* évalue un coup (placements sur la grille G.board) */
+function evaluate(pl,board){
+  board=board||G.board;
+  if(!pl.length)return {ok:false,msg:''};
+  const rows=new Set(pl.map(p=>p.r)),cols=new Set(pl.map(p=>p.c));
+  if(rows.size>1&&cols.size>1)return {ok:false,msg:'Les lettres doivent être alignées.'};
+  const tmp=board.map(r=>r.slice());pl.forEach(p=>{tmp[p.r][p.c]={l:p.l,j:p.j,n:1};});
+  const first=board.every(r=>r.every(x=>!x));
+  const wordAt=(r,c,dr,dc)=>{ // mot complet passant par (r,c) dans la direction
+    let r0=r,c0=c;while(at(tmp,r0-dr,c0-dc))r0-=dr,c0-=dc;
+    const cells=[];let rr=r0,cc=c0;while(at(tmp,rr,cc)){cells.push([rr,cc]);rr+=dr;cc+=dc;}return cells;};
+  let dir;
+  if(pl.length>1)dir=rows.size===1?[0,1]:[1,0];
+  else{const p=pl[0];const h=at(tmp,p.r,p.c-1)||at(tmp,p.r,p.c+1),v=at(tmp,p.r-1,p.c)||at(tmp,p.r+1,p.c);dir=h?[0,1]:v?[1,0]:null;if(!dir)return {ok:false,msg:first?'Il faut au moins 2 lettres.':'Le mot doit toucher les lettres déjà posées.'};}
+  // continuité
+  const main=wordAt(pl[0].r,pl[0].c,dir[0],dir[1]);
+  for(const p of pl)if(!main.some(([r,c])=>r===p.r&&c===p.c))return {ok:false,msg:'Il y a un trou dans le mot.'};
+  const isNew=(r,c)=>pl.some(p=>p.r===r&&p.c===c);
+  const words=[];
+  if(main.length>=2)words.push(main);
+  const perp=[dir[1],dir[0]];
+  for(const p of pl){const w=wordAt(p.r,p.c,perp[0],perp[1]);if(w.length>=2)words.push(w);}
+  if(!words.length)return {ok:false,msg:'Il faut former un mot.'};
+  if(first){if(!pl.some(p=>p.r===7&&p.c===7))return {ok:false,msg:'Le premier mot doit couvrir l’étoile.'};if(pl.length<2)return {ok:false,msg:'Il faut au moins 2 lettres.'};}
+  else if(!words.some(w=>w.some(([r,c])=>!isNew(r,c))))return {ok:false,msg:'Le mot doit toucher les lettres déjà posées.'};
+  let total=0;const strs=[],bad=[];
+  for(const w of words){
+    let s=0,mult=1,str='';
+    for(const [r,c] of w){const t=tmp[r][c];str+=t.l;let v=t.j?0:PTS[t.l];
+      if(isNew(r,c)){const pm=PREM[r][c];if(pm==='dl')v*=2;else if(pm==='tl')v*=3;else if(pm==='dw'||pm==='c')mult*=2;else if(pm==='tw')mult*=3;}
+      s+=v;}
+    total+=s*mult;strs.push(str);if(DICT&&!isWord(str))bad.push(str);
+  }
+  if(pl.length===C)total+=50;
+  return {ok:bad.length===0,score:total,words:strs,bad,msg:bad.length?'« '+bad.join(', ')+' » : mot inconnu.':'',bingo:pl.length===C};
+}
+/* ================= IA : génération des coups ================= */
+function genMoves(board,rack){
+  const moves=[],seenK=new Set();const first=board.every(r=>r.every(x=>!x));
+  const cnt={};rack.forEach(t=>cnt[t]=(cnt[t]||0)+1);
+  const kinds=Object.keys(cnt);
+  for(let dirn=0;dirn<2;dirn++){
+    const get=(i,j)=>dirn===0?board[i][j]:board[j][i];
+    const pos=(i,j)=>dirn===0?{r:i,c:j}:{r:j,c:i};
+    for(let i=0;i<N;i++){
+      // contraintes croisées
+      const cc=new Array(N).fill(null);
+      for(let j=0;j<N;j++){
+        if(get(i,j))continue;
+        const up=[],dn=[];let x=i-1;while(x>=0&&get(x,j)){up.unshift(get(x,j).l);x--;}x=i+1;while(x<N&&get(x,j)){dn.push(get(x,j).l);x++;}
+        if(!up.length&&!dn.length)continue;
+        const pre=up.join(''),suf=dn.join(''),m=new Array(26).fill(false);
+        for(let k=0;k<26;k++)m[k]=isWord(pre+String.fromCharCode(65+k)+suf);
+        cc[j]=m;
+      }
+      const isAnch=new Array(N).fill(false);const anchors=[];
+      for(let j=0;j<N;j++){
+        if(get(i,j))continue;
+        const an=first?(i===7&&j===7):((j>0&&get(i,j-1))||(j<N-1&&get(i,j+1))||(i>0&&get(i-1,j))||(i<N-1&&get(i+1,j)));
+        if(an){isAnch[j]=true;anchors.push(j);}
+      }
+      for(const a of anchors){
+        const record=placed=>{
+          const pl=placed.map(t=>({...pos(i,t.col),l:t.l,j:t.j}));
+          const key=pl.map(p=>p.r+','+p.c+p.l+(p.j?'*':'')).join('|');
+          if(seenK.has(key))return;seenK.add(key);
+          const ev=evaluate(pl,board);if(ev.ok)moves.push({pl,score:ev.score});
+        };
+        const extend=(nd,col,placed)=>{
+          if(col>=N||!get(i,col)){
+            if(col>a&&TW[nd]&&placed.length)record(placed);
+            if(col>=N)return;
+            const m=cc[col];
+            for(const t of kinds){if(!cnt[t])continue;
+              const ls=t==='?'?ALL26:[t.charCodeAt(0)-65];
+              for(const L of ls){if(m&&!m[L])continue;const ch=child(nd,L);if(ch<0)continue;
+                cnt[t]--;placed.push({l:String.fromCharCode(65+L),j:t==='?',col});extend(ch,col+1,placed);placed.pop();cnt[t]++;}
+            }
+          }else{const ch=child(nd,get(i,col).l.charCodeAt(0)-65);if(ch>=0)extend(ch,col+1,placed);}
+        };
+        const leftGen=(nd,placed,lim)=>{
+          extend(nd,a,placed.map((t,k)=>({l:t.l,j:t.j,col:a-placed.length+k})));
+          if(lim<=0)return;
+          for(const t of kinds){if(!cnt[t])continue;
+            const ls=t==='?'?ALL26:[t.charCodeAt(0)-65];
+            for(const L of ls){const ch=child(nd,L);if(ch<0)continue;
+              cnt[t]--;
+              // colonnes : les tuiles de gauche occupent a-len .. a-1 ; on les recalcule à la fin
+              leftGen(ch,placed.concat([{l:String.fromCharCode(65+L),j:t==='?',col:-1}]),lim-1);
+              cnt[t]++;}
+          }
+        };
+        if(a>0&&get(i,a-1)){
+          let s=a-1;while(s>0&&get(i,s-1))s--;
+          let nd=0;for(let j=s;j<a;j++){nd=child(nd,get(i,j).l.charCodeAt(0)-65);if(nd<0)break;}
+          if(nd>=0)extend(nd,a,[]);
+        }else{
+          let lim=0,j=a-1;while(j>=0&&!get(i,j)&&!isAnch[j]){lim++;j--;}
+          leftGen(0,[],lim);
+        }
+      }
+    }
+  }
+  return moves;
+}
+const ALL26=[...Array(26).keys()];
+let seen=new Set();
+function aiMove(){
+  seen=new Set();
+  const moves=genMoves(G.board,G.aiRack);
+  if(!moves.length)return null;
+  moves.sort((a,b)=>b.score-a.score);
+  const lv=G.level;
+  if(lv===2)return moves[0];
+  if(lv===1){const k=Math.min(moves.length,Math.max(3,Math.floor(moves.length*.25)));return moves[(Math.random()*k)|0];}
+  const k=Math.min(moves.length,Math.max(5,Math.floor(moves.length*.7)));const lo=Math.floor(moves.length*.3);return moves[Math.min(moves.length-1,lo+((Math.random()*(k))|0))];
+}
+/* ================= tour de jeu ================= */
+function applyMove(pl,who){
+  const ev=evaluate(pl);
+  pl.forEach(p=>{G.board[p.r][p.c]={l:p.l,j:p.j};});
+  G.sc[who]+=ev.score;G.last=pl.map(p=>[p.r,p.c]);G.pass=0;G.moves++;
+  return ev;
+}
+function endCheck(){
+  if(G.over)return true;
+  if(G.pass>=6||(!G.bag.length&&(!G.rack.length||!G.aiRack.length))){
+    G.over=true;
+    const rem=r=>r.reduce((s,t)=>s+PTS[t],0);
+    if(!G.rack.length){G.sc[0]+=rem(G.aiRack);G.sc[1]-=rem(G.aiRack);}
+    else if(!G.aiRack.length){G.sc[1]+=rem(G.rack);G.sc[0]-=rem(G.rack);}
+    else{G.sc[0]-=rem(G.rack);G.sc[1]-=rem(G.aiRack);}
+    saveG();finish();return true;}
+  return false;
+}
+function finish(){
+  const win=G.sc[0]>G.sc[1],tie=G.sc[0]===G.sc[1];let g=0;
+  if(win){g=[3,6,10][G.level];addGems(g);ST.wins++;saveST();}
+  try{localStorage.removeItem(GK);}catch(e){}
+  render();
+  setTimeout(()=>{openOv('<div style="font-size:54px">'+(win?'🏆':tie?'🤝':'😌')+'</div><h2>'+(win?'Victoire !':tie?'Égalité':'Défaite…')+'</h2><p>Toi <b>'+G.sc[0]+'</b> · Ordinateur <b>'+G.sc[1]+'</b></p>'+(g?'<p class="gold">+'+g+' 💎</p>':'')+'<button class="ob" id="rp">Nouvelle partie</button><button class="ob alt" id="cl2">Voir la grille</button>');$('rp').onclick=()=>{closeOv();newGame();};$('cl2').onclick=closeOv;},500);
+}
+function recallAll(){pend=[];selRack=-1;render();}
+function playHuman(){
+  if(G.over||G.turn!==0)return;
+  if(!DICT){toast('Le dictionnaire se charge…');return;}
+  const pl=pend.map(p=>({r:p.r,c:p.c,l:p.l,j:p.j}));
+  const ev=evaluate(pl);
+  if(!pl.length){toast('Pose d’abord des lettres.');return;}
+  if(!ev.ok){toast(ev.msg||'Coup invalide.',3200);return;}
+  // retire du rack
+  const used=pend.map(p=>p.ri).sort((a,b)=>b-a);used.forEach(i=>G.rack.splice(i,1));
+  applyMove(pl,0);pend=[];selRack=-1;draw(G.rack,C);
+  toast(ev.words.join(', ')+' : +'+ev.score+(ev.bingo?' · SCRABBLE ! +50':''),2800);
+  G.turn=1;saveG();render();if(!endCheck())setTimeout(aiTurn,700);
+}
+function aiTurn(){
+  if(G.over)return;
+  const m=aiMove();
+  if(!m){
+    if(G.bag.length>=C){ // échange tout
+      G.bag.unshift(...G.aiRack);G.aiRack=[];draw(G.aiRack,C);for(let i=G.bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[G.bag[i],G.bag[j]]=[G.bag[j],G.bag[i]];}
+      toast('L’ordinateur échange ses lettres.');
+    }else toast('L’ordinateur passe.');
+    G.pass++;
+  }else{
+    // retire du rack de l'IA
+    m.pl.forEach(p=>{let k=G.aiRack.indexOf(p.j?'?':p.l);if(k>=0)G.aiRack.splice(k,1);});
+    const ev=applyMove(m.pl,1);draw(G.aiRack,C);toast('Ordinateur : '+ev.words.join(', ')+' +'+ev.score,3200);
+  }
+  G.turn=0;saveG();render();endCheck();
+  if(m){const l=G.last[0];scrollTo(l[0],l[1]);}
+}
+function scrollTo(r,c){const w=$('bwrap');if(!zoomed)return;const cs=$('bd').clientWidth/N;w.scrollTo({left:Math.max(0,c*cs-w.clientWidth/2),top:Math.max(0,r*cs-w.clientHeight/2),behavior:'smooth'});}
+/* ================= affichage ================= */
+function render(){
+  if(!G)return;gmUpdate();
+  const pendAt={};pend.forEach(p=>pendAt[p.r+','+p.c]=p);
+  const lastS=new Set(G.last.map(x=>x.join(',')));
+  let h='';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const t=G.board[r][c],p=pendAt[r+','+c],pm=PREM[r][c];
+    let inner='';
+    if(t)inner='<div class="tile'+(t.j?' jk':'')+(lastS.has(r+','+c)?' last':'')+'">'+t.l+(t.j?'':'<i>'+PTS[t.l]+'</i>')+'</div>';
+    else if(p)inner='<div class="tile pend'+(p.j?' jk':'')+'">'+p.l+(p.j?'':'<i>'+PTS[p.l]+'</i>')+'</div>';
+    else inner=pm==='c'?'★':pm==='tw'?'MT':pm==='dw'?'MD':pm==='tl'?'LT':pm==='dl'?'LD':'';
+    h+='<div class="sq '+(pm||'')+'" data-r="'+r+'" data-c="'+c+'">'+inner+'</div>';
+  }
+  $('bd').innerHTML=h;
+  $('bd').querySelectorAll('.sq').forEach(el=>el.onclick=()=>tapSq(+el.dataset.r,+el.dataset.c));
+  const used=new Set(pend.map(p=>p.ri));
+  $('rack').innerHTML=G.rack.map((t,i)=>used.has(i)?'':'<div class="tile'+(i===selRack?' sel':'')+(exMode&&exSel.has(i)?' ex':'')+'" data-i="'+i+'">'+(t==='?'?'★':t)+(t==='?'?'':'<i>'+PTS[t]+'</i>')+'</div>').join('');
+  $('rack').querySelectorAll('.tile').forEach(el=>el.onclick=()=>tapRack(+el.dataset.i));
+  let st='Toi '+G.sc[0]+' · Ordi '+G.sc[1]+' · sac '+G.bag.length;
+  if(!G.over&&G.turn===1)st='L’ordinateur réfléchit…';
+  else if(pend.length&&DICT){const ev=evaluate(pend.map(p=>({r:p.r,c:p.c,l:p.l,j:p.j})));if(ev.ok)st=ev.words.join(', ')+' : '+ev.score+' pts';}
+  $('sc').textContent=st;
+  const mine=!G.over&&G.turn===0;
+  $('play').disabled=!mine||!pend.length;$('recall').disabled=!pend.length;$('shuf').disabled=!mine;$('exch').disabled=!mine||G.bag.length<C;$('pass').disabled=!mine;
+  $('bwrap').className=zoomed?'zoom':'';
+}
+let exMode=false,exSel=new Set();
+function tapRack(i){
+  if(G.over||G.turn!==0)return;
+  if(exMode){exSel.has(i)?exSel.delete(i):exSel.add(i);render();return;}
+  selRack=selRack===i?-1:i;render();
+}
+function tapSq(r,c){
+  if(G.over||G.turn!==0)return;
+  const pi=pend.findIndex(p=>p.r===r&&p.c===c);
+  if(pi>=0){pend.splice(pi,1);selRack=-1;render();return;}
+  if(G.board[r][c]||selRack<0)return;
+  const t=G.rack[selRack];
+  if(t==='?'){chooseLetter(L=>{pend.push({r,c,l:L,j:true,ri:selRack});selRack=-1;render();});return;}
+  pend.push({r,c,l:t,j:false,ri:selRack});selRack=-1;render();
+}
+function chooseLetter(cb){
+  openOv('<h2>Quelle lettre ?</h2><p class="muted">Le joker remplace n’importe quelle lettre.</p><div class="alpha">'+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l=>'<button data-l="'+l+'">'+l+'</button>').join('')+'</div><button class="ob alt" id="cl">Annuler</button>');
+  $('ov').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{closeOv();cb(b.dataset.l);});$('cl').onclick=closeOv;
+}
+$('play').onclick=playHuman;$('recall').onclick=recallAll;
+$('zoom').onclick=()=>{zoomed=!zoomed;render();};
+$('shuf').onclick=()=>{if(G.turn!==0||G.over)return;pend=[];selRack=-1;for(let i=G.rack.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[G.rack[i],G.rack[j]]=[G.rack[j],G.rack[i]];}render();};
+$('pass').onclick=()=>{if(G.over||G.turn!==0)return;openOv('<h2>Passer ton tour ?</h2><button class="ob" id="y">Passer</button><button class="ob alt" id="n">Annuler</button>');$('y').onclick=()=>{closeOv();pend=[];G.pass++;G.turn=1;saveG();render();if(!endCheck())setTimeout(aiTurn,500);};$('n').onclick=closeOv;};
+$('exch').onclick=()=>{
+  if(G.over||G.turn!==0||G.bag.length<C)return;
+  pend=[];selRack=-1;exMode=true;exSel=new Set();render();
+  openOv('<h2>Échanger</h2><p class="muted">Touche les lettres à échanger dans ton chevalet, puis valide.</p><button class="ob" id="y">Échanger</button><button class="ob alt" id="n">Annuler</button>');
+  const ovEl=$('ov');ovEl.style.background='transparent';ovEl.style.alignItems='flex-end';ovEl.style.pointerEvents='none';ovEl.firstChild.style.pointerEvents='auto';ovEl.firstChild.style.maxWidth='340px';ovEl.firstChild.style.padding='10px';
+  const end=()=>{exMode=false;ovEl.style.cssText='';closeOv();render();};
+  $('n').onclick=end;
+  $('y').onclick=()=>{if(!exSel.size){toast('Choisis des lettres.');return;}const idx=[...exSel].sort((a,b)=>b-a);const out=idx.map(i=>G.rack.splice(i,1)[0]);draw(G.rack,C);G.bag.unshift(...out);for(let i=G.bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[G.bag[i],G.bag[j]]=[G.bag[j],G.bag[i]];}G.pass++;G.turn=1;end();saveG();render();if(!endCheck())setTimeout(aiTurn,500);};
+};
+$('bshop').onclick=shop;
+function menu(){
+  const sv=G&&!G.over;
+  openOv('<img class="mi" src="icons/icon-192.png" alt=""><h2>Scrabble</h2><p class="muted">Contre l’ordinateur · niveau</p><div class="tabs">'+['Facile','Moyen','Fort'].map((n,i)=>'<button data-l="'+i+'" class="'+(ST.level===i?'on':'')+'">'+n+'</button>').join('')+'</div><button class="ob" id="go">Nouvelle partie</button>'+(sv?'<button class="ob alt" id="rs">Reprendre</button>':'')+'<button class="ob alt" id="hm">Retour aux jeux</button><p class="muted" style="font-size:12px">Dictionnaire français de plus de 300 000 mots (sans accents). Bonus de 50 points si tu poses tes 7 lettres.</p>');
+  $('ov').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{ST.level=+b.dataset.l;saveST();menu();});
+  $('go').onclick=()=>{closeOv();newGame();};if($('rs'))$('rs').onclick=closeOv;$('hm').onclick=()=>{location.href='../';};
+}
+$('bmenu').onclick=menu;
+applyBg();
+if(loadG()){render();if(G.turn===1&&!G.over)setTimeout(()=>{if(DICT)aiTurn();else waitDict(()=>aiTurn());},500);}else{newGame();menu();}
+function waitDict(f){const t=setInterval(()=>{if(DICT){clearInterval(t);f();}},200);}
+$('sc').textContent='Chargement du dictionnaire…';
+fetch('mots.txt').then(r=>r.text()).then(t=>{buildTrie(t);render();}).catch(()=>toast('Dictionnaire indisponible (hors ligne ?).',5000));
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
