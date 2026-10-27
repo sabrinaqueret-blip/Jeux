@@ -815,9 +815,10 @@ function safe(c){
   return opp.every(s=>st.found[s]>=r-1);
 }
 function autoSafe(){
-  if(won||busy||S.opt.fcauto===false)return;
-  for(let k=0;k<4;k++){const c=st.cells[k];if(c>=0&&safe(c)){busy=true;snap();st.cells[k]=-1;st.found[suitOf(c)]++;moves++;SND.put();render();saveG();stat();busy=false;if(!checkWin())setTimeout(autoSafe,200);return;}}
-  for(let t=0;t<8;t++){const col=st.tab[t];if(col.length){const c=col[col.length-1];if(safe(c)){busy=true;snap();col.pop();st.found[suitOf(c)]++;moves++;SND.put();render();saveG();stat();busy=false;if(!checkWin())setTimeout(autoSafe,200);return;}}}
+  if(won||busy||S.opt.fcauto===false||!hist.length)return;
+  const ok=c=>st.found[suitOf(c)]===rankOf(c)-1;
+  for(let k=0;k<4;k++){const c=st.cells[k];if(c>=0&&ok(c)){st.cells[k]=-1;st.found[suitOf(c)]++;moves++;SND.put();render();saveG();stat();if(!checkWin())setTimeout(autoSafe,200);return;}}
+  for(let t=0;t<8;t++){const col=st.tab[t];if(col.length){const c=col[col.length-1];if(ok(c)){col.pop();st.found[suitOf(c)]++;moves++;SND.put();render();saveG();stat();if(!checkWin())setTimeout(autoSafe,200);return;}}}
 }
 /* ---- affichage ---- */
 function render(){

@@ -795,7 +795,23 @@ function doMove(p,i,to){
   if(to[0]==='T')st.tab[+to[1]].push(...cs);else st.found[+to[1]].push(...cs);
   moves++;SND.put();after();return true;
 }
-function after(){Bd.clearSel();render();stat();saveG();checkWin();}
+function after(){Bd.clearSel();render();stat();saveG();if(!checkWin())setTimeout(autoUp,220);}
+let autoBusy=false;
+/* remontée automatique : toute carte qui peut monter sur une fondation y va (sans nouvelle entrée d'historique : « Annuler » défait tout) */
+function autoUp(){
+  if(won||autoBusy||!hist.length)return;
+  const srcs=[];if(st.waste.length)srcs.push(['W',st.waste.length-1]);
+  for(let t=0;t<7;t++){const n=st.tab[t].length;if(n)srcs.push(['T'+t,n-1]);}
+  for(const [p,i] of srcs){
+    const cs=seq(p,i);if(!cs)continue;const c=cv_(cs[0]),su=suitOf(c);
+    if(legal(p,i,'F'+su)){
+      remove(p,i);st.found[su].push(cs[0]);moves++;SND.put();
+      Bd.clearSel();render();stat();saveG();
+      if(!checkWin())setTimeout(autoUp,220);
+      return;
+    }
+  }
+}
 function drawStock(){
   snap();
   if(st.stock.length){
