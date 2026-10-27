@@ -13,6 +13,7 @@
 <title>FreeCell</title>
 <meta name="color-scheme" content="dark">
 <style>
+@font-face{font-family:"AliceFell";src:url(data:font/woff;base64,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) format("woff");font-weight:700;font-display:block}
 :root{--uie:#12091f;--panel:#2a1f4a;--panel2:#3a2c66;--edge:#12091f;--ink:#000;--pink:#ff6fb5;--teal:#5ee6d0;--gold:#ffd84a;--text:#fff4ff;--muted:#c9b8e8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#12091f;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
@@ -357,6 +358,44 @@ function courtArt(theme,suit,rank){
 }
 const ARTSUITS=['club','diamond','heart','spade'],ARTRANKS=['jack','queen','king'];
 
+/* ---------- Jeux de cartes illustrés (images) : typographie, symboles, mise en page ---------- */
+const IMGBASE=/\/(solitaire|freecell)\/(index\.html)?$/.test(location.pathname)?'../cartes-img/':'cartes-img/';
+const PIPD={
+  heart:'M50 92C8 58 0 32 20 15C34 4 46 12 50 26C54 12 66 4 80 15C100 32 92 58 50 92z',
+  diamond:'M50 3L90 50L50 97L10 50z',
+  club:'<circle cx="50" cy="29" r="23"/><circle cx="26" cy="64" r="23"/><circle cx="74" cy="64" r="23"/><path d="M50 50L38 98H62z"/>',
+  spade:'M50 4C8 40 4 64 22 76C35 84 46 78 50 68C54 78 65 84 78 76C96 64 92 40 50 4zM50 64L38 98H62z'
+};
+function pip(suit,x,y,sz,col,rot){
+  const d=PIPD[suit],body=d[0]==='<'?d:'<path d="'+d+'"/>';
+  return '<g fill="'+col+'" transform="translate('+f1(x)+' '+f1(y)+') rotate('+(rot||0)+') scale('+f1(sz/100)+') translate(-50 -50)">'+body+'</g>';
+}
+const PIPLAY={2:[[1,0],[1,6]],3:[[1,0],[1,3],[1,6]],4:[[0,0],[2,0],[0,6],[2,6]],5:[[0,0],[2,0],[1,3],[0,6],[2,6]],6:[[0,0],[2,0],[0,3],[2,3],[0,6],[2,6]],
+ 7:[[0,0],[2,0],[1,1.5],[0,3],[2,3],[0,6],[2,6]],8:[[0,0],[2,0],[1,1.5],[0,3],[2,3],[1,4.5],[0,6],[2,6]],
+ 9:[[0,0],[2,0],[0,2],[2,2],[1,3],[0,4],[2,4],[0,6],[2,6]],10:[[0,0],[2,0],[1,1],[0,2],[2,2],[0,4],[2,4],[1,5],[0,6],[2,6]]};
+function imgFace(T,c){
+  const su=SUITS[suitOf(c)],rk=rankOf(c),red=su==='heart'||su==='diamond',col=red?T.red:T.black;
+  let s='<rect width="169.075" height="244.64" fill="'+T.paper+'"/>';
+  if(T.tex)s+='<rect width="169.075" height="244.64" fill="'+T.tex+'" opacity=".5"/>';
+  s+='<rect x="7" y="7" width="155" height="230.6" rx="9" fill="none" stroke="'+T.edge+'" stroke-width="2.2"/><rect x="11.5" y="11.5" width="146" height="221.6" rx="6" fill="none" stroke="'+T.inner+'" stroke-width=".8"/>';
+  s+='<rect x="31" y="20" width="107" height="204.6" rx="12" fill="'+T.panel+'" stroke="'+T.edge+'" stroke-width="1.5"/><rect x="34" y="23" width="101" height="198.6" rx="9" fill="none" stroke="'+T.inner+'" stroke-width=".7"/>';
+  const im=(f,x,y,w,h,al,op)=>'<image href="'+IMGBASE+T.dir+'/'+f+'.webp" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" preserveAspectRatio="'+(al||'xMidYMid meet')+'"'+(op?' opacity="'+op+'"':'')+'/>';
+  if(rk>=11){const nm=su+'_'+({11:'jack',12:'queen',13:'king'})[rk];s+=im(nm,35,26,99,192,'xMidYMax meet');}
+  else if(rk===1){s+=im('ace_'+su,36,52,97,140,'xMidYMid meet');}
+  else{
+    const mini=T.minis&&T.minis[rk];
+    if(mini)s+=im(mini,44,56,81,132,'xMidYMid meet',T.miniop||.3);
+    for(const [cx,r] of PIPLAY[rk]){const x=[57,84.5,112][cx],y=44+r*(140/6)*1.0+ (r*0),inv=r>3;s+=pip(su,x,y+6,rk>8?21:24,col,inv?180:0);}
+  }
+  const L=({1:'A',11:'V',12:'D',13:'R'})[rk]||String(rk);
+  const ix=(x,y,rot)=>'<g transform="translate('+x+' '+y+') rotate('+rot+')"><text text-anchor="middle" y="0" font-family="AliceFell,Georgia,serif" font-weight="700" font-size="'+(L==='10'?17:21)+'" fill="'+col+'">'+L+'</text>'+pip(su,0,13,12,col)+'</g>';
+  return s+ix(19.5,39,0)+ix(149.5,205.6,180);
+}
+const ALICE={dir:'alice',paper:'#f2e6c9',panel:'#ead9b0',edge:'#6a4426',inner:'#b8944a',red:'#b0382c',black:'#2a2a36',miniop:.32,
+  minis:{2:'m_tweedledum',3:'m_twins',4:'m_dormouse',5:'m_cook',6:'m_dodo',7:'m_hare1',8:'m_hatter',9:'m_hare2',10:'m_cheshire'}};
+const ALICEFILES=['heart_king','heart_queen','heart_jack','diamond_king','diamond_queen','diamond_jack','club_king','club_queen','club_jack','spade_king','spade_queen','spade_jack','ace_heart','ace_diamond','ace_club','ace_spade','m_tweedledum','m_twins','m_dormouse','m_cook','m_dodo','m_hare1','m_hatter','m_hare2','m_cheshire'];
+function preloadImgs(T,files){files.forEach(f=>{const i=new Image();i.src=IMGBASE+T.dir+'/'+f+'.webp';});}
+
 /* ---------- Données partagées : portefeuille, boutique, cartes ---------- */
 const $=id=>document.getElementById(id);
 const SKEY='cartes-v1';
@@ -378,7 +417,7 @@ const COURTS=[
  {n:'Rêve de pivoine',p:450,v:'--paper:#fff0fb;--skin:#fffafe;--ink:#4a1a50;--gold:#f6b8d8;--red:#e8368a;--blue:#8a4ae0;--edge:#c864c8;--glow:#ff9ad8'},
  {n:'Chats royaux',p:500,art:'cat',v:''},
  {n:'Renards de cour',p:600,art:'fox',v:''},
- {n:'Alice au pays des merveilles',p:750,art:'alice',v:''}
+ {n:'Alice au pays des merveilles',p:750,art:'img',th:'ALICE',v:''}
 ];
 const BGS=[
  {n:'Tapis vert',p:0},{n:'Tapis bleu',p:20},{n:'Bois de noyer',p:40},{n:'Velours bordeaux',p:60},{n:'Océan',p:90},{n:'Prairie fleurie',p:120},
@@ -406,12 +445,13 @@ function applyCosm(){
   const root=document.documentElement;
   const CT=COURTS[S.sel.court];root.style.cssText=CT.v||'';
   let ad=$('artdef');if(!ad){ad=document.createElementNS('http://www.w3.org/2000/svg','defs');ad.id='artdef';const h=$('bkdef');h&&h.parentNode.appendChild(ad);}
-  if(ad){ad.innerHTML=CT.art?ARTSUITS.map(su=>ARTRANKS.map(rk=>'<symbol id="ca_'+su+'_'+rk+'" viewBox="0 0 169.075 244.64">'+courtArt(CT.art,su,rk)+'</symbol>').join('')).join(''):'';}
-  document.querySelectorAll('.card .fr use').forEach(u=>{const id=u.dataset.id||(u.dataset.id=u.getAttribute('href').slice(1));u.setAttribute('href','#'+((CT.art&&/_(jack|queen|king)$/.test(id))?'ca_':'')+id);});
-  const t=$('table');if(t){t.className='table bg'+S.sel.bg;}
+  if(ad&&CT.art==='img'){const T=window[CT.th]||eval(CT.th);let h='';for(let k=0;k<52;k++)h+='<symbol id="ca_'+cardId(k)+'" viewBox="0 0 169.075 244.64">'+imgFace(T,k)+'</symbol>';ad.innerHTML=h;preloadImgs(T,ALICEFILES);}
+  else if(ad){ad.innerHTML=CT.art?ARTSUITS.map(su=>ARTRANKS.map(rk=>'<symbol id="ca_'+su+'_'+rk+'" viewBox="0 0 169.075 244.64">'+courtArt(CT.art,su,rk)+'</symbol>').join('')).join(''):'';}
+  document.querySelectorAll('.card .fr use').forEach(u=>{const id=u.dataset.id||(u.dataset.id=u.getAttribute('href').slice(1));u.setAttribute('href','#'+((CT.art==='img'||(CT.art&&/_(jack|queen|king)$/.test(id)))?'ca_':'')+id);});
+  const t=$('table'),BG=BGS[S.sel.bg];if(t){t.className='table '+(BG.img?'bgimg':'bg'+S.sel.bg);t.style.backgroundImage=BG.img?'url('+IMGBASE+BG.img+'.webp)':'';t.style.backgroundSize=BG.img?'cover':'';t.style.backgroundPosition=BG.img?'center':'';}
   const d=$('bkdef');if(d){const i=S.sel.back;d.innerHTML='<symbol id="bkS" viewBox="0 0 169 245">'+BACKS[i].f('s')+'</symbol>';}
   document.body.classList.toggle('fancy',!!BACKS[S.sel.back].shine);
-  document.body.classList.toggle('glow',S.sel.court>=4);
+  document.body.classList.toggle('glow',S.sel.court>=4&&S.sel.court<=7);
 }
 const CARDRATIO=244.64/169.075;
 function mkCard(c){
@@ -423,6 +463,7 @@ function mkCard(c){
 let shopTab='back';
 function previewHTML(cat,i){
   if(cat==='back')return '<div class="pv pvb">'+bkSVG(i,'p'+i)+'</div>';
+  if(cat==='court'&&COURTS[i].art==='img'){const T=eval(COURTS[i].th);return '<div class="pv pvc">'+[51,37,13].map(k=>'<svg class="cd" viewBox="0 0 169.075 244.64">'+imgFace(T,k)+'</svg>').join('')+'</div>';}
   if(cat==='court'&&COURTS[i].art){const a=COURTS[i].art;return '<div class="pv pvc">'+[['spade','king'],['heart','queen'],['diamond','jack']].map(([su,rk])=>'<svg class="cd" viewBox="0 0 169.075 244.64">'+courtArt(a,su,rk)+'</svg>').join('')+'</div>';}
   if(cat==='court'){const v=COURTS[i].v;return '<div class="pv pvc" style="'+v+'">'+['spade_king','heart_queen','diamond_jack'].map(id=>'<svg class="cd" viewBox="0 0 169.075 244.64"><use href="#'+id+'"/></svg>').join('')+'</div>';}
   return '<div class="pv pvg"><div class="table bg'+i+' mini"></div></div>';
