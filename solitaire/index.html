@@ -448,8 +448,8 @@ const COURTS=[
  {n:'Or royal',p:220,v:'--paper:#fff3cf;--skin:#fff9e6;--ink:#3a2408;--gold:#ffc82a;--red:#a8141c;--blue:#1c2a80;--edge:#b07a10;--glow:#ffd84a'},
  {n:'Nuit dorée',p:320,v:'--paper:#15122e;--skin:#f1e2c0;--ink:#f0d890;--gold:#d6a02a;--red:#ff6a86;--blue:#5a6ae0;--edge:#f0d890;--glow:#d6a02a'},
  {n:'Rêve de pivoine',p:450,v:'--paper:#fff0fb;--skin:#fffafe;--ink:#4a1a50;--gold:#f6b8d8;--red:#e8368a;--blue:#8a4ae0;--edge:#c864c8;--glow:#ff9ad8'},
- {n:'Chats royaux',p:500,art:'cat',v:''},
- {n:'Renards de cour',p:600,art:'fox',v:''},
+ {n:'Chats royaux',p:500,art:'cat',hide:1,v:''},
+ {n:'Renards de cour',p:600,art:'fox',hide:1,v:''},
  {n:'Alice au pays des merveilles',p:750,art:'img',th:'ALICE',v:''},
  {n:'Chats victoriens',p:780,art:'img',th:'CHATS',v:''},
  {n:'Renards des bois',p:820,art:'img',th:'FOX',v:''},
@@ -518,7 +518,7 @@ function previewHTML(cat,i){
 function openShop(back){
   const cat=CATS[shopTab],own=S.own[shopTab];
   let h='<h2>Boutique</h2><p class="gold">'+S.gems+' 💎</p><div class="chips">'+Object.keys(CATS).map(k=>'<button data-t="'+k+'" class="'+(k===shopTab?'on':'')+'">'+CATS[k].t+'</button>').join('')+'</div><div class="shop">';
-  cat.items.map((it,i)=>[it,i]).sort((a,b)=>a[0].p-b[0].p||a[1]-b[1]).forEach(([it,i])=>{
+  cat.items.map((it,i)=>[it,i]).filter(([it,i])=>!it.hide||own.includes(i)).sort((a,b)=>a[0].p-b[0].p||a[1]-b[1]).forEach(([it,i])=>{
     const has=own.includes(i),on=S.sel[shopTab]===i;
     h+='<div class="si'+(on?' on':'')+'">'+previewHTML(shopTab,i)+'<b>'+it.n+'</b><button class="vw" data-vw="'+i+'">👁 Voir</button>'+(on?'<span class="tag">Utilisé</span>':has?'<button data-use="'+i+'">Utiliser</button>':'<button data-buy="'+i+'"'+(S.gems<it.p?' disabled':'')+'>'+it.p+' 💎</button>')+'</div>';
   });
