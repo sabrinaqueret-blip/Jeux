@@ -482,6 +482,9 @@ const BGS=[
  {n:'Tapis vert',p:0},{n:'Tapis bleu',p:20},{n:'Bois de noyer',p:40},{n:'Velours bordeaux',p:60},{n:'Océan',p:90},{n:'Prairie fleurie',p:120},
  {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice : papier peint',p:350,img:'alice/bg2'},{n:'Alice et la Chenille',p:700,img:'alice/bg1'},{n:'Chats : salon victorien',p:720,img:'chats/bg1'},{n:'Renards : sous-bois d\'automne',p:740,img:'renards/bg1'},{n:'Château dans les nuages',p:860,img:'dragons/bg1'},{n:'Venise : canal de nuit',p:800,img:'venise/bg1'},{n:'Le Nil au coucher du soleil',p:880,img:'egypte/bg1'},{n:'Japon : cerisiers et mont Fuji',p:900,img:'japon/bg1'},{n:'Rêverie spatiale',p:780,img:'astro/bg1'},{n:'Salon de velours',p:900,img:'baroque/bg1'},{n:'Éventails dorés',p:700,img:'deco/bg1'},{n:'Forêt enchantée',p:760,img:'fee/bg1'},{n:'Cité de cuivre',p:800,img:'steampunk/bg1'},{n:'Clairière aux lucioles',p:820,img:'feesbois/bg1'},{n:'Port au crépuscule',p:780,img:'marins/bg1'}
 ];
+/* prix plafonnés à 200 💎 (les moins chers restent inchangés) */
+const capP=p=>p<=100?p:Math.min(200,Math.round((100+(p-100)*100/1000)/5)*5);
+[BACKS,COURTS,BGS].forEach(a=>a.forEach(it=>{it.p=capP(it.p);}));
 const CATS={back:{t:'Dos',items:BACKS},court:{t:'Têtes',items:COURTS},bg:{t:'Fonds',items:BGS}};
 let S={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};
 try{const j=JSON.parse(localStorage.getItem(SKEY)||'null');if(j){S=Object.assign(S,j);S.own=Object.assign({back:[0],court:[0],bg:[0]},j.own);S.sel=Object.assign({back:0,court:0,bg:0},j.sel);S.st=Object.assign(S.st,j.st);S.opt=Object.assign(S.opt,j.opt);}}catch(e){}
