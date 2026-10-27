@@ -157,18 +157,33 @@ function draw(){
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){if((x+y)%2===0){cx.fillStyle='rgba(255,255,255,.06)';cx.fillRect(x*CS,y*CS,CS,CS);}}
   const F=FOODS[sel('food')];cx.fillStyle='#fff';cx.font=(CS*.95)+'px serif';cx.textAlign='center';cx.textBaseline='middle';
   const pul=1+Math.sin(Date.now()/180)*.08;cx.save();cx.translate(food.x*CS+CS/2,food.y*CS+CS/2+1);cx.scale(pul,pul);cx.fillText(F.e,0,0);cx.restore();
-  const sk=SKINS[sel('skin')];
-  for(let i=snake.length-1;i>=0;i--){
-    const s=snake[i],px=s.x*CS,py=s.y*CS;
-    cx.fillStyle=sk.f(i);const r=i===0?CS*.5:CS*.42;
-    const nxt=snake[i+1];
-    if(nxt&&Math.abs(nxt.x-s.x)+Math.abs(nxt.y-s.y)===1){cx.fillRect(Math.min(px,nxt.x*CS)+CS*.1,Math.min(py,nxt.y*CS)+CS*.1,(nxt.x!==s.x?CS*2:CS)-CS*.2,(nxt.y!==s.y?CS*2:CS)-CS*.2);}
-    cx.beginPath();cx.arc(px+CS/2,py+CS/2,r*.95,0,7);cx.fill();
-  }
-  const h=snake[0],hx=h.x*CS+CS/2,hy=h.y*CS+CS/2;
-  const ex=-dir.y,ey=dir.x; // axe perpendiculaire pour les yeux
-  cx.fillStyle='#fff';[1,-1].forEach(sg=>{cx.beginPath();cx.arc(hx+dir.x*CS*.15+ex*sg*CS*.2,hy+dir.y*CS*.15+ey*sg*CS*.2,CS*.15,0,7);cx.fill();});
-  cx.fillStyle='#111';[1,-1].forEach(sg=>{cx.beginPath();cx.arc(hx+dir.x*CS*.22+ex*sg*CS*.2,hy+dir.y*CS*.22+ey*sg*CS*.2,CS*.07,0,7);cx.fill();});
+  const sk=SKINS[sel('skin')],N=snake.length,C=i=>[snake[i].x*CS+CS/2,snake[i].y*CS+CS/2];
+  const W=i=>CS*(.58+.32*Math.pow(1-i/Math.max(N-1,1),.7)*(i<N-1?1:.6)); // largeur : fine à la queue, ample vers le cou
+  cx.lineCap='round';cx.lineJoin='round';
+  const link=i=>{const a=snake[i],b=snake[i+1];return b&&Math.abs(a.x-b.x)+Math.abs(a.y-b.y)===1;};
+  cx.save();cx.shadowColor='rgba(0,0,0,.45)';cx.shadowBlur=CS*.35;cx.shadowOffsetY=CS*.12;
+  for(let i=N-1;i>=0;i--){const [x,y]=C(i);cx.strokeStyle=sk.f(i);cx.lineWidth=W(i);cx.beginPath();if(i<N-1&&link(i)){const [x2,y2]=C(i+1);cx.moveTo(x2,y2);cx.lineTo(x,y);}else{cx.moveTo(x,y);cx.lineTo(x+.01,y);}cx.stroke();}
+  cx.restore();
+  // reflet brillant sur le dos
+  for(let i=N-1;i>=0;i--){const [x,y]=C(i);cx.strokeStyle='rgba(255,255,255,.28)';cx.lineWidth=W(i)*.28;cx.beginPath();const o=-CS*.12;if(i<N-1&&link(i)){const [x2,y2]=C(i+1);cx.moveTo(x2+o,y2+o);cx.lineTo(x+o,y+o);}else{cx.moveTo(x+o,y+o);cx.lineTo(x+o+.01,y+o);}cx.stroke();}
+  // écailles : petits losanges sombres sur le dos
+  for(let i=2;i<N-1;i+=2){const [x,y]=C(i);cx.fillStyle='rgba(0,0,0,.18)';cx.beginPath();cx.arc(x,y,W(i)*.17,0,7);cx.fill();}
+  const h=snake[0],hx=h.x*CS+CS/2,hy=h.y*CS+CS/2,ang=Math.atan2(dir.y,dir.x);
+  // tête
+  cx.save();cx.translate(hx+dir.x*CS*.06,hy+dir.y*CS*.06);cx.rotate(ang);
+  cx.shadowColor='rgba(0,0,0,.4)';cx.shadowBlur=CS*.3;cx.shadowOffsetY=CS*.1;
+  cx.fillStyle=sk.f(0);cx.beginPath();cx.ellipse(0,0,CS*.66,CS*.56,0,0,7);cx.fill();cx.shadowColor='transparent';
+  cx.fillStyle='rgba(255,255,255,.22)';cx.beginPath();cx.ellipse(-CS*.05,-CS*.22,CS*.36,CS*.15,0,0,7);cx.fill();
+  // langue
+  const fl=Math.floor(Date.now()/330)%3===0;if(fl){cx.strokeStyle='#e63946';cx.lineWidth=Math.max(1.5,CS*.07);cx.beginPath();cx.moveTo(CS*.6,0);cx.lineTo(CS*.95,0);cx.moveTo(CS*.95,0);cx.lineTo(CS*1.15,-CS*.12);cx.moveTo(CS*.95,0);cx.lineTo(CS*1.15,CS*.12);cx.stroke();}
+  // narines
+  cx.fillStyle='rgba(0,0,0,.45)';[1,-1].forEach(sg=>{cx.beginPath();cx.arc(CS*.5,sg*CS*.14,CS*.04,0,7);cx.fill();});
+  // yeux
+  [1,-1].forEach(sg=>{const ex=CS*.2,ey=sg*CS*.27;
+    cx.fillStyle='#fff';cx.beginPath();cx.arc(ex,ey,CS*.2,0,7);cx.fill();
+    cx.fillStyle='#14110f';cx.beginPath();cx.arc(ex+CS*.06,ey,CS*.11,0,7);cx.fill();
+    cx.fillStyle='#fff';cx.beginPath();cx.arc(ex+CS*.09,ey-CS*.04,CS*.04,0,7);cx.fill();});
+  cx.restore();
   const A=ACCS[sel('acc')];if(A.e){cx.fillStyle='#fff';cx.font=(CS*1.05)+'px serif';cx.fillText(A.e,hx,hy-CS*.55);}
   fx=fx.filter(f=>f.t<12);fx.forEach(f=>{f.t++;cx.globalAlpha=1-f.t/12;cx.strokeStyle='#fff';cx.lineWidth=2;cx.beginPath();cx.arc(f.x*CS+CS/2,f.y*CS+CS/2,CS*(.5+f.t*.08),0,7);cx.stroke();cx.globalAlpha=1;});
   if(alive&&!started){cx.fillStyle='rgba(0,0,0,.45)';cx.fillRect(0,0,COLS*CS,ROWS*CS);cx.fillStyle='#fff';cx.font='bold '+(CS*.9)+'px system-ui';cx.fillText('Glisse pour démarrer',COLS*CS/2,ROWS*CS/2);}
