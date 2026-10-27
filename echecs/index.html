@@ -230,7 +230,7 @@ function cur(){return SETS[P.theme]||SETS[0];}
 const WK='cartes-v1';
 function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(!j.own)j.own={};if(!j.own.chess)j.own.chess=[0];if(typeof j.gems!=='number')j.gems=20;return j;}
 function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
-const PRICE=500;
+const PRICE=150;
 const owned=i=>i===0||wal().own.chess.includes(i);
 function pcur(){const i=P.pieces|0;const t=SETS[i]||SETS[0];return(i>0&&t.pc&&owned(i))?t:SETS[0];}
 function addGems(n){const j=wal();j.gems+=n;walSave(j);return j.gems;}
