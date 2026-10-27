@@ -40,13 +40,13 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 .p{width:80%;height:80%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:min(5vw,26px);box-shadow:0 2px 3px rgba(0,0,0,.5),inset 0 -3px 4px rgba(0,0,0,.25),inset 0 3px 4px rgba(255,255,255,.35);transition:transform .12s}
 .p.w{background:radial-gradient(circle at 35% 30%,#fff,#e9dcc0 60%,#c9b895)}.p.b{background:radial-gradient(circle at 35% 30%,#6a5a50,#2c2420 65%,#150f0c);color:#f0c060}
 .p.w.k{color:#a77b14}.p.b.k{color:#f0c060}
-.sm .p{width:70%;height:70%}
+.p.img{width:96%;height:96%;border-radius:0;background-color:transparent!important;box-shadow:none;background-size:contain;background-position:center bottom;background-repeat:no-repeat;filter:drop-shadow(0 2px 2px #0007);position:relative}.p.img i{position:absolute;top:-6%;font-style:normal;color:#e9b83a;font-size:min(5vw,26px);text-shadow:0 1px 2px #000}.sm .p{width:70%;height:70%}
 #bar{display:flex;gap:8px;margin-top:10px}#bar .ob{margin:0;padding:10px}
 #ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9}
 #ov[hidden]{display:none}#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:18px;max-width:380px;width:100%;text-align:center}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;z-index:10;max-width:90%;text-align:center}
 #toast[hidden]{display:none}[hidden]{display:none!important}
-.themes{display:flex;gap:10px;justify-content:center;margin:6px 0}.themes button{width:44px;height:44px;border-radius:10px;border:3px solid transparent;padding:0;overflow:hidden}.themes button.on{border-color:var(--gold)}
+.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:44px;height:44px;border-radius:10px;border:3px solid transparent;padding:0;overflow:hidden}.themes button.on{border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -184,8 +184,29 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const KEY='dames-v1';
 let P={name:'',code:'',level:1,theme:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
-const THEMES=[['#f0d9b5','#b58863'],['#e8edf2','#5b7fa6'],['#f2e8c8','#4f7a52'],['#f6dede','#a8546a']];
-function applyTheme(){const t=THEMES[P.theme]||THEMES[0];document.documentElement.style.setProperty('--l',t[0]);document.documentElement.style.setProperty('--d',t[1]);}
+const SETS=[
+ {n:'Classique',l:'#f0d9b5',d:'#b58863'},
+ {n:'Alice',dir:'alice',pc:1,l:'#f3e6d0',d:'#7aa7c7'},
+ {n:'Chats victoriens',dir:'chats',pc:1,l:'#efe3d0',d:'#8a5a6a'},
+ {n:'Renards des bois',dir:'renards',pc:1,l:'#f1dfc0',d:'#9a5a2a'},
+ {n:'Dragons et licornes',dir:'dragons',pc:1,l:'#e8e0f4',d:'#6a4fa0'},
+ {n:'Venise',dir:'venise',pc:1,l:'#f3e3c6',d:'#a8324a'},
+ {n:'Égypte',dir:'egypte',pc:1,l:'#f3e2b0',d:'#2a7a8a'},
+ {n:'Japon',dir:'japon',pc:1,l:'#f7e8e8',d:'#b03a48'},
+ {n:'Astronaute',dir:'astro',pc:1,l:'#dfe6f2',d:'#2a3a6a'},
+ {n:'Baroque',dir:'baroque',pc:1,l:'#f0e2b8',d:'#7a5a2a'},
+ {n:'Art déco',dir:'deco',pc:1,nk:1,l:'#efe6cf',d:'#1f4a4a'},
+ {n:'Royaume enchanté',dir:'fee',pc:1,l:'#f6e6f2',d:'#8a5ab0'},
+ {n:'Steampunk',dir:'steampunk',pc:1,l:'#e6d3a8',d:'#5a3a22'},
+ {n:'Monde des fées',dir:'feesbois',pc:1,l:'#e4f0d4',d:'#4a8a5a'},
+ {n:'Aventuriers des mers',dir:'marins',pc:1,l:'#f1e4c4',d:'#1f5f8a'}
+];
+function cur(){return SETS[P.theme]||SETS[0];}
+function pieceDiv(p){const t=cur(),k=Math.abs(p)===2,w=p>0;
+  if(t.pc){const f=(w?'d_w':'d_b')+(k&&!t.nk?'k':'');return '<div class="p img '+(w?'w':'b')+'" style="background-image:url(../cartes-img/'+t.dir+'/'+f+'.webp)">'+(k&&t.nk?'<i>♛</i>':'')+'</div>';}
+  return '<div class="p '+(w?'w':'b')+(k?' k':'')+'">'+(k?'♛':'')+'</div>';}
+function applyTheme(){const t=cur();const st=document.documentElement.style;st.setProperty('--l',t.l);st.setProperty('--d',t.d);
+ document.body.style.backgroundImage=t.dir?'linear-gradient(#0009,#0007),url(../cartes-img/'+t.dir+'/bg1.webp)':'none';document.body.style.backgroundSize='cover';document.body.style.backgroundPosition='center';document.body.style.backgroundAttachment='fixed';}
 function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
 function show(m){mode=m;['home','lobby','game'].forEach(k=>$(k).hidden=k!==m);}
 let mode='home',G=null,view=null,my=1,kind='solo',peer=null,conn=null,roomCode='',sel=-1,busy=false,names={1:'Toi','-1':'Ordinateur'},guestName='';
@@ -199,7 +220,7 @@ function showHome(){
    '<button class="ob" id="solo">Jouer contre l’ordinateur</button>'+
    '<button class="ob alt" id="host">Créer une partie en ligne</button>'+
    '<div class="join"><input id="cd" maxlength="4" placeholder="CODE" value="'+esc(P.code)+'" aria-label="Code de la partie" autocapitalize="characters"><button class="ob alt" id="joinB">Rejoindre</button></div>'+
-   '<p class="muted" style="margin-top:14px">Plateau :</p><div class="themes">'+THEMES.map((t,i)=>'<button data-th="'+i+'" class="'+(P.theme===i?'on':'')+'" style="background:linear-gradient(135deg,'+t[0]+' 50%,'+t[1]+' 50%)" aria-label="Plateau '+(i+1)+'"></button>').join('')+'</div>';
+   '<p class="muted" style="margin-top:14px">Thème : <b>'+cur().n+'</b></p><div class="themes">'+SETS.map((t,i)=>'<button data-th="'+i+'" class="'+(P.theme===i?'on':'')+'" style="background:linear-gradient(135deg,'+t.l+' 50%,'+t.d+' 50%)" aria-label="'+t.n+'"></button>').join('')+'</div>';
   const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
   $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.level=+b.dataset.l;saveP();showHome();});
   $('home').querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{P.theme=+b.dataset.th;saveP();applyTheme();showHome();});
@@ -270,7 +291,7 @@ function render(){
     let cl='c '+(dark?'d':'l');
     if(s===sel)cl+=' sel';if(v.last.includes(s))cl+=' lm';
     if(tgt.has(s))cl+=tgt.get(s).caps.length?' cp':' mv';
-    h+='<div class="'+cl+'" data-s="'+s+'">'+(p?'<div class="p '+(p>0?'w':'b')+(Math.abs(p)===2?' k':'')+'">'+(Math.abs(p)===2?'♛':'')+'</div>':'')+'</div>';
+    h+='<div class="'+cl+'" data-s="'+s+'">'+(p?pieceDiv(p):'')+'</div>';
   }
   bd.innerHTML=h;
   bd.querySelectorAll('.c').forEach(el=>el.onclick=()=>tap(+el.dataset.s,moves,from,tgt));
