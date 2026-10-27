@@ -20,8 +20,8 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1
 #top span{background:#0008;padding:3px 10px;border-radius:999px}
 #fld{flex:1;position:relative;min-height:0}
 #bd{position:absolute;left:50%;top:50%}
-.t{position:absolute;border-radius:calc(var(--a)*.3);background:linear-gradient(160deg,#fffdf4,#efe6c8);border:1px solid #b9ab80;box-shadow:calc(var(--a)*.22) calc(var(--a)*.28) 0 #3f7a58,calc(var(--a)*.22) calc(var(--a)*.28) 0 1px #1f4a34,0 0 0 1px #0003;cursor:pointer;transition:filter .12s,transform .12s;overflow:hidden}
-.t svg{width:100%;height:100%;display:block;padding:7%}
+.t{position:absolute;border-radius:calc(var(--a)*.3);background:linear-gradient(160deg,#fffdf4,#efe6c8);border:1px solid #b9ab80;box-shadow:calc(var(--a)*.22) calc(var(--a)*.28) 0 var(--sd,#3f7a58),calc(var(--a)*.22) calc(var(--a)*.28) 0 1px #0007,0 0 0 1px #0003;cursor:pointer;transition:filter .12s,transform .12s;overflow:hidden}
+.t svg image{filter:drop-shadow(0 1px 1px #0005)}.t svg{width:100%;height:100%;display:block;padding:7%}
 .t.lock{filter:brightness(.62) saturate(.8)}
 .t.sel{outline:3px solid #ffd84a;outline-offset:-1px;filter:brightness(1.08);z-index:999!important}
 .t.hint{animation:hn .5s infinite alternate}
@@ -67,6 +67,7 @@ const DOTS={1:[[50,65]],2:[[50,35],[50,95]],3:[[25,30],[50,65],[75,100]],4:[[28,
 const DCOL=['#1b7a3c','#c0392b','#1d5fa8'];
 function stick(x,y,h,col){return '<rect x="'+(x-6)+'" y="'+y+'" width="12" height="'+h+'" rx="5" fill="'+col+'" stroke="#0b3d1e" stroke-width="1.5"/><rect x="'+(x-6)+'" y="'+(y+h/2-1.5)+'" width="12" height="3" fill="#0b3d1e" opacity=".55"/>';}
 function faceSVG(f){
+  const ti=themeImg(f);if(ti)return '<svg viewBox="0 0 100 130"><image href="'+ti+'" x="0" y="0" width="100" height="130" preserveAspectRatio="xMidYMid meet"/></svg>';
   let g='';
   if(typeof f==='string'){
     if(f[0]==='F'){const c=['#e84a7a','#f2a21d','#8a4ae0','#2aa6c9'][+f[1]];g='<g transform="translate(50 62)">'+[0,72,144,216,288].map(a=>'<ellipse cx="0" cy="-17" rx="11" ry="17" fill="'+c+'" transform="rotate('+a+')" stroke="#0004"/>').join('')+'<circle r="9" fill="#ffe27a" stroke="#a86a00"/></g><text x="50" y="118" text-anchor="middle" font-size="16" fill="#2a8a3a" font-weight="700">花</text>';}
@@ -120,8 +121,21 @@ const $=id=>document.getElementById(id);
 const KEY='mahjong-v1';
 let P={bg:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
-const BGS=[{n:'Tapis vert',c:'#0f3a2a'},{n:'Alice',i:'alice/bg1'},{n:'Venise',i:'venise/bg1'},{n:'Japon',i:'japon/bg1'},{n:'Égypte',i:'egypte/bg1'},{n:'Fées',i:'feesbois/bg1'},{n:'Steampunk',i:'steampunk/bg1'},{n:'Chats',i:'chats/bg1'},{n:'Dragons',i:'dragons/bg1'},{n:'Astronaute',i:'astro/bg1'}];
-function applyBg(){const b=BGS[P.bg]||BGS[0],a=$('app');if(b.i){a.style.backgroundImage='url(../cartes-img/'+b.i+'.webp)';a.style.backgroundColor='#222';}else{a.style.backgroundImage='none';a.style.backgroundColor=b.c;}}
+const BGS=[{n:'Tapis vert',c:'#0f3a2a',sd:'#3f7a58'},
+{n:'Alice',dir:'alice',sd:'#4d7fa3'},{n:'Chats victoriens',dir:'chats',sd:'#7a4a5a'},{n:'Renards des bois',dir:'renards',sd:'#8a4a1f'},{n:'Dragons et licornes',dir:'dragons',sd:'#5a3f90'},
+{n:'Venise',dir:'venise',sd:'#923049'},{n:'Égypte',dir:'egypte',sd:'#237080'},{n:'Japon',dir:'japon',sd:'#a03543'},{n:'Astronaute',dir:'astro',sd:'#2a3a6a'},
+{n:'Baroque',dir:'baroque',sd:'#7a5a2a'},{n:'Art déco',dir:'deco',sd:'#1f4a4a'},{n:'Royaume enchanté',dir:'fee',sd:'#7a52a0'},{n:'Steampunk',dir:'steampunk',sd:'#5a3a22'},
+{n:'Monde des fées',dir:'feesbois',sd:'#3f7a4f'},{n:'Aventuriers des mers',dir:'marins',sd:'#1f5f8a'}];
+const SU=['spade','heart','diamond','club'];
+function themeImg(f){ // image du thème pour les vents, dragons et bonus (sinon null)
+  const b=BGS[P.bg];if(!b||!b.dir)return null;let n;
+  if(typeof f==='string')n=f[0]==='F'?SU[+f[1]]+'_jack':'ace_'+SU[+f[1]];
+  else if(f>=27&&f<31)n=SU[f-27]+'_king';
+  else if(f>=31)n=['heart','spade','diamond'][f-31]+'_queen';
+  else return null;
+  return '../cartes-img/'+b.dir+'/'+n+'.webp';
+}
+function applyBg(){const b=BGS[P.bg]||BGS[0],a=$('app');a.style.setProperty('--sd',b.sd);if(b.dir){a.style.backgroundImage='linear-gradient(#0005,#0005),url(../cartes-img/'+b.dir+'/bg1.webp)';a.style.backgroundColor='#222';}else{a.style.backgroundImage='none';a.style.backgroundColor=b.c;}}
 let T=[],alive=new Set(),sel=-1,hist=[],hintP=null,secs=0,tmr=null,pairs=0,over=false;
 function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2200);}
 function fmt(s){return ((s/60)|0)+':'+String(s%60).padStart(2,'0');}
@@ -191,8 +205,8 @@ $('undo').onclick=()=>{if(over||!hist.length)return;const [a,b]=hist.pop();alive
 $('hint').onclick=()=>{if(over)return;const m=moves();if(!m.length){toast('Aucune paire : mélange les tuiles.');return;}hintP=m[(Math.random()*m.length)|0];sel=-1;refresh();};
 $('shuf').onclick=shuffle;
 $('menu').onclick=()=>{
-  openOv('<h2>Mahjong</h2><button class="ob" id="nw">Nouvelle partie</button><p class="muted" style="margin:10px 0 0">Fond de table</p><div class="bgs">'+BGS.map((b,i)=>'<button data-b="'+i+'" class="'+(P.bg===i?'on':'')+'" aria-label="'+b.n+'" style="'+(b.i?'background-image:url(../cartes-img/'+b.i+'.webp)':'background:'+b.c)+'"></button>').join('')+'</div><button class="ob alt" id="cl">Reprendre</button><button class="ob alt" id="hm">Retour aux jeux</button>');
-  $('ov').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.bg=+b.dataset.b;saveP();applyBg();$('ov').querySelectorAll('[data-b]').forEach(x=>x.classList.toggle('on',x===b));});
+  openOv('<h2>Mahjong</h2><button class="ob" id="nw">Nouvelle partie</button><p class="muted" style="margin:10px 0 0">Thème : <b>'+(BGS[P.bg]||BGS[0]).n+'</b></p><div class="bgs">'+BGS.map((b,i)=>'<button data-b="'+i+'" class="'+(P.bg===i?'on':'')+'" aria-label="'+b.n+'" style="'+(b.dir?'background-image:url(../cartes-img/'+b.dir+'/bg1.webp)':'background:'+b.c)+'"></button>').join('')+'</div><button class="ob alt" id="cl">Reprendre</button><button class="ob alt" id="hm">Retour aux jeux</button>');
+  $('ov').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.bg=+b.dataset.b;saveP();applyBg();if(T.length){els.forEach((d,i)=>{if(alive.has(i))d.innerHTML=faceSVG(T[i].f);});}$('ov').querySelector('p b').textContent=BGS[P.bg].n;$('ov').querySelectorAll('[data-b]').forEach(x=>x.classList.toggle('on',x===b));});
   $('hm').onclick=()=>{location.href='../';};
 };
 applyBg();start();
