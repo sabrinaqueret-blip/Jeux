@@ -428,7 +428,7 @@ const COURTS=[
 ];
 const BGS=[
  {n:'Tapis vert',p:0},{n:'Tapis bleu',p:20},{n:'Bois de noyer',p:40},{n:'Velours bordeaux',p:60},{n:'Océan',p:90},{n:'Prairie fleurie',p:120},
- {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice et la Chenille',p:700,img:'alice/bg1'}
+ {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice : papier peint',p:350,img:'alice/bg2'},{n:'Alice et la Chenille',p:700,img:'alice/bg1'}
 ];
 const CATS={back:{t:'Dos',items:BACKS},court:{t:'Têtes',items:COURTS},bg:{t:'Fonds',items:BGS}};
 let S={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};
@@ -473,6 +473,7 @@ function previewHTML(cat,i){
   if(cat==='court'&&COURTS[i].art==='img'){const T=eval(COURTS[i].th);return '<div class="pv pvc">'+[51,37,13].map(k=>'<svg class="cd" viewBox="0 0 169.075 244.64">'+imgFace(T,k)+'</svg>').join('')+'</div>';}
   if(cat==='court'&&COURTS[i].art){const a=COURTS[i].art;return '<div class="pv pvc">'+[['spade','king'],['heart','queen'],['diamond','jack']].map(([su,rk])=>'<svg class="cd" viewBox="0 0 169.075 244.64">'+courtArt(a,su,rk)+'</svg>').join('')+'</div>';}
   if(cat==='court'){const v=COURTS[i].v;return '<div class="pv pvc" style="'+v+'">'+['spade_king','heart_queen','diamond_jack'].map(id=>'<svg class="cd" viewBox="0 0 169.075 244.64"><use href="#'+id+'"/></svg>').join('')+'</div>';}
+  if(BGS[i].img)return '<div class="pv pvg"><div class="table mini" style="background:url('+IMGBASE+BGS[i].img+'.webp) center 80%/cover"></div></div>';
   return '<div class="pv pvg"><div class="table bg'+i+' mini"></div></div>';
 }
 function openShop(back){
