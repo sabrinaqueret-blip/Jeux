@@ -395,6 +395,8 @@ const ALICE={dir:'alice',paper:'#f2e6c9',panel:'#ead9b0',edge:'#6a4426',inner:'#
   minis:{2:'m_tweedledum',3:'m_twins',4:'m_dormouse',5:'m_cook',6:'m_dodo',7:'m_hare1',8:'m_hatter',9:'m_hare2',10:'m_cheshire'}};
 const ALICEFILES=['heart_king','heart_queen','heart_jack','diamond_king','diamond_queen','diamond_jack','club_king','club_queen','club_jack','spade_king','spade_queen','spade_jack','ace_heart','ace_diamond','ace_club','ace_spade','m_tweedledum','m_twins','m_dormouse','m_cook','m_dodo','m_hare1','m_hatter','m_hare2','m_cheshire'];
 function preloadImgs(T,files){files.forEach(f=>{const i=new Image();i.src=IMGBASE+T.dir+'/'+f+'.webp';});}
+/* dos illustrés */
+[['Alice : la maison trop petite',700,'back1'],['Alice : le thé du Chapelier',800,'back2'],['Alice : le croquet de la Reine',900,'back3']].forEach(([n,p,f])=>BACKS.push({n,p,f:u=>'<defs><clipPath id="bc'+u+'"><rect x="7" y="7" width="155" height="231" rx="6"/></clipPath></defs><rect width="169" height="245" rx="11" fill="#fff"/><image href="'+IMGBASE+'alice/'+f+'.webp" x="7" y="7" width="155" height="231" preserveAspectRatio="xMidYMid slice" clip-path="url(#bc'+u+')"/><rect x="7" y="7" width="155" height="231" rx="6" fill="none" stroke="#6a4426" stroke-width="1.6"/>'}));
 
 /* ---------- Données partagées : portefeuille, boutique, cartes ---------- */
 const $=id=>document.getElementById(id);
@@ -421,7 +423,7 @@ const COURTS=[
 ];
 const BGS=[
  {n:'Tapis vert',p:0},{n:'Tapis bleu',p:20},{n:'Bois de noyer',p:40},{n:'Velours bordeaux',p:60},{n:'Océan',p:90},{n:'Prairie fleurie',p:120},
- {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450}
+ {n:'Nuit étoilée',p:160},{n:'Aurore boréale',p:210},{n:'Cerisiers en fleurs',p:270},{n:'Galaxie',p:340},{n:'Palais doré',p:450},{n:'Alice et la Chenille',p:700,img:'alice/bg1'}
 ];
 const CATS={back:{t:'Dos',items:BACKS},court:{t:'Têtes',items:COURTS},bg:{t:'Fonds',items:BGS}};
 let S={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};
