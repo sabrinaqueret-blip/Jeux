@@ -12,7 +12,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <title>Échecs</title>
 <style>
-:root{--bg:#1c2230;--panel:#2a3246;--ink:#f1f3f8;--muted:#a9b3c9;--gold:#f0c060;--l:#f0d9b5;--d:#b58863;--hl:#7fd36b}
+:root{--bg:#14202e;--panel:#1f3147;--ink:#f1f3f8;--muted:#a9b3c9;--gold:#f0c060;--l:#f0d9b5;--d:#b58863;--hl:#7fd36b}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none}
 body{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
@@ -28,7 +28,16 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 .tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:8px 0}
 .tabs button{padding:8px 14px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font-weight:700}
 .tabs button.on{background:var(--gold);color:#1c2230;border-color:var(--gold)}
-#st{text-align:center;font-weight:800;min-height:28px;margin:4px 0}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0 2px;font-weight:800;text-shadow:0 1px 3px #000a}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #st{flex:1;text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.it{background:#0006;border:2px solid transparent;border-radius:18px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
+.it.on{border-color:var(--gold);box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
+.it .pw{width:100%;aspect-ratio:1;border-radius:8px;background:#0004 center/cover no-repeat;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:38px}
+.it .pw img{width:90%;height:90%;object-fit:contain}
+.it button{width:100%;padding:6px 2px;border-radius:8px;border:0;background:var(--gold);color:#12202e;font:inherit;font-weight:800;font-size:12px}
+.it button.no{background:#fff1;color:var(--muted)}
 #bw{width:min(100%,calc(100vh - 210px));margin:0 auto}
 #bd{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;border:4px solid #3a4560;border-radius:6px;overflow:hidden;touch-action:manipulation}
 .c{position:relative;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -41,7 +50,7 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 .fl{position:absolute;font-size:calc(var(--bw,320px)/8*.2);font-weight:700;opacity:.65;pointer-events:none}.fl.a{left:3px;top:1px}.fl.b{right:3px;bottom:1px}
 #bar{display:flex;gap:8px;margin-top:10px}#bar .ob{margin:0;padding:10px}
 #ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9}
-#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:18px;max-width:380px;width:100%;text-align:center}
+#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:18px;max-width:380px;width:100%;max-height:92vh;overflow:auto;text-align:center}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;z-index:10;max-width:90%;text-align:center}
 [hidden]{display:none!important}
 .pv{display:flex;justify-content:center;gap:4px;margin:8px 0}.pv img{width:22%;aspect-ratio:1;object-fit:contain;object-position:bottom}.gold{color:var(--gold);font-weight:800}.themes.pcs button{position:relative;background:#0004;display:flex;align-items:flex-end;justify-content:center;font-size:26px;color:var(--ink)}.themes.pcs button img{width:100%;height:100%;object-fit:contain;object-position:bottom}.themes.pcs button.lk img{opacity:.55}.themes.pcs em{position:absolute;right:0;top:0;font-style:normal;font-size:13px}.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:44px;height:44px;border-radius:10px;border:3px solid transparent;padding:0;overflow:hidden}.themes button.on{border-color:var(--gold)}
@@ -69,9 +78,9 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 <section id="home"></section>
 <section id="lobby" hidden></section>
 <section id="game" hidden>
-  <div id="st"></div>
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="st"></span><span class="gm" id="gm">0 💎</span><button type="button" id="bshop" aria-label="Boutique">🛍</button></div>
   <div id="bw"><div id="bd"></div></div>
-  <div id="bar"><button class="ob alt" id="undo">↶ Annuler</button><button class="ob alt" id="res">Abandonner</button><button class="ob alt" id="menu">Menu</button></div>
+  <div id="bar"><button class="ob alt" id="undo">↶ Annuler</button><button class="ob alt" id="res">Abandonner</button></div>
 </section>
 <div id="ov" hidden></div><div id="toast" hidden></div>
 <script src="peerjs.min.js"></script>
@@ -250,7 +259,8 @@ function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
 const PRICE=150;
 const owned=i=>i===0||wal().own.chess.includes(i);
 function pcur(){const i=P.pieces|0;const t=SETS[i]||SETS[0];return(i>0&&t.pc&&owned(i))?t:SETS[0];}
-function addGems(n){const j=wal();j.gems+=n;walSave(j);return j.gems;}
+function gmUpdate(){const g=$('gm');if(g)g.textContent=wal().gems+' 💎';}
+function addGems(n){const j=wal();j.gems+=n;walSave(j);gmUpdate();return j.gems;}
 
 function applyTheme(){const t=cur();const s=document.documentElement.style;s.setProperty('--l',t.l);s.setProperty('--d',t.d);
  document.body.style.backgroundImage=t.dir?'linear-gradient(#0009,#0007),url(../cartes-img/'+t.dir+'/bg1.webp)':'none';document.body.style.backgroundSize='cover';document.body.style.backgroundPosition='center';}
@@ -274,7 +284,7 @@ function showHome(){
    '<p class="muted" style="margin-top:14px">Pièces : <b>'+(SETS[P.pieces|0]||SETS[0]).n+'</b> · <span class="gold">'+wal().gems+' 💎</span></p><div class="themes pcs">'+SETS.map((t,i)=>t.pc||i===0?'<button data-pc="'+i+'" class="'+((P.pieces|0)===i?'on':'')+(owned(i)?'':' lk')+'" aria-label="'+t.n+'">'+(i===0?'♞':'<img alt="" src="../cartes-img/'+t.dir+'/p_wn.webp">')+(owned(i)?'':'<em>🔒</em>')+'</button>':'').join('')+'</div>';
   const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
   $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.level=+b.dataset.l;saveP();showHome();});
-  $('home').querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{P.theme=+b.dataset.th;saveP();applyTheme();showHome();});
+  $('home').querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{P.theme=+b.dataset.th;saveP();applyTheme();gmUpdate();showHome();});
   $('home').querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pc;if(owned(i)){P.pieces=i;saveP();showHome();}else buyDlg(i);});
   $('solo').onclick=()=>startSolo(nm());
   $('host').onclick=()=>hostOnline(nm());
@@ -358,7 +368,7 @@ function render(){
 addEventListener('resize',()=>{if(mode==='game')render();});
 function buyDlg(i){const t=SETS[i],g=wal().gems,d='../cartes-img/'+t.dir+'/';
   openOv('<h2>'+t.n+'</h2><div class="pv">'+['wk','wq','bk','bq'].map(k=>'<img alt="" src="'+d+'p_'+k+'.webp">').join('')+'</div><p class="muted">Jeu de pièces illustrées</p><p class="gold">'+g+' 💎</p>'+(g>=PRICE?'<button class="ob" id="by">Acheter · '+PRICE+' 💎</button>':'<p class="muted">Il te manque '+(PRICE-g)+' 💎. Gagne des parties (ici ou aux cartes) pour en obtenir.</p>')+'<button class="ob alt" id="cl">Fermer</button>');
-  $('cl').onclick=closeOv;const by=$('by');if(by)by.onclick=()=>{const j=wal();if(j.gems<PRICE)return;j.gems-=PRICE;j.own.chess.push(i);walSave(j);P.pieces=i;saveP();closeOv();showHome();};}
+  $('cl').onclick=closeOv;const by=$('by');if(by)by.onclick=()=>{const j=wal();if(j.gems<PRICE)return;j.gems-=PRICE;j.own.chess.push(i);walSave(j);P.pieces=i;saveP();gmUpdate();closeOv();if(mode==='game'){render();shopOv('pc');}else showHome();};}
 let lastReward='';
 function reward(v){const key=JSON.stringify(v.b)+v.reason;if(key===lastReward)return;lastReward=key;
   if(v.winner!==my||v.winner===0)return;const n=kind==='solo'?[5,10,20][P.level]||10:10;const g=addGems(n);toast('+'+n+' 💎 (total '+g+')',3000);}
@@ -401,8 +411,27 @@ $('res').onclick=()=>{
   $('n').onclick=closeOv;
   $('y').onclick=()=>{closeOv();if(kind==='guest'){try{conn.send({t:'resign'});}catch(e){}}else{G.over=true;G.winner=-my;G.reason='abandon';push();}};
 };
-$('menu').onclick=()=>{if(view&&!view.over&&kind!=='solo'){openOv('<h2>Quitter la partie ?</h2><p class="muted">Ton adversaire sera prévenu.</p><button class="ob" id="y">Quitter</button><button class="ob alt" id="n">Rester</button>');$('n').onclick=closeOv;$('y').onclick=showHome;}else showHome();};
-applyTheme();showHome();
+function shopOv(tab){
+  tab=tab||'pc';const g=wal().gems;
+  let h='<h2>Boutique</h2><p class="gold">'+g+' 💎</p><div class="tabs"><button data-t="pc" class="'+(tab==='pc'?'on':'')+'">Pièces</button><button data-t="th" class="'+(tab==='th'?'on':'')+'">Plateaux</button></div><div class="sgrid">';
+  SETS.forEach((t,i)=>{
+    if(tab==='pc'){if(i&&!t.pc)return;const own=owned(i),on=(P.pieces|0)===i;
+      h+='<div class="it'+(on?' on':'')+'"><div class="pw">'+(i===0?'♞':'<img alt="" src="../cartes-img/'+t.dir+'/p_wn.webp">')+'</div><span>'+t.n+'</span>'+(on?'<button class="no">Utilisé</button>':own?'<button data-p="'+i+'">Utiliser</button>':'<button data-k="'+i+'">'+PRICE+' 💎</button>')+'</div>';}
+    else{const on=P.theme===i;
+      h+='<div class="it'+(on?' on':'')+'"><div class="pw" style="'+(t.dir?'background-image:url(../cartes-img/'+t.dir+'/bg1.webp)':'background:linear-gradient(135deg,'+t.l+' 50%,'+t.d+' 50%)')+'"></div><span>'+t.n+'</span>'+(on?'<button class="no">Utilisé</button>':'<button data-h="'+i+'">Utiliser</button>')+'</div>';}
+  });
+  h+='</div><button class="ob alt" id="cl">Fermer</button>';openOv(h);
+  const o=$('ov');
+  o.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>shopOv(b.dataset.t));
+  o.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{P.pieces=+b.dataset.p;saveP();if(view)render();shopOv(tab);});
+  o.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{P.theme=+b.dataset.h;saveP();applyTheme();if(view)render();shopOv(tab);});
+  o.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>buyDlg(+b.dataset.k));
+  $('cl').onclick=closeOv;
+}
+$('bshop').onclick=()=>shopOv('pc');
+const menuFn=()=>{if(view&&!view.over&&kind!=='solo'){openOv('<h2>Quitter la partie ?</h2><p class="muted">Ton adversaire sera prévenu.</p><button class="ob" id="y">Quitter</button><button class="ob alt" id="n">Rester</button>');$('n').onclick=closeOv;$('y').onclick=showHome;}else showHome();};
+$('bmenu').onclick=menuFn;
+applyTheme();gmUpdate();showHome();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 <script>/*UIKIT*/(function(){const ov=document.getElementById('ov');if(!ov||!window.MutationObserver)return;const mo=new MutationObserver(()=>{const d=ov.firstElementChild;if(!d||ov.hidden||d.querySelector('.mi')||!d.querySelector('h1,h2'))return;const i=new Image();i.src='icons/icon-192.png';i.className='mi';i.alt='';d.insertBefore(i,d.firstChild);});mo.observe(ov,{childList:true,attributes:true});})();</script>
