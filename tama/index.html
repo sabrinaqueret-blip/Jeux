@@ -436,7 +436,7 @@ const EYE={
 const DN=[.16,.22,.19,.19];
 /* main qui tient l'objet : [x,y] (fraction du sprite) ; par défaut selon l'âge */
 const HAND0=[[.9,.62],[.8,.64],[.8,.62],[.78,.62]];
-const HAND={cat:{2:[1.0,.6],3:[1.0,.6]},unicorn:{2:[1.0,.62],3:[.92,.62]},dragon:{3:[.72,.62]},fox:{2:[.74,.62],3:[.72,.62]}};
+const HAND={cat:{2:[1.0,.6],3:[1.0,.6]},unicorn:{2:[1.0,.62],3:[.92,.62]},dragon:{2:[.72,.64],3:[.64,.66]},fox:{2:[.74,.62],3:[.72,.62]}};
 function faceAnc(sp,sx,si){
   const b=ANC[sp][si].slice(),e=EYE[sp]&&EYE[sp][sx==='m'?'m':'f'][si];
   if(!e)return b;
@@ -467,7 +467,7 @@ const HYBD={
 '0-6':{ah:333,a:[[.45,.20,.30,.75,.55],[.42,.15,.30,.55,.5],[.40,.15,.30,.4,.45],[.40,.15,.35,.4,.5]]},
 '0-7':{ah:311,a:[[.45,.12,.33,.7,.5],[.40,.13,.35,.6,.5],[.38,.25,.38,.4,.5],[.35,.25,.35,.3,.5]]}};
 const IM={};
-function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=14';IM[p]=i;}return i;}
+function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=16';IM[p]=i;}return i;}
 const imOk=i=>i&&i.complete&&i.naturalWidth>0;
 const TC={};
 function tinted(im,key,col,a){const k=key+col+a;let c=TC[k];if(c)return c;c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=a;x.fillStyle=col;x.fillRect(0,0,c.width,c.height);return TC[k]=c;}
@@ -498,26 +498,26 @@ function drawPet(s,cx,base,t,mood){
   const W=s.wear||{};
   ctx.save();ctx.translate(cx,base+bob);ctx.rotate(rot);ctx.scale(sxs,sy);
   const a=st==='egg'?null:(HD?HD.a[STI[st]]:faceAnc(sp,sx,STI[st]));
-  const X=a?(a[0]-.5)*w:0,HW=a?a[3]*w:0,Y=f=>-h+f*h;
+  const FS=a?Math.max(1,Math.min(1.6,.4/a[3])):1,X=a?(a[0]-.5)*w:0,HW=a?a[3]*w:0,Y=f=>-h+f*h;
   if(a&&!hideAcc&&W.neck==='neck_cape')ai('neck_cape',0,Y(a[4])-h*.03,w*.95,'t');
   ctx.drawImage(src,-w/2,-h,w,h);
   if(a&&!hideAcc){
     const hat=W.hat,fc=W.face,nk=W.neck,sd=W.side,top=Y(a[1]),ey=Y(a[2]),ny=Y(a[4]);
-    if(HD&&s.sex==='f'&&st!=='baby'&&!hat)ai('hat_bow',X+HW*.32,top+h*.02,HW*.4,'c');
+    if(HD&&s.sex==='f'&&st!=='baby'&&!hat)ai('hat_bow',X+HW*.32,top+h*.02,HW*.4*FS,'c');
     if(hat){
       if(HAT[hat]){const c=HAT[hat],wd=HW*c[0],im2=img('acc/'+hat+'.png');if(imOk(im2)){const hh=wd*im2.naturalHeight/im2.naturalWidth;ai(hat,X+(hat==='hat_party'?HW*.12:0),top+hh*c[1],wd,'b');}}
-      else if(hat==='hat_bow')ai(hat,X+HW*.3,top+h*.02,HW*.42,'c');
-      else if(hat==='hat_flower')ai(hat,X+HW*.32,top+h*.03,HW*.4,'c');
+      else if(hat==='hat_bow')ai(hat,X+HW*.3,top+h*.02,HW*.42*FS,'c');
+      else if(hat==='hat_flower')ai(hat,X+HW*.32,top+h*.03,HW*.4*FS,'c');
       else if(hat==='hat_phones')ai(hat,X,ey-h*.02,HW*1.12,'c');
     }
-    if(fc==='hat_glasses'||fc==='face_round'||fc==='face_heart')ai(fc,X,ey,HW*.92,'c');
+    if(fc==='hat_glasses'||fc==='face_round'||fc==='face_heart')ai(fc,X,ey,HW*.92*FS,'c');
     if(fc==='face_mustache')ai(fc,X,ey+h*.07,HW*.34,'c');
     if(fc==='face_monocle')ai(fc,X+HW*.2,ey+h*.03,HW*.3,'c');
     if(nk==='hat_scarf')ai(nk,X,ny,HW*.85,'c');
-    if(nk==='neck_bow')ai(nk,X,ny,HW*.42,'c');
+    if(nk==='neck_bow')ai(nk,X,ny,HW*.42*FS,'c');
     if(nk==='neck_medal')ai(nk,X,ny-h*.02,HW*.3,'t');
     if(nk==='neck_bell')ai(nk,X,ny,HW*.7,'c');
-    if(sd){const hs=sd==='side_balloon'?h*.55:h*.42;const im3=img('acc/'+sd+'.png');if(imOk(im3)){const wd=hs*im3.naturalWidth/im3.naturalHeight;const si=STI[st],hd=(HAND[sp]&&HAND[sp][si])||HAND0[si];ai(sd,(hd[0]-.5)*w+wd*.38,-h+hd[1]*h+hs*.14,wd,'b');}}
+    if(sd){const hs=sd==='side_balloon'?h*.55:h*.42;const im3=img('acc/'+sd+'.png');if(imOk(im3)){const wd=hs*im3.naturalWidth/im3.naturalHeight;const si=STI[st],hd=(HAND[sp]&&HAND[sp][si])||HAND0[si];ai(sd,(hd[0]-.5)*w+wd*.22,-h+hd[1]*h+hs*.14,wd,'b');}}
   }
   ctx.restore();
   if(st==='egg'&&SPECIES[spi].rare&&(t>>3)%3){R(cx+14,base-70,3,3,'#fff3b0');R(cx-24,base-48,2,2,'#fff3b0');R(cx+16,base-20,2,2,'#fff3b0');}
@@ -550,9 +550,9 @@ function drawWall(id,t){
 
 /* icônes illustrées pour la boutique */
 Object.keys(ITEMS).forEach(k=>{const it=ITEMS[k];
-  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=14" alt="">';
-  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=14" alt="">';
-  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=14" alt="">';});
+  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=16" alt="">';
+  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=16" alt="">';
+  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=16" alt="">';});
 const HYB={'0-1':'Dragochat','0-2':'Chatpin','0-3':'Licochat','0-4':'Pandichat','0-5':'Goupichat','0-6':'Chatbot','0-7':'Pastchat',
  '1-2':'Dragolap','1-3':'Licodrago','1-4':'Pandragon','1-5':'Dragoupil','1-6':'Dragobot','1-7':'Dragopastel',
  '2-3':'Licolap','2-4':'Pandilap','2-5':'Goulapin','2-6':'Lapbot','2-7':'Pastelap',
@@ -1068,7 +1068,7 @@ function showPick(){
   const draw=()=>{
     const sp=SPECIES[sel];
     openModal('<h2>Un œuf mystérieux</h2><p class="muted">Choisis un œuf. Selon tes soins, il deviendra une créature différente.</p><div class="eggs">'+
-      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=14" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
+      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=16" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
       '<div class="detail"><h3>'+sp.emoji+' '+sp.name+'</h3><p>'+sp.desc+'</p>'+(ok(sel)?'':'<p style="color:var(--gold);font-weight:800">🔒 À débloquer à la boutique (onglet Œufs) : '+sp.price+' 💎</p>')+'</div>'+
       '<div class="chips"><button data-sx="f" class="'+(sex==='f'?'on':'')+'">♀ Fille</button><button data-sx="m" class="'+(sex==='m'?'on':'')+'">♂ Garçon</button></div>'+
       '<input class="nm" id="nameIn" maxlength="12" placeholder="Son prénom" value="'+(window.__nm||'')+'" aria-label="Prénom">'+
