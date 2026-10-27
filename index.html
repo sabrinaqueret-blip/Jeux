@@ -8,45 +8,68 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-:root{--bg:#1D1230;--panel:#2E1C4D;--ink:#FFF3FA;--muted:#C2ADDD;--pink:#FF6FB5;--edge:#0E0719;color-scheme:dark}
-*{box-sizing:border-box}
-body{margin:0;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;padding:24px 16px}
-main{max-width:460px;margin:0 auto}
-h1{color:var(--pink);margin:0 0 4px;font-size:30px}
-p.s{color:var(--muted);margin:0 0 20px}
-a.g{display:flex;align-items:center;gap:14px;padding:12px;margin-bottom:12px;background:var(--panel);border:2px solid var(--edge);border-radius:14px;box-shadow:0 4px 0 var(--edge);color:var(--ink);text-decoration:none}
-a.g:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
-a.g img{width:64px;height:64px;border-radius:14px;image-rendering:pixelated}
-a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
-#inst{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:0 0 18px;padding:14px;font:inherit;font-size:18px;font-weight:800;color:#2a0f3d;background:var(--pink);border:2px solid var(--edge);border-radius:14px;box-shadow:0 4px 0 var(--edge);cursor:pointer}
+:root{--bg:#1D1230;--panel:#2E1C4D;--ink:#FFF3FA;--muted:#C2ADDD;--pink:#FF6FB5;--gold:#F6C85F;--edge:#0E0719;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100dvh;background:radial-gradient(120% 60% at 50% -10%,#4b2a86 0%,transparent 60%),radial-gradient(90% 50% at 100% 100%,#7a2c6e55 0%,transparent 60%),var(--bg);color:var(--ink);font-family:system-ui,sans-serif;padding:max(20px,env(safe-area-inset-top)) 14px 24px}
+main{max-width:520px;margin:0 auto}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:6px}
+h1{margin:0;font-size:34px;line-height:1;letter-spacing:-.5px;background:linear-gradient(90deg,#ff9ad0,#ffd37a);-webkit-background-clip:text;background-clip:text;color:transparent}
+#wal{background:#0006;border:2px solid #ffffff22;border-radius:999px;padding:6px 12px;font-weight:800;color:var(--gold);white-space:nowrap}
+p.s{color:var(--muted);margin:2px 0 14px}
+#last{display:none;align-items:center;gap:12px;padding:10px 12px;margin:0 0 16px;border-radius:18px;background:linear-gradient(135deg,#ff6fb5,#a65cff);color:#fff;text-decoration:none;box-shadow:0 6px 18px #0008}
+#last img{width:54px;height:54px;border-radius:14px;box-shadow:0 2px 8px #0007}
+#last small{display:block;opacity:.85;font-size:13px}#last b{font-size:20px}#last i{margin-left:auto;font-style:normal;font-size:26px}
+h2{margin:20px 4px 10px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#ffffff33,transparent)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px}
+a.g{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;color:var(--ink);text-decoration:none;padding:2px 0}
+a.g .ic{position:relative;width:100%;aspect-ratio:1;border-radius:24%;overflow:hidden;box-shadow:0 8px 16px #000a,0 0 0 2px #ffffff1f inset;transition:transform .12s}
+a.g .ic img{width:100%;height:100%;display:block;object-fit:cover}
+a.g:active .ic{transform:scale(.93)}
+a.g b{font-size:14px;line-height:1.15;font-weight:800}
+a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;background:#000b;color:#fff;padding:2px 6px;border-radius:999px}
+#inst{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:0 0 18px;padding:14px;font:inherit;font-size:18px;font-weight:800;color:#2a0f3d;background:var(--pink);border:2px solid var(--edge);border-radius:14px;box-shadow:0 4px 0 var(--edge)}
 #inst:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
 #help{display:none;margin:-8px 0 18px;padding:12px 14px;background:var(--panel);border:2px solid var(--pink);border-radius:14px;line-height:1.45}
 #help b{color:var(--pink)}
-#ver{margin:26px 0 8px;text-align:center;color:var(--muted);font-size:13px}
+#ver{margin:30px 0 8px;text-align:center;color:var(--muted);font-size:13px}
 #upd{display:none;margin:0 0 14px;padding:12px 14px;background:var(--panel);border:2px solid var(--pink);border-radius:14px;text-align:center}
 #upd button{margin-top:8px;padding:10px 16px;font:inherit;font-weight:800;color:#2a0f3d;background:var(--pink);border:2px solid var(--edge);border-radius:12px}
 </style>
 </head>
 <body>
 <main>
-<h1>Mes jeux</h1>
-<p class="s">Sans pub, sans compte, hors ligne.</p>
+<div class="top"><h1>Mes jeux</h1><span id="wal">0 💎</span></div>
+<p class="s">Sans pub, sans compte, hors ligne. · 🌐 partie en ligne avec un code</p>
+<a id="last" href="#"><img alt=""><span><small>Reprendre</small><b></b></span><i>▶</i></a>
 <div id="upd"></div>
 <button id="inst" hidden>📲 Installer sur mon téléphone</button>
 <div id="help"></div>
-<a class="g" href="tarot/"><img src="tarot/icons/icon-192.png" alt=""><div><b>Tarot entre amis</b><span>Cartes à 3, 4 ou 5 · robots ou en ligne avec un code</span></div></a>
-<a class="g" href="solitaire/"><img src="solitaire/icons/icon-192.png" alt=""><div><b>Solitaire</b><span>Le classique · gagne des 💎 pour de beaux dos de cartes</span></div></a>
-<a class="g" href="freecell/"><img src="freecell/icons/icon-192.png" alt=""><div><b>FreeCell</b><span>Donnes numérotées · figures et fonds à débloquer</span></div></a>
-<a class="g" href="coinche/"><img src="coinche/icons/icon-192.png" alt=""><div><b>Coinche entre amis</b><span>Cartes à 4 · robots ou en ligne avec un code</span></div></a>
-<a class="g" href="dames/"><img src="dames/icons/icon-192.png" alt=""><div><b>Dames</b><span>Dames françaises 10×10 · robot ou en ligne avec un code</span></div></a>
-<a class="g" href="echecs/"><img src="echecs/icons/icon-192.png" alt=""><div><b>Échecs</b><span>Règles complètes · robot ou en ligne avec un code</span></div></a>
-<a class="g" href="mahjong/"><img src="mahjong/icons/icon-192.png" alt=""><div><b>Mahjong</b><span>Solitaire 144 tuiles · indices, mélange, fonds illustrés</span></div></a>
-<a class="g" href="snake/"><img src="snake/icons/icon-192.png" alt=""><div><b>Snake</b><span>Accessoires, nourriture, décors · boutique en 💎</span></div></a>
-<a class="g" href="blocs/"><img src="blocs/icons/icon-192.png" alt=""><div><b>Blocs</b><span>Lignes, réserve, styles de blocs · boutique en 💎</span></div></a>
-<a class="g" href="maze/"><img src="maze/icons/icon-192.png" alt=""><div><b>Croque-labyrinthe</b><span>Gommes, ennemis, accessoires · boutique en 💎</span></div></a>
-<a class="g" href="tama/"><img src="tama/icons/icon-192.png" alt=""><div><b>Mon petit compagnon</b><span>Tamagotchi · 7 espèces, musiques, jeux, boutique</span></div></a>
-<a class="g" href="rosine/"><img src="rosine/icons/icon-192.png" alt=""><div><b>Rosine la Lutine</b><span>Plateformes · 10 mondes, vélo, libellule, boutique</span></div></a>
-<a class="g" href="sudoku/"><img src="sudoku/icons/icon-192.png" alt=""><div><b>Sudoku Expert</b><span>4 niveaux, indices, notes</span></div></a>
+<h2>Cartes</h2>
+<div class="grid" style="grid-template-columns:repeat(4,1fr)">
+<a class="g" href="tarot/" data-n="Tarot"><span class="ic"><img src="tarot/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Tarot</b></a>
+<a class="g" href="solitaire/" data-n="Solitaire"><span class="ic"><img src="solitaire/icons/icon-192.png" alt=""></span><b>Solitaire</b></a>
+<a class="g" href="freecell/" data-n="FreeCell"><span class="ic"><img src="freecell/icons/icon-192.png" alt=""></span><b>FreeCell</b></a>
+<a class="g" href="coinche/" data-n="Coinche"><span class="ic"><img src="coinche/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Coinche</b></a>
+</div>
+<h2>Plateau</h2>
+<div class="grid">
+<a class="g" href="dames/" data-n="Dames"><span class="ic"><img src="dames/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Dames</b></a>
+<a class="g" href="echecs/" data-n="Échecs"><span class="ic"><img src="echecs/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Échecs</b></a>
+<a class="g" href="mahjong/" data-n="Mahjong"><span class="ic"><img src="mahjong/icons/icon-192.png" alt=""></span><b>Mahjong</b></a>
+</div>
+<h2>Arcade</h2>
+<div class="grid">
+<a class="g" href="snake/" data-n="Snake"><span class="ic"><img src="snake/icons/icon-192.png" alt=""></span><b>Snake</b></a>
+<a class="g" href="blocs/" data-n="Blocs"><span class="ic"><img src="blocs/icons/icon-192.png" alt=""></span><b>Blocs</b></a>
+<a class="g" href="maze/" data-n="Croque-labyrinthe"><span class="ic"><img src="maze/icons/icon-192.png" alt=""></span><b>Croque-labyrinthe</b></a>
+</div>
+<h2>Aventure et réflexion</h2>
+<div class="grid">
+<a class="g" href="tama/" data-n="Mon petit compagnon"><span class="ic"><img src="tama/icons/icon-192.png" alt=""></span><b>Mon petit compagnon</b></a>
+<a class="g" href="rosine/" data-n="Rosine la Lutine"><span class="ic"><img src="rosine/icons/icon-192.png" alt=""></span><b>Rosine la Lutine</b></a>
+<a class="g" href="sudoku/" data-n="Sudoku Expert"><span class="ic"><img src="sudoku/icons/icon-192.png" alt=""></span><b>Sudoku Expert</b></a>
+</div>
 <div id="ver"></div>
 </main>
 <script>
@@ -68,10 +91,12 @@ a.g b{display:block;font-size:19px}a.g span{color:var(--muted);font-size:14px}
 </script>
 <script>
 (function(){
-  const VERSION='n°59 · 27/10 08:31';
+  const VERSION='n°60 · 27/10 08:34';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
-  document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));});
+  document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));const im=x.querySelector('img');if(im)im.src=im.getAttribute('src')+'?v='+encodeURIComponent(VERSION);x.addEventListener('click',()=>{try{localStorage.setItem('hub-last',x.dataset.n+'|'+x.getAttribute('href')+'|'+im.getAttribute('src'));}catch(e){}});});
+  try{const j=JSON.parse(localStorage.getItem('cartes-v1')||'null');document.getElementById('wal').textContent=((j&&typeof j.gems==='number')?j.gems:20)+' 💎';}catch(e){}
+  try{const l=(localStorage.getItem('hub-last')||'').split('|');if(l.length===3){const a=document.getElementById('last');a.href=l[1];a.querySelector('b').textContent=l[0];a.querySelector('img').src=l[2];a.style.display='flex';}}catch(e){}
   async function check(){
     try{
       const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
