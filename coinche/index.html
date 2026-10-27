@@ -130,6 +130,8 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 </style>
 <div id="home" class="screen"></div>
 <div id="lobby" class="screen" hidden></div>
+<style>.hd{background:#0009!important;gap:6px!important}.hd button{border:2px solid var(--gold)!important;border-radius:999px!important;background:#0007!important;padding:5px 10px!important;color:var(--ink)}.hd button:disabled{border-color:#ffd84a55!important}.hd .gm{color:var(--gold);font-weight:800;background:#0009;padding:5px 10px;border-radius:999px;white-space:nowrap}.hd .sc{font-size:13px;min-width:0;white-space:nowrap;display:flex;gap:4px;align-items:baseline}.hd .sc b{font-size:17px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}.sgrid .it{background:#0006;border:2px solid transparent;border-radius:18px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}.sgrid .it.on{border-color:var(--gold)}.sgrid .pv{width:100%;aspect-ratio:9/12;border-radius:10px;background:#0004 center/cover}.sgrid button{width:100%;padding:6px 2px;border-radius:999px;border:0;background:var(--gold);color:#0b2a1a;font:inherit;font-weight:800;font-size:12px}.sgrid button.no{background:#fff1;color:var(--muted)}.gold{color:var(--gold);font-weight:800;margin:0}.box{max-height:92vh;overflow:auto}</style>
 <div id="game" class="screen" hidden></div>
 <div id="ov" hidden></div>
 <div id="toast" hidden></div>
@@ -458,6 +460,35 @@ function mkPeer(id){
 /* ---------- Interface ---------- */
 const $=id=>document.getElementById(id);
 const KEY='coinche-amis-v1';
+/* ====== portefeuille 💎 partagé (cartes-v1) + boutique de décors ====== */
+const GAME='coinche',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}
+  if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};
+  if(!j.own)j.own={};if(!j.own[GAME])j.own[GAME]={};if(typeof j.gems!=='number')j.gems=20;return j;}
+function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
+function gems(){return wal().gems;}
+function addGems(n){const j=wal();j.gems+=n;walSave(j);return j.gems;}
+const SK=GAME+'-deco-v1';
+let ST={bg:0};try{ST=Object.assign(ST,JSON.parse(localStorage.getItem(SK)||'{}'));}catch(e){}
+function saveST(){try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}}
+function owned(i){return i===0||(wal().own[GAME].bg||[]).includes(i);}
+const BGPRICE=60;
+const BGS=[{n:'Tapis vert'}].concat([['Alice','alice'],['Chats victoriens','chats'],['Renards des bois','renards'],['Dragons et licornes','dragons'],['Venise','venise'],['Égypte','egypte'],['Japon','japon'],['Astronaute','astro'],['Baroque','baroque'],['Art déco','deco'],['Royaume enchanté','fee'],['Steampunk','steampunk'],['Monde des fées','feesbois'],['Aventuriers des mers','marins']].map(a=>({n:a[0],dir:a[1],p:BGPRICE})));
+function bgUrl(b){return '../cartes-img/'+b.dir+'/bg1.webp';}
+function applyBg(){const el=$('game');if(!el)return;const i=owned(ST.bg|0)?ST.bg|0:0,b=BGS[i];el.style.backgroundImage=b.dir?'linear-gradient(#0008,#0008),url('+bgUrl(b)+')':'';el.style.backgroundSize=b.dir?'cover':'';el.style.backgroundPosition='center';}
+function gainWin(n){if(gainWin.done===shownResult)return;gainWin.done=shownResult;addGems(n);toast('+'+n+' 💎');}
+function shop(){
+  const g=gems(),cur=owned(ST.bg|0)?ST.bg|0:0;
+  let h='<h2>Boutique</h2><p class="gold">'+g+' 💎</p><div class="sgrid">';
+  BGS.forEach((b,i)=>{const has=owned(i),on=cur===i;
+    h+='<div class="it'+(on?' on':'')+'"><div class="pv" style="'+(b.dir?'background-image:url('+bgUrl(b)+')':'background:radial-gradient(#14573a,#0f4630)')+'"></div><span>'+b.n+'</span>'+(on?'<button class="no">Utilisé</button>':has?'<button data-u="'+i+'">Utiliser</button>':(g>=b.p?'<button data-b="'+i+'">'+b.p+' 💎</button>':'<button class="no">'+b.p+' 💎</button>'))+'</div>';});
+  h+='</div><button class="ob alt" id="cl">Fermer</button>';openOv(h);
+  const o=$('ov');
+  o.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{ST.bg=+b.dataset.u;saveST();applyBg();shop();});
+  o.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,p=BGS[i].p,j=wal();if(j.gems<p)return;j.gems-=p;(j.own[GAME].bg=j.own[GAME].bg||[0]).push(i);walSave(j);ST.bg=i;saveST();applyBg();shop();});
+  $('cl').onclick=()=>{$('ov').hidden=true;render&&render();};
+}
+
 let P={name:'',code:'',target:1000,aids:true};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
 let G=null,peer=null,conn=null,seatConn=[null,null,null,null],view=null,me=0,mode='home',lobby=null,roomCode='';
@@ -623,7 +654,7 @@ function render(){
   if(v.annRes){const t=myTeam;chip+='<span class="chip">Annonces : nous '+(v.annRes.team===t?v.annRes.total:0)+' · eux '+(v.annRes.team!==t?v.annRes.total:0)+'</span>';}
   else if(v.annTxt&&v.annTxt.length&&v.phase!=='bidding')chip+='<span class="chip">📣 '+v.annTxt.map(a=>nC(v,a.seat)+' : '+a.label).join(' · ')+'</span>';
   const turnName=(v.phase==='play'||v.phase==='bidding')?v.names[v.turn]:'';
-  let h='<div class="hd"><button id="menuB" aria-label="Menu">☰</button><div class="sc"><span>Nous <b>'+nous+'</b></span><span class="sl">/'+v.target+'</span><span>Eux <b>'+eux+'</b></span></div><button id="lastB" '+(v.lastTrick?'':'disabled')+'>Dernier pli</button></div><div class="ct">'+chip+(v.tricks&&v.phase!=='bidding'?'<span class="chip">Plis : nous '+v.tricks[myTeam]+' · eux '+v.tricks[1-myTeam]+'</span>':'')+'</div>';
+  let h='<div class="hd"><button id="menuB" aria-label="Menu">☰</button><div class="sc"><span>Nous <b>'+nous+'</b></span><span class="sl">/'+v.target+'</span><span>Eux <b>'+eux+'</b></span></div><span class="gm">'+gems()+' 💎</span><button id="shopB" aria-label="Boutique">🛍</button><button id="lastB" aria-label="Dernier pli" '+(v.lastTrick?'':'disabled')+'>↩ Pli</button></div><div class="ct">'+chip+(v.tricks&&v.phase!=='bidding'?'<span class="chip">Plis : nous '+v.tricks[myTeam]+' · eux '+v.tricks[1-myTeam]+'</span>':'')+'</div>';
   h+='<div class="tbl">';
   for(const r of [1,2,3]){
     const s=(me+r)%4,bid=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===s):null,on=(v.phase==='play'||v.phase==='bidding')&&v.turn===s;
@@ -644,7 +675,7 @@ function render(){
   h+='<div class="me'+((v.phase==='play'||v.phase==='bidding')&&v.turn===me?' on':'')+'">'+(v.dealer===me?'<i class="dl">D</i>':'')+'<span style="color:'+SC[0]+'">'+esc(v.names[me])+'</span>'+tkBadge(v,me)+'</div>';
   h+='<div class="hand">'+v.hand.map(c=>{const ok=!v.legal||v.legal.includes(c),isT=v.trump!=null&&v.trump<4&&cs(c)===v.trump;return cardEl(c,(v.legal&&!ok?'no ':'')+(c===sel?'sel ':'')+(advice&&advice.card===c?'adv ':'')+(isT?'tr':''));}).join('')+'</div>';
   $('game').innerHTML=h;
-  $('menuB').onclick=showMenu;$('lastB').onclick=showLast;
+  $('menuB').onclick=showMenu;$('lastB').onclick=showLast;$('shopB').onclick=shop;applyBg();
   $('game').querySelectorAll('.hand .card').forEach(el=>{
     const id=+el.dataset.id;
     el.onclick=()=>{
@@ -712,7 +743,7 @@ function showMenu(){
 function endOverlay(v){
   const r=v.result,t=me%2;
   if(v.phase==='gameEnd'){
-    const win=v.scores[t]>v.scores[1-t];if(shownResult!==-v.handNo){shownResult=-v.handNo;win?SFX.win():SFX.lose();}
+    const win=v.scores[t]>v.scores[1-t];if(shownResult!==-v.handNo){shownResult=-v.handNo;win?SFX.win():SFX.lose();gainWin(win?10:2);}
     openOv('<div class="endbox"><div class="big">'+(win?'🏆':'😅')+'</div><h2>'+(win?'Victoire !':'Défaite…')+'</h2><p class="score">Nous '+v.scores[t]+' – Eux '+v.scores[1-t]+'</p>'+
       (G?'<button class="ob" id="again">Rejouer</button>':'<p class="muted">L’hôte peut relancer une partie.</p>')+'<button class="ob alt" id="q">Quitter</button></div>');
     if($('again'))$('again').onclick=()=>{G.scores=[0,0];G.start();};
