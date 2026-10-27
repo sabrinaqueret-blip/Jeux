@@ -122,6 +122,11 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 .si,.it{border-radius:18px!important;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
 .si.on,.it.on{box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
 .chip{box-shadow:0 2px 6px #0005}
+
+/*HERO*/
+.hero{display:block;width:108px;height:108px;margin:0 auto 4px;border-radius:26px;box-shadow:0 12px 26px #000b,0 0 0 2px #ffffff33 inset}
+#home h1,#lobby h1{background:linear-gradient(90deg,#ffe08a,#ff9ad0);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:32px;letter-spacing:-.3px}
+#home,#lobby{background:linear-gradient(#0d1f17e6,#0d1f17b0),url(../cartes-img/baroque/bg1.webp) center/cover no-repeat}
 </style>
 <div id="home" class="screen"></div>
 <div id="lobby" class="screen" hidden></div>
@@ -483,7 +488,7 @@ function sendAct(a){audio();if(G)G.act(0,a);else if(conn)conn.send({t:'act',a});
 /* ---------- accueil ---------- */
 function showHome(){
   leave(true);show('home');
-  $('home').innerHTML='<div class="logo">'+SUITS.slice(0,4).join(' ')+'</div><h1>Coinche entre amis</h1><p class="muted">Sans publicité, sans compte. Joue contre des robots ou avec ceux qui saisissent ton code.</p>'+
+  $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Coinche entre amis</h1><p class="muted">Sans publicité, sans compte. Joue contre des robots ou avec ceux qui saisissent ton code.</p>'+
    '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'" aria-label="Ton prénom">'+
    '<button class="ob" id="solo">🤖 Jouer contre des robots</button>'+
    '<button class="ob alt" id="host">🎴 Créer une partie en ligne</button>'+
