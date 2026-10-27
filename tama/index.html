@@ -422,6 +422,26 @@ const ANC={
  robot:[[.48,.18,.40,.5,.53],[.5,.05,.27,.8,.48],[.5,.17,.27,.55,.42],[.49,.17,.28,.4,.37]],
  pastel:[[.44,.12,.32,.75,.5],[.52,.12,.34,.65,.5],[.48,.25,.38,.45,.5],[.46,.27,.38,.38,.5]]
 };
+/* repères réels des visages (centre des yeux) par espèce/sexe/âge : [x, y] en fraction du sprite */
+const EYE={
+ cat:{m:[[.45,.30],[.42,.30],[.38,.27],[.37,.28]],f:[[.45,.26],[.42,.29],[.38,.26],[.34,.25]]},
+ dragon:{m:[[.44,.31],[.39,.30],[.40,.28],[.31,.25]],f:[[.42,.27],[.40,.26],[.40,.22],[.47,.24]]},
+ rabbit:{m:[[.38,.30],[.37,.39],[.38,.37],[.35,.37]],f:[[.41,.26],[.40,.39],[.35,.36],[.35,.37]]},
+ unicorn:{m:[[.46,.31],[.42,.36],[.38,.30],[.30,.29]],f:[[.46,.30],[.42,.35],[.40,.28],[.34,.27]]},
+ panda:{m:[[.48,.32],[.45,.30],[.50,.26],[.48,.23]],f:[[.48,.28],[.48,.27],[.50,.22],[.49,.20]]},
+ fox:{m:[[.47,.33],[.42,.33],[.35,.28],[.30,.27]],f:[[.48,.27],[.46,.34],[.36,.30],[.30,.30]]},
+ robot:{m:[[.47,.33],[.48,.35],[.46,.29],[.50,.29]],f:[[.47,.39],[.50,.27],[.50,.31],[.50,.28]]},
+ pastel:{m:[[.47,.33],[.48,.35],[.46,.34],[.48,.30]],f:[[.46,.31],[.47,.34],[.46,.34],[.47,.35]]}
+};
+const DN=[.16,.22,.19,.19];
+/* main qui tient l'objet : [x,y] (fraction du sprite) ; par défaut selon l'âge */
+const HAND0=[[.9,.62],[.8,.64],[.8,.62],[.78,.62]];
+const HAND={cat:{2:[1.0,.6],3:[1.0,.6]},unicorn:{2:[1.0,.62],3:[.92,.62]},dragon:{3:[.72,.62]},fox:{2:[.74,.62],3:[.72,.62]}};
+function faceAnc(sp,sx,si){
+  const b=ANC[sp][si].slice(),e=EYE[sp]&&EYE[sp][sx==='m'?'m':'f'][si];
+  if(!e)return b;
+  const d=e[1]-b[2];b[0]=e[0];b[1]+=d;b[2]=e[1];b[4]=e[1]+DN[si];return b;
+}
 const STI={baby:0,child:1,teen:2,adult:3};
 /* espèces croisées dessinées : hauteur de l'adulte (px) et repères du visage, comme ANC */
 const HYBD={'0-1':{ah:330,a:[[.44,.12,.27,.6,.5],[.45,.10,.28,.5,.45],[.35,.15,.30,.3,.38],[.32,.18,.30,.25,.38]]},
@@ -432,7 +452,7 @@ const HYBD={'0-1':{ah:330,a:[[.44,.12,.27,.6,.5],[.45,.10,.28,.5,.45],[.35,.15,.
 '0-6':{ah:333,a:[[.45,.20,.30,.75,.55],[.42,.15,.30,.55,.5],[.40,.15,.30,.4,.45],[.40,.15,.35,.4,.5]]},
 '0-7':{ah:311,a:[[.45,.12,.33,.7,.5],[.40,.13,.35,.6,.5],[.38,.25,.38,.4,.5],[.35,.25,.35,.3,.5]]}};
 const IM={};
-function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=10';IM[p]=i;}return i;}
+function img(p){let i=IM[p];if(!i){i=new Image();i.src='img/'+p+'?v=11';IM[p]=i;}return i;}
 const imOk=i=>i&&i.complete&&i.naturalWidth>0;
 const TC={};
 function tinted(im,key,col,a){const k=key+col+a;let c=TC[k];if(c)return c;c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=a;x.fillStyle=col;x.fillRect(0,0,c.width,c.height);return TC[k]=c;}
@@ -462,7 +482,7 @@ function drawPet(s,cx,base,t,mood){
   if(mood==='sick')src=tinted(src===im?im:src,'sick'+sp+sx+st+(bad?'b':'')+(hyb?s.species2:''),'#8fbf5a',.38);
   const W=s.wear||{};
   ctx.save();ctx.translate(cx,base+bob);ctx.rotate(rot);ctx.scale(sxs,sy);
-  const a=st==='egg'?null:(HD?HD.a:ANC[sp])[STI[st]];
+  const a=st==='egg'?null:(HD?HD.a[STI[st]]:faceAnc(sp,sx,STI[st]));
   const X=a?(a[0]-.5)*w:0,HW=a?a[3]*w:0,Y=f=>-h+f*h;
   if(a&&!hideAcc&&W.neck==='neck_cape')ai('neck_cape',0,Y(a[4])-h*.03,w*.95,'t');
   ctx.drawImage(src,-w/2,-h,w,h);
@@ -482,7 +502,7 @@ function drawPet(s,cx,base,t,mood){
     if(nk==='neck_bow')ai(nk,X,ny,HW*.42,'c');
     if(nk==='neck_medal')ai(nk,X,ny-h*.02,HW*.3,'t');
     if(nk==='neck_bell')ai(nk,X,ny,HW*.7,'c');
-    if(sd){const hs=sd==='side_balloon'?h*.55:h*.42,yb=sd==='side_balloon'?-h*.42:-h*.25;const im3=img('acc/'+sd+'.png');if(imOk(im3)){const wd=hs*im3.naturalWidth/im3.naturalHeight;ai(sd,w/2+wd*.15,yb,wd,'b');}}
+    if(sd){const hs=sd==='side_balloon'?h*.55:h*.42;const im3=img('acc/'+sd+'.png');if(imOk(im3)){const wd=hs*im3.naturalWidth/im3.naturalHeight;const si=STI[st],hd=(HAND[sp]&&HAND[sp][si])||HAND0[si];ai(sd,(hd[0]-.5)*w+wd*.38,-h+hd[1]*h+hs*.14,wd,'b');}}
   }
   ctx.restore();
   if(st==='egg'&&SPECIES[spi].rare&&(t>>3)%3){R(cx+14,base-70,3,3,'#fff3b0');R(cx-24,base-48,2,2,'#fff3b0');R(cx+16,base-20,2,2,'#fff3b0');}
@@ -515,9 +535,9 @@ function drawWall(id,t){
 
 /* icônes illustrées pour la boutique */
 Object.keys(ITEMS).forEach(k=>{const it=ITEMS[k];
-  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=10" alt="">';
-  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=10" alt="">';
-  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=10" alt="">';});
+  if(it.kind==='bg')it.ic='<img class="aim bgi" src="img/bg/'+k.slice(3)+'.jpg?v=11" alt="">';
+  else if(it.kind==='egg')it.ic='<img class="aim" src="img/'+SPN[it.sp]+'_f_egg.png?v=11" alt="">';
+  else it.ic='<img class="aim" src="img/acc/'+k+'.png?v=11" alt="">';});
 const HYB={'0-1':'Dragochat','0-2':'Chatpin','0-3':'Licochat','0-4':'Pandichat','0-5':'Goupichat','0-6':'Chatbot','0-7':'Pastchat',
  '1-2':'Dragolap','1-3':'Licodrago','1-4':'Pandragon','1-5':'Dragoupil','1-6':'Dragobot','1-7':'Dragopastel',
  '2-3':'Licolap','2-4':'Pandilap','2-5':'Goulapin','2-6':'Lapbot','2-7':'Pastelap',
@@ -1033,7 +1053,7 @@ function showPick(){
   const draw=()=>{
     const sp=SPECIES[sel];
     openModal('<h2>Un œuf mystérieux</h2><p class="muted">Choisis un œuf. Selon tes soins, il deviendra une créature différente.</p><div class="eggs">'+
-      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=10" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
+      SPECIES.map((q,i)=>'<button class="egg'+(i===sel?' sel':'')+(q.rare?' rare':'')+'" data-egg="'+i+'"><span class="ic">'+(ok(i)?'<img class="aim" src="img/'+SPN[i]+'_f_egg.png?v=11" alt="">':'🔒')+'</span>'+q.name+(q.rare?'<small>✨ rare</small>':'')+'</button>').join('')+'</div>'+
       '<div class="detail"><h3>'+sp.emoji+' '+sp.name+'</h3><p>'+sp.desc+'</p>'+(ok(sel)?'':'<p style="color:var(--gold);font-weight:800">🔒 À débloquer à la boutique (onglet Œufs) : '+sp.price+' 💎</p>')+'</div>'+
       '<div class="chips"><button data-sx="f" class="'+(sex==='f'?'on':'')+'">♀ Fille</button><button data-sx="m" class="'+(sex==='m'?'on':'')+'">♂ Garçon</button></div>'+
       '<input class="nm" id="nameIn" maxlength="12" placeholder="Son prénom" value="'+(window.__nm||'')+'" aria-label="Prénom">'+
