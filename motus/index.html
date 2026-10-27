@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14202e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Motus">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Motus</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#f6f3e6;--muted:#b6c4d6;--gold:#f0c060}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none;overflow:hidden;touch-action:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom);background:var(--bg) center/cover no-repeat}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0;font-weight:800;text-shadow:0 1px 3px #000a}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #sc{flex:1;text-align:center}
+#main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+#bw{width:min(100%,calc(100vh - 360px),380px);position:relative;touch-action:none}
+#gr{display:grid;gap:5px}
+#gr b{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(18px,6.5vw,28px);border-radius:8px;background:#1d4ed8;color:#fff;box-shadow:0 2px 6px #0006,0 0 0 1px #ffffff30 inset;transition:transform .15s}
+#gr b.r{background:#d62f3f}#gr b.y{background:#f0c060;color:#12202e;border-radius:50%}
+#gr b.cur{background:#1e3a8a;box-shadow:0 0 0 2px var(--gold)}
+#gr b.ph{color:#ffffff88}
+#gr b.flip{animation:fl .35s ease-out both}
+@keyframes fl{0%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+#kb{width:100%;display:flex;flex-direction:column;gap:6px;padding-bottom:4px}
+#kb div{display:flex;gap:4px;justify-content:center}
+#kb button{flex:1;max-width:38px;height:44px;border-radius:8px;border:0;background:#fff2;color:var(--ink);font:inherit;font-weight:800;font-size:15px;touch-action:manipulation;padding:0}
+#kb button.w{max-width:60px;flex:1.6;font-size:13px;background:var(--gold);color:#12202e}
+#kb button.r{background:#d62f3f}#kb button.y{background:#f0c060;color:#12202e}#kb button.x{background:#0006;color:#ffffff55}
+#ctl{display:flex;gap:8px;padding:8px 0;width:100%}
+#ctl button{flex:1;padding:12px 4px;border-radius:14px;border:2px solid var(--gold);background:#0008;color:var(--ink);font:inherit;font-weight:900;font-size:16px;touch-action:manipulation}
+#ctl button:active{background:#f0c06055}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:18px;padding:16px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center;touch-action:pan-y}
+#ov h2{margin:4px 0 8px}
+.ob{display:block;width:100%;margin:8px 0;padding:13px;border-radius:14px;border:2px solid var(--gold);background:var(--gold);color:#12202e;font:inherit;font-weight:800}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted)}
+.muted{color:var(--muted)}.gold{color:var(--gold);font-weight:800}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.tabs button{padding:7px 12px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font:inherit;font-weight:700;font-size:14px}
+.tabs button.on{background:var(--gold);color:#12202e;border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.it{background:#0006;border:2px solid transparent;border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700}
+.it.on{border-color:var(--gold)}
+.it .pv{width:100%;aspect-ratio:1;border-radius:8px;background:#0004 center/cover no-repeat;display:flex;align-items:center;justify-content:center;gap:3px;overflow:hidden}
+.it .pv b{width:30%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#222}
+.it button{width:100%;padding:6px 2px;border-radius:8px;border:0;background:var(--gold);color:#12202e;font:inherit;font-weight:800;font-size:12px}
+.it button.u{background:#fff2;color:var(--ink)}.it button.no{background:#fff1;color:var(--muted)}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#000d;padding:10px 16px;border-radius:12px;z-index:60;max-width:90%;text-align:center}
+[hidden]{display:none!important}
+/*UIKIT*/
+#ov{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#ov>div{border-radius:26px!important;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset,0 0 40px #a65cff22;background-image:linear-gradient(165deg,#ffffff12,#ffffff00 40%)}
+#ov h2,#ov h1{letter-spacing:.3px;text-shadow:0 2px 8px #0008}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.ob{background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);border-radius:16px!important;text-shadow:0 1px 0 #ffffff55}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));text-shadow:none}
+.tabs button.on{box-shadow:0 0 14px #f6c85f99}
+.it{border-radius:18px!important;box-shadow:0 6px 14px #0005,0 0 0 1px #ffffff22 inset}
+.it.on{box-shadow:0 0 16px #f6c85f88,0 0 0 2px #f6c85f inset}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="sc">Motus</span><span class="gm" id="gm">0 💎</span><button type="button" id="bshop" aria-label="Boutique">🛍</button></div>
+  <div id="main">
+    <div id="bw"><div id="gr"></div></div>
+    <div id="kb"></div>
+  </div>
+</div>
+<div id="ov" hidden></div>
+<div id="toast" hidden></div>
+<script src="words.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const GAME='motus',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}
+  if(!j)j={v:1,gems:20,own:{}};if(!j.own)j.own={};if(!j.own[GAME])j.own[GAME]={};if(typeof j.gems!=='number')j.gems=20;return j;}
+function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
+function gems(){return wal().gems;}
+function gmUpdate(){$('gm').textContent=gems()+' 💎';}
+function addGems(n){const j=wal();j.gems+=n;walSave(j);gmUpdate();return j.gems;}
+function owned(c,i){return i===0||(wal().own[GAME][c]||[]).includes(i);}
+const SK='motus-v1';
+let ST={len:0,sel:{},wins:0,streak:0,daily:''};try{ST=Object.assign(ST,JSON.parse(localStorage.getItem(SK)||'{}'));}catch(e){}
+ST.sel=ST.sel||{};
+function saveST(){try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}}
+function selc(c){const i=ST.sel[c]|0;return owned(c,i)?i:0;}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,1800);}
+const BGS=[{n:'Nuit',p:0}].concat([['Alice','alice'],['Chats victoriens','chats'],['Renards des bois','renards'],['Dragons et licornes','dragons'],['Venise','venise'],['Égypte','egypte'],['Japon','japon'],['Astronaute','astro'],['Baroque','baroque'],['Art déco','deco'],['Royaume enchanté','fee'],['Steampunk','steampunk'],['Monde des fées','feesbois'],['Aventuriers des mers','marins']].map(a=>({n:a[0],dir:a[1],p:60})));
+const bgUrl=b=>'../cartes-img/'+b.dir+'/bg1.webp';
+function applyBg(){const b=BGS[selc('bg')]||BGS[0];$('app').style.backgroundImage=b.dir?'linear-gradient(#0008,#0008),url('+bgUrl(b)+')':'none';}
+function shop(){
+  let h='<h2>Boutique</h2><p class="gold">'+gems()+' 💎</p><div class="grid">';
+  BGS.forEach((it,i)=>{const has=owned('bg',i),on=selc('bg')===i;
+    h+='<div class="it'+(on?' on':'')+'"><div class="pv" style="'+(it.dir?'background-image:url('+bgUrl(it)+')':'background:#14202e')+'"></div><span>'+it.n+'</span>'+(on?'<button class="no">Utilisé</button>':has?'<button class="u" data-u="'+i+'">Utiliser</button>':(gems()>=it.p?'<button data-b="'+i+'">'+it.p+' 💎</button>':'<button class="no">'+it.p+' 💎</button>'))+'</div>';});
+  h+='</div><button class="ob alt" id="cl">Fermer</button>';openOv(h);
+  const o=$('ov');
+  o.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{ST.sel.bg=+b.dataset.u;saveST();applyBg();shop();});
+  o.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,p=BGS[i].p,j=wal();if(j.gems<p)return;j.gems-=p;(j.own[GAME].bg=j.own[GAME].bg||[0]).push(i);walSave(j);ST.sel.bg=i;saveST();gmUpdate();applyBg();shop();});
+  $('cl').onclick=closeOv;
+}
+/* ====== jeu ====== */
+const TRIES=6,GEM=[10,8,6,5,3,2];
+let S=null;
+function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function hash(s){let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function pick(len,daily){
+  const L=len||[5,6,7,8][(Math.random()*4)|0],list=MW[L]||MW[5];
+  return daily?list[hash(today()+L)%list.length]:list[(Math.random()*list.length)|0];
+}
+function newGame(daily){
+  const w=pick(ST.len,daily);
+  S={w,rows:[],cur:w[0],daily:!!daily,done:false,known:new Array(w.length).fill('')};S.known[0]=w[0];
+  render();
+}
+function evalGuess(g,w){
+  const n=w.length,res=new Array(n).fill('');const left={};
+  for(let i=0;i<n;i++){if(g[i]===w[i])res[i]='r';else left[w[i]]=(left[w[i]]||0)+1;}
+  for(let i=0;i<n;i++){if(res[i])continue;if(left[g[i]]>0){res[i]='y';left[g[i]]--;}else res[i]='x';}
+  return res;
+}
+function render(flipRow){
+  const n=S.w.length,gr=$('gr');
+  gr.style.gridTemplateColumns='repeat('+n+',1fr)';
+  let h='';
+  for(let r=0;r<TRIES;r++){
+    for(let c=0;c<n;c++){
+      if(r<S.rows.length){const g=S.rows[r];h+='<b class="'+g.res[c]+(flipRow===r?' flip':'')+'" style="animation-delay:'+(flipRow===r?c*.12:0)+'s">'+g.w[c]+'</b>';}
+      else if(r===S.rows.length&&!S.done){const l=S.cur[c];h+='<b class="'+(l?'cur':(S.known[c]?'ph':''))+'">'+(l||S.known[c]||'·')+'</b>';}
+      else h+='<b style="opacity:.55">'+(c===0?S.w[0]:'')+'</b>';
+    }
+  }
+  gr.innerHTML=h;
+  // clavier
+  const st={};S.rows.forEach(g=>g.w.split('').forEach((ch,i)=>{const v=g.res[i],o=st[ch];if(v==='r'||(v==='y'&&o!=='r')||(v==='x'&&!o))st[ch]=v;}));
+  const R=['AZERTYUIOP','QSDFGHJKLM','WXCVBN'];
+  $('kb').innerHTML=R.map((row,i)=>'<div>'+(i===2?'<button class="w" data-k="ENTER">OK</button>':'')+row.split('').map(k=>'<button data-k="'+k+'" class="'+(st[k]||'')+'">'+k+'</button>').join('')+(i===2?'<button class="w" data-k="DEL">⌫</button>':'')+'</div>').join('');
+  $('kb').querySelectorAll('button').forEach(b=>b.onclick=()=>key(b.dataset.k));
+  $('sc').textContent=(S.daily?'Mot du jour · ':'')+n+' lettres · '+(S.rows.length)+'/'+TRIES;
+  gmUpdate();
+}
+function key(k){
+  if(S.done)return;const n=S.w.length;
+  if(k==='DEL'){if(S.cur.length>1){S.cur=S.cur.slice(0,-1);render();}return;}
+  if(k==='ENTER'){
+    if(S.cur.length<n){toast('Il manque des lettres');return;}
+    const res=evalGuess(S.cur,S.w);S.rows.push({w:S.cur,res});
+    res.forEach((v,i)=>{if(v==='r')S.known[i]=S.cur[i];});
+    const win=S.cur===S.w;S.cur=S.w[0];
+    if(win||S.rows.length>=TRIES){S.done=true;render(S.rows.length-1);setTimeout(()=>end(win),n*120+600);}
+    else{S.cur=S.w[0];for(let i=1;i<n;i++)if(S.known[i]&&false)S.cur+=S.known[i];render(S.rows.length-1);}
+    return;
+  }
+  if(S.cur.length<n&&/^[A-Z]$/.test(k)){S.cur+=k;render();}
+}
+function end(win){
+  let g=0;if(win){g=GEM[S.rows.length-1]||2;if(S.daily&&ST.daily!==today()){g+=5;ST.daily=today();}ST.wins++;ST.streak++;addGems(g);}else ST.streak=0;saveST();
+  openOv('<div style="font-size:54px">'+(win?'🎉':'😅')+'</div><h2>'+(win?'Bravo !':'Perdu…')+'</h2><p>'+(win?'Trouvé en <b>'+S.rows.length+'</b> essai'+(S.rows.length>1?'s':''):'Le mot était <b>'+S.w+'</b>')+'</p>'+(win?'<p class="gold">+'+g+' 💎</p>':'')+'<p class="muted">Victoires : '+ST.wins+' · Série : '+ST.streak+'</p><button class="ob" id="rp">Nouveau mot</button><button class="ob alt" id="cl2">Fermer</button>');
+  $('rp').onclick=()=>{closeOv();newGame(false);};$('cl2').onclick=closeOv;
+}
+window.addEventListener('keydown',e=>{if(!$('ov').hidden)return;if(e.key==='Enter')key('ENTER');else if(e.key==='Backspace')key('DEL');else if(/^[a-zA-Z]$/.test(e.key))key(e.key.toUpperCase());});
+$('bshop').onclick=shop;
+function menu(){
+  openOv('<img class="mi" src="icons/icon-192.png" alt=""><h2>Motus</h2><p class="muted">Rouge : bien placée · Jaune : mal placée. La première lettre est donnée. 6 essais.</p><p class="muted">Longueur du mot</p><div class="tabs">'+[[0,'Au hasard'],[5,'5'],[6,'6'],[7,'7'],[8,'8']].map(a=>'<button data-l="'+a[0]+'" class="'+(ST.len===a[0]?'on':'')+'">'+a[1]+'</button>').join('')+'</div><button class="ob" id="go">Nouveau mot</button><button class="ob" id="dy">Mot du jour (+5 💎)</button><button class="ob alt" id="rs">Reprendre</button><button class="ob alt" id="hm">Retour aux jeux</button>');
+  const o=$('ov');o.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{ST.len=+b.dataset.l;saveST();menu();});
+  $('go').onclick=()=>{closeOv();newGame(false);};$('dy').onclick=()=>{closeOv();newGame(true);};$('rs').onclick=closeOv;$('hm').onclick=()=>{location.href='../';};
+}
+$('bmenu').onclick=menu;
+applyBg();newGame(false);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
