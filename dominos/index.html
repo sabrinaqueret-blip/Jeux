@@ -60,18 +60,14 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 body{background-image:radial-gradient(circle at 50% 0,#2a2f6a,#0f1530 70%)}
 .vch{display:flex;gap:6px;justify-content:center;margin:2px 0 8px}.vch button{padding:0;border:2px solid transparent;border-radius:12px;background:none;width:50px;height:50px;overflow:hidden;opacity:.6}.vch button.on{border-color:var(--gold);opacity:1}.vch img{width:100%;height:100%;object-fit:cover}.pl img.vt{width:100%;height:46px;object-fit:cover;border-radius:8px;margin-bottom:3px}#req{display:flex;gap:10px;align-items:center;text-align:left}#req img{width:84px;height:84px;border-radius:10px;flex:none;object-fit:cover}
 body{background-image:radial-gradient(circle at 50% 0,#4a2f1c,#1a1008 70%);--gold:#e8b85a}
-.dt{display:inline-flex;background:linear-gradient(160deg,#fbf3dc,#e8d8ae);border-radius:6px;box-shadow:0 2px 4px #000a,inset 0 0 0 1px #8a6a3a;position:relative;flex:none}
-.dt.v{flex-direction:column;width:36px;height:72px}.dt.h{flex-direction:row;width:64px;height:32px}
-.dt.d.h{flex-direction:column;width:32px;height:64px}
-.dt .hf{flex:1;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:4px;gap:0}
-.dt .hf i{display:block;border-radius:50%;margin:12%;background:transparent}
-.dt .hf i.on{background:radial-gradient(circle at 35% 30%,#555,#111 60%)}
-.dt.v::after,.dt.h::after{content:'';position:absolute;background:#8a6a3a55}
-.dt.v::after{left:6px;right:6px;top:50%;height:1px}.dt.h::after{top:6px;bottom:6px;left:50%;width:1px}.dt.d.h::after{left:6px;right:6px;top:50%;height:1px;bottom:auto;width:auto}
-.dt b{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f0d27a,#9a7418);z-index:2;box-shadow:0 0 0 1px #6a4a10}
-.dt.d.h .hf{width:100%;min-width:0}.dt.pl{transform:translateY(-8px);box-shadow:0 0 0 3px var(--gold),0 6px 10px #000a}
-.dt.no{filter:brightness(.55)}
-#chain{display:flex;flex-wrap:wrap;gap:3px;align-items:center;justify-content:center;background:radial-gradient(#2d5a3a,#1c3a26);border-radius:16px;border:6px solid #5a3a1c;padding:10px 6px;min-height:150px;margin:8px 0}
+.dt{display:inline-block;position:relative;flex:none;filter:drop-shadow(0 2px 3px #000b)}
+.dt.v{width:36px;height:72px}.dt.h{width:72px;height:36px}.dt.d.h{width:36px;height:72px}
+.dt .im{position:absolute;background-size:100% 100%;background-repeat:no-repeat}
+.dt.v .im,.dt.d.h .im{inset:0}
+.dt.h:not(.d) .im{width:36px;height:72px;left:18px;top:-18px}
+.dt.pl{transform:translateY(-8px);filter:drop-shadow(0 0 4px var(--gold)) drop-shadow(0 0 4px var(--gold))}
+.dt.no{filter:brightness(.55) drop-shadow(0 2px 3px #000b)}
+#chain{display:flex;flex-wrap:wrap;gap:3px;align-items:center;justify-content:center;background:repeating-linear-gradient(92deg,#6b4423 0 7px,#5e3b1d 7px 9px,#70492a 9px 20px,#5a381b 20px 22px),#6b4423;border-radius:12px;border:6px solid #3a230f;box-shadow:inset 0 0 30px #000a;padding:10px 6px;min-height:150px;margin:8px 0}
 .en{font-weight:900;color:var(--gold);font-size:13px;background:#0008;border-radius:10px;padding:2px 7px}
 #hd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:14px 0 6px;min-height:92px}
 #ps{display:flex;gap:6px;overflow-x:auto;padding:4px 0}
@@ -256,8 +252,9 @@ function joinOnline(name,code){
 }
 function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne peux pas jouer ce domino.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
 /* ================= affichage ================= */
-const half=n=>'<div class="hf">'+Array.from({length:9},(_,i)=>'<i'+(PIPS[n].includes(i+1)?' class="on"':'')+'></i>').join('')+'</div>';
-const domH=(t,cls)=>'<div class="dt '+cls+'" data-id="'+t.id+'">'+half(t.a)+half(t.b)+'<b></b></div>';
+const domH=(t,cls)=>{const sw=t.a>t.b,x=sw?t.b:t.a,y=sw?t.a:t.b,hor=cls.indexOf('h')===0&&cls.indexOf(' d')<0;
+  const rot=hor?(sw?90:-90):(sw?180:0);
+  return '<div class="dt '+cls+'" data-id="'+t.id+'"><div class="im" style="background-image:url(img/d_'+x+'_'+y+'.webp);'+(rot?'transform:rotate('+rot+'deg)':'')+'"></div></div>';};
 function onView(v){V=v;if(!v.endInfo)closeOv();render();if(v.endInfo)setTimeout(endDialog,800);}
 function render(){
   const v=V;if(!v)return;const me=v.me,mine=v.turn===me&&!v.over;
