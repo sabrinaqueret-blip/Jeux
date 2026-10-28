@@ -151,38 +151,36 @@ function obStart(d,seed){
   bgSet(null);$('sc').textContent='📦 '+d.name;stSize();draw();
 }
 window.obLeave=function(){OB=null;};
-const ORDER=[0,3,2,1],AYS=[0,90,180,-90];
-const faceOfAy=ay=>ORDER[(((-ay/90)%4)+4)%4];
-const curF=()=>OB.ax<0?4:OB.ax>0?5:faceOfAy(OB.ay);
-function setFace(f){OB.ax=f===4?-90:f===5?90:0;if(f<4)OB.ay=AYS[f];OB.face=f;}
-const cubeT=()=>'translateZ(calc(var(--st)/-2)) rotateX('+OB.ax+'deg) rotateY('+OB.ay+'deg)';
+const rd=t=>t*Math.PI/180,mm=(A,B)=>A.map((r,i)=>[0,1,2].map(j=>r[0]*B[0][j]+r[1]*B[1][j]+r[2]*B[2][j]));
+const Rx=t=>{const c=Math.cos(rd(t)),s=Math.sin(rd(t));return[[1,0,0],[0,c,-s],[0,s,c]];},Ry=t=>{const c=Math.cos(rd(t)),s=Math.sin(rd(t));return[[c,0,s],[0,1,0],[-s,0,c]];};
+const CF=[Ry(0),Ry(90),Ry(180),Ry(-90),Rx(-90),Rx(90)].map(m=>m.map(r=>r.map(v=>Math.abs(v)<1e-9?0:Math.round(v*1e6)/1e6)));
 const FT=['rotateY(0deg)','rotateY(-90deg)','rotateY(180deg)','rotateY(90deg)','rotateX(90deg)','rotateX(-90deg)'];
+const NF=[[0,0,1],[-1,0,0],[0,0,-1],[1,0,0],[0,-1,0],[0,1,0]];
+const curF=()=>{let best=0,bz=-9;NF.forEach((n,i)=>{const z=OB.M[2][0]*n[0]+OB.M[2][1]*n[1]+OB.M[2][2]*n[2];if(z>bz){bz=z;best=i;}});return best;};
+function setFace(f){OB.M=CF[f].map(r=>r.slice());OB.face=f;}
+const cubeT=()=>{const M=OB.M;return 'translateZ(calc(var(--st)/-2)) matrix3d('+[M[0][0],M[1][0],M[2][0],0,M[0][1],M[1][1],M[2][1],0,M[0][2],M[1][2],M[2][2],0,0,0,0,1].join(',')+')';};
 function rest(cube){cube.classList.add('rest');cube.style.transition='none';cube.style.transform='none';cube.querySelectorAll('.face').forEach((fc,i)=>{if(i===OB.face){fc.style.transform='none';fc.style.display='block';}else fc.style.display='none';});}
 function unrest(cube){if(!cube.classList.contains('rest'))return;cube.classList.remove('rest');cube.querySelectorAll('.face').forEach((fc,i)=>{fc.style.transform=FT[i]+' translateZ(calc(var(--st)/2))';fc.style.display='block';});cube.style.transition='none';cube.style.transform=cubeT();}
 function setT(c,tr){c.style.transition=tr?'transform .5s cubic-bezier(.3,.7,.2,1)':'none';c.style.transform=cubeT();}
 function nav(stg){stg.querySelectorAll('.nv').forEach(n=>n.remove());}
 function setName(){const nm=document.querySelector('.obt span');if(nm)nm.textContent=FACES[OB.face];}
-function bindDrag(stg,cube){let sx,sy,ax0,ay0,drag=false,down=false,pid;
+function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid;
   stg.style.touchAction='none';
-  stg.addEventListener('pointerdown',e=>{down=true;drag=false;sx=e.clientX;sy=e.clientY;ax0=OB.ax;ay0=OB.ay;pid=e.pointerId;});
-  stg.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx,dy=e.clientY-sy;
-    if(!drag){if(Math.hypot(dx,dy)<14)return;drag=true;unrest(cube);try{stg.setPointerCapture(pid);}catch(_){}}
-    const k=90/(stg.clientWidth*.55);
-    if(ax0===0||dy*0===0){}
-    if(ax0===0){OB.ay=ay0+dx*k;}
-    OB.ax=Math.max(-90,Math.min(90,ax0+dy*k));
-    if(ax0===-90&&Math.abs(dx)>Math.abs(dy)){}
-    setT(cube,false);});
+  stg.addEventListener('pointerdown',e=>{down=true;drag=false;sx=lx=e.clientX;sy=ly=e.clientY;pid=e.pointerId;});
+  stg.addEventListener('pointermove',e=>{if(!down)return;
+    if(!drag){if(Math.hypot(e.clientX-sx,e.clientY-sy)<14)return;drag=true;unrest(cube);try{stg.setPointerCapture(pid);}catch(_){}}
+    const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;const k=0.5;
+    OB.M=mm(Rx(-dy*k),mm(Ry(dx*k),OB.M));setT(cube,false);});
   let tm=null;const later=()=>{clearTimeout(tm);const ob=OB;tm=setTimeout(()=>{if(OB===ob&&cube.isConnected&&!down&&!cube.classList.contains('rest'))rest(cube);},650);};
   const end=()=>{if(!down)return;down=false;if(!drag){if(!cube.classList.contains('rest'))later();return;}later();
-    OB.ay=Math.round(OB.ay/90)*90;OB.ax=OB.ax<-45?-90:OB.ax>45?90:0;OB.face=curF();setT(cube,true);setName();
+    setFace(curF());setT(cube,true);setName();
     const sup=ev=>{ev.stopPropagation();ev.preventDefault();};stg.addEventListener('click',sup,{capture:true,once:true});setTimeout(()=>stg.removeEventListener('click',sup,true),60);};
   stg.addEventListener('pointerup',end);stg.addEventListener('pointercancel',end);}
 function burst(stg){const f=el('div','flash');stg.append(f);setTimeout(()=>f.remove(),800);
   for(let i=0;i<16;i++){const p=el('div','pt2');const a=Math.random()*6.28,d=60+Math.random()*110;p.style.setProperty('--dx',Math.cos(a)*d+'px');p.style.setProperty('--dy',Math.sin(a)*d+'px');p.style.animationDelay=(Math.random()*.15)+'s';stg.append(p);setTimeout(()=>p.remove(),1200);}}
 function draw(){
   const m=$('main');m.innerHTML='';m.scrollTop=0;const th=TH[OB.d.theme];
-  if(OB.ax===undefined||OB.face!==curF())setFace(OB.face);
+  if(!OB.M)setFace(OB.face);
   $('app').style.backgroundImage='linear-gradient(rgba(8,8,14,.55),rgba(8,8,14,.9)),url(img/ob/'+th.img+'.webp)';$('app').style.backgroundSize='cover';
   const total=OB.b.parts.filter(p=>p.key).length,dn=OB.b.parts.filter(p=>p.key&&D(p.id)).length;
   const w=el('div','obw');
@@ -197,7 +195,7 @@ function draw(){
   sc.append(cube);stg.append(sc);
   stg.append(el('div','dimv'+(OB.d.theme==='night'&&!F('lamp')?' on':'')));
   rest(cube);bindDrag(stg,cube);
-  w.append(stg);w.append(el('div','muted sm drh','↔↕ Glisse sur la boîte pour la tourner · tourne les molettes du doigt'));
+  w.append(stg);w.append(el('div','muted sm drh','↔↕ Glisse sur la boîte pour la tourner dans tous les sens'));
   const inv=el('div','invb');if(!OB.inv.length)inv.append(el('span','em','Inventaire vide'));
   OB.inv.forEach(id=>{const it=OB.b.items[id];const b=el('button','it'+(OB.sel===id?' sel':''),it.kind==='note'?'<div class="note"></div>':im(it.spr));b.onclick=()=>pick(id);inv.append(b);});
   w.append(inv);
@@ -221,7 +219,7 @@ function solve(p,quiet){OB.done[p.id]=true;if(!quiet){toast(p.msg||'Clic ! Quelq
   (p.give||[]).forEach(g=>{if(p.t!=='hatch')take(g);});
   if(OB.d.win&&OB.d.win(D)&&!OB.over){OB.over=true;setTimeout(win,900);}
   draw();}
-window.obDraw=draw;
+window.obDraw=draw;window.obFace=f=>{setFace(f);draw();};
 function take(id){if(!OB.inv.includes(id)){OB.inv.push(id);OB.flags['took:'+id]=true;toast('Tu prends : '+OB.b.items[id].name+'.');}}
 function win(){const t=Date.now()-OB.t0,id=OB.d.id;ST.ob=ST.ob||{done:{},best:{}};ST.ob.lv=ST.ob.lv||{};ST.ob.last=id;ST.ob.done[id]=(ST.ob.done[id]||0)+1;if(!ST.ob.best[id]||t<ST.ob.best[id])ST.ob.best[id]=t;
   if(OB.chain&&OB.chain.length){const nx=OB.chain[0];addGems(OB.d.rw);save();
