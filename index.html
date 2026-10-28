@@ -59,6 +59,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 <a class="g" href="navale/" data-n="Bataille navale"><span class="ic"><img src="navale/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Bataille navale</b></a>
 <a class="g" href="morpion/" data-n="Morpion"><span class="ic"><img src="morpion/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Morpion</b></a>
 <a class="g" href="puissance4/" data-n="Puissance 4"><span class="ic"><img src="puissance4/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Puissance 4</b></a>
+<a class="g" href="serpents/" data-n="Serpents et échelles"><span class="ic"><img src="serpents/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Serpents et échelles</b></a>
 <a class="g" href="dames/" data-n="Dames"><span class="ic"><img src="dames/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Dames</b></a>
 <a class="g" href="echecs/" data-n="Échecs"><span class="ic"><img src="echecs/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Échecs</b></a>
 <a class="g" href="scrabble/" data-n="Scrabble"><span class="ic"><img src="scrabble/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Scrabble</b></a>
@@ -107,7 +108,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 </script>
 <script>
 (function(){
-  const VERSION='n°171 · 28/10 18:03';
+  const VERSION='n°172 · 28/10 18:21';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
   document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));const im=x.querySelector('img');if(im)im.src=im.getAttribute('src')+'?v='+encodeURIComponent(VERSION);x.addEventListener('click',()=>{try{localStorage.setItem('hub-last',x.dataset.n+'|'+x.getAttribute('href')+'|'+im.getAttribute('src'));}catch(e){}});});

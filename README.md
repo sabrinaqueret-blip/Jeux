@@ -14,6 +14,7 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 - `pendu/` : Pendu (solo avec 660 mots par thèmes, ou duel en ligne avec un code)
 - `lune/` : Cap sur la Lune (jeu de cartes à 8 paliers, 2 à 6 joueurs, robots ou en ligne avec un code)
 - `derniere/` : Dernière Carte (jeu de cartes à défausser, règles officielles, 2 à 6 joueurs, robots ou en ligne avec un code)
+- `serpents/` : Serpents et échelles (2 à 6 joueurs, robots ou en ligne avec un code)
 - `mots/` : Mots mêlés (mots français ou définitions → mots anglais)
 - `motus/` : Motus (mots français de 5 à 8 lettres, mot du jour)
 - `navale/` : Bataille navale (solo 3 niveaux ou en ligne avec code)
