@@ -71,7 +71,7 @@ function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTime
 function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
 function closeOv(){$('ov').hidden=true;}
 function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
-const NSC=15,W=720,H=540;
+const NSC=16,W=720,H=540;
 const LV=[{n:5,r:.085,thr:36,ty:[0,1,3,4],name:'Facile'},{n:7,r:.065,thr:26,ty:[0,1,2,3,4,5,6],name:'Moyen'},{n:9,r:.05,thr:19,ty:[0,1,2,5,6],name:'Difficile'}];
 const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
 let G=null,tmr=null;
@@ -137,7 +137,7 @@ function makeDiffs(cA,lv){
 /* ---------- partie ---------- */
 async function play(){
   const lv=LV[P.lvl];show('game');$('st').textContent='Chargement…';$('main').innerHTML='';
-  let id;do{id=1+((Math.random()*NSC)|0);}while(P.seen.includes(id)&&P.seen.length<NSC);
+  let id;do{id=1+((Math.random()*NSC)|0);}while(P.seen.includes(id)&&P.seen.length<NSC);const fs=+new URLSearchParams(location.search).get('scene');if(fs)id=fs;
   P.seen.push(id);if(P.seen.length>=NSC)P.seen=[id];saveP();
   let im;try{im=await loadImg(id);}catch(e){toast('Image introuvable.');return showHome();}
   let cA,cB,list,r;for(let k=0;k<3;k++){cA=cropFor(im);({cB,list,r}=makeDiffs(cA,lv));if(list.length>=lv.n)break;}
