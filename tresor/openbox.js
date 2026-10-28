@@ -195,7 +195,7 @@ function draw(){
   sc.append(cube);stg.append(sc);
   stg.append(el('div','dimv'+(OB.d.theme==='night'&&!F('lamp')?' on':'')));
   rest(cube);bindDrag(stg,cube);
-  w.append(stg);w.append(el('div','muted sm drh','↔↕ Fais glisser le doigt sur la boîte pour la tourner'));
+  w.append(stg);w.append(el('div','muted sm drh','↔↕ Glisse sur la boîte pour la tourner · tourne les molettes du doigt'));
   const inv=el('div','invb');if(!OB.inv.length)inv.append(el('span','em','Inventaire vide'));
   OB.inv.forEach(id=>{const it=OB.b.items[id];const b=el('button','it'+(OB.sel===id?' sel':''),it.kind==='note'?'<div class="note"></div>':im(it.spr));b.onclick=()=>pick(id);inv.append(b);});
   w.append(inv);
@@ -237,7 +237,18 @@ T.ring=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.init?p.init.slice():Array(p.n).fi
   for(let i=0;i<p.n;i++){const sy=Array.isArray(p.syms[0])?p.syms[i]:p.syms;const sp=(Array.isArray(p.spr)?p.spr[i]:p.spr)||'d0';
     const step=360/sy.length,ang=s[i]*step,an=OB.anim&&OB.anim.id===p.id&&OB.anim.i===i;
     const b=el('button','rg'+(an?' sp':''),'<div class="rot" style="--a:'+ang+'deg;--b:'+(ang-step)+'deg">'+im(sp)+'<i class="ptr"></i></div><span class="ro">'+G(sy[s[i]])+'</span>');
-    b.onclick=()=>{if(D(p.id))return;s[i]=(s[i]+1)%sy.length;OB.anim={id:p.id,i};if(s.every((v,k)=>v===p.code[k]))solve(p);else draw();};w.append(b);}
+    b.style.touchAction='none';
+    b.addEventListener('pointerdown',e=>{e.stopPropagation();if(D(p.id))return;const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+      let last=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,tot=0,moved=false,cur=s[i];const base=s[i],n=sy.length,rot=b.querySelector('.rot'),ro=b.querySelector('.ro');
+      try{b.setPointerCapture(e.pointerId);}catch(_){}
+      const mv=ev=>{let a=Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI,d=a-last;if(d>180)d-=360;if(d<-180)d+=360;last=a;tot+=d;if(Math.abs(tot)>7)moved=true;
+        if(!moved)return;rot.style.animation='none';rot.style.transform='rotate('+(base*step+tot)+'deg)';
+        const v=(((base+Math.round(tot/step))%n)+n)%n;if(v!==cur){cur=v;ro.innerHTML=G(sy[v]);try{navigator.vibrate&&navigator.vibrate(8);}catch(_){}}};
+      const up=()=>{b.removeEventListener('pointermove',mv);b.removeEventListener('pointerup',up);b.removeEventListener('pointercancel',up);
+        if(moved){s[i]=cur;OB.anim=null;}else{s[i]=(s[i]+1)%n;OB.anim={id:p.id,i};}
+        if(s.every((v,k)=>v===p.code[k]))solve(p);else draw();};
+      b.addEventListener('pointermove',mv);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);});
+    w.append(b);}
   if(done)w.style.filter='drop-shadow(0 0 6px #5ee6a0)';return w;};
 T.lever=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.init?p.init.slice():Array(p.n).fill(0));const w=el('div','row');
   for(let i=0;i<p.n;i++){const sp=(Array.isArray(p.spr)?p.spr[i]:p.spr)||'l0';const b=el('button','lv'+(s[i]?'':' dn')+(OB.anim&&OB.anim.id===p.id&&OB.anim.i===i?(s[i]?' au':' ad'):''),im(sp));
