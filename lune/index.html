@@ -67,7 +67,7 @@ body{background-image:radial-gradient(circle at 50% 0,#2a2f6a,#0f1530 70%)}
 .cd i{font-style:normal;font-size:12px;margin-top:2px}
 .cd.sm{width:26px;height:37px;font-size:15px;border-radius:5px;border-width:1.5px}.cd.sm i{font-size:9px}
 .cd.back{background:repeating-linear-gradient(45deg,#2a3a8a,#2a3a8a 5px,#3a4aa8 5px,#3a4aa8 10px);border-color:#9fb4ff;color:#fff}
-.cd.bg{width:46px;height:66px;font-size:26px}.cd.bg i{font-size:15px}
+.cd.bg{width:44px;height:66px;font-size:24px}.cd.bg i{font-size:15px}
 .cd.sel{transform:translateY(-10px);box-shadow:0 0 0 3px var(--gold),0 6px 10px #000a}
 .cd.emp{opacity:.35;background:#0004;border-style:dashed}
 #mid{display:flex;gap:10px;align-items:center;justify-content:center;margin:6px 0}
@@ -137,7 +137,7 @@ const COL=['#e8453c','#f08a2a','#d4b200','#2f9a4a','#2f7ae0','#a05ad0'],SY=['�
 const REQ=[[['s',3],['r',4]],[['r',4],['c',4]],[['s',3],['s',3],['p',2]],[['s',3],['r',5]],[['s',3],['c',5]],[['r',7]],[['c',7]],[['s',4],['s',3]]];
 const GN={s:n=>n===2?'une paire':n===3?'un brelan':'un carré',r:n=>'une suite de '+n,c:n=>n+' cartes de même couleur',p:()=>'une paire'};
 const reqTxt=l=>REQ[l].map(([t,n])=>GN[t](n)).join(' + ');
-function mkDeck(){const d=[];let id=0;for(let c=0;c<6;c++)for(let k=0;k<2;k++)for(let v=1;v<=9;v++)d.push({id:id++,c,v});return d;}
+function mkDeck(){const d=[];let id=0;for(let c=0;c<6;c++)for(let v=1;v<=18;v++)d.push({id:id++,c,v});return d;}
 function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 const okGroup=(t,n,cs)=>{if(cs.length!==n)return false;
   if(t==='s'||t==='p')return cs.every(x=>x.v===cs[0].v);
@@ -148,7 +148,7 @@ function cands(t,n,cards){const out=[];
   if(t==='s'||t==='p'){const by={};cards.forEach(x=>(by[x.v]=by[x.v]||[]).push(x));for(const v in by)if(by[v].length>=n)combos(by[v],n,c=>out.push(c));}
   else if(t==='c'){const by={};cards.forEach(x=>(by[x.c]=by[x.c]||[]).push(x));for(const c in by)if(by[c].length>=n)combos(by[c],n,s=>out.push(s));}
   else{const by={};cards.forEach(x=>(by[x.v]=by[x.v]||[]).push(x));
-    for(let s=1;s+n-1<=9;s++){let ok=true;for(let v=s;v<s+n;v++)if(!by[v]){ok=false;break;}if(!ok)continue;
+    for(let s=1;s+n-1<=18;s++){let ok=true;for(let v=s;v<s+n;v++)if(!by[v]){ok=false;break;}if(!ok)continue;
       (function pick(v,cur){if(v===s+n){out.push(cur.slice());return;}const seen=new Set();for(const x of by[v]){const k=x.c;if(seen.has(k))continue;seen.add(k);cur.push(x);pick(v+1,cur);cur.pop();}})(s,[]);}}
   return out;}
 function findLay(cards,lvl,all){ // all=true : doit utiliser toutes les cartes
@@ -161,7 +161,7 @@ function findLay(cards,lvl,all){ // all=true : doit utiliser toutes les cartes
 function canAdd(m,x){
   if(m.t==='s')return x.v===m.cards[0].v;
   if(m.t==='c')return x.c===m.cards[0].c;
-  const vs=m.cards.map(q=>q.v);const lo=Math.min(...vs),hi=Math.max(...vs);return (x.v===lo-1&&lo>1)||(x.v===hi+1&&hi<9);}
+  const vs=m.cards.map(q=>q.v);const lo=Math.min(...vs),hi=Math.max(...vs);return (x.v===lo-1&&lo>1)||(x.v===hi+1&&hi<18);}
 function addTo(m,x){m.cards.push(x);if(m.t==='r')m.cards.sort((a,b)=>a.v-b.v);}
 /* ================= hôte : partie ================= */
 let H=null; // état de l'hôte
@@ -218,7 +218,7 @@ function nextRound(){if(!H||H.over)return;H.pause=false;H.endInfo=null;newRound(
 function utility(c,hand,lvl){let u=0;const same=hand.filter(x=>x!==c&&x.v===c.v).length,col=hand.filter(x=>x!==c&&x.c===c.c).length;
   const near=hand.filter(x=>x!==c&&Math.abs(x.v-c.v)===1&&x.c!==undefined).length;const near2=hand.filter(x=>x!==c&&Math.abs(x.v-c.v)===2).length;
   const tp=REQ[lvl].map(g=>g[0]);
-  if(tp.includes('s')||tp.includes('p'))u+=same*3;if(tp.includes('r'))u+=near*2.4+near2*.8+(c.v>=3&&c.v<=7?.5:0);if(tp.includes('c'))u+=col*(tp.includes('s')?1:2.2);
+  if(tp.includes('s')||tp.includes('p'))u+=same*3;if(tp.includes('r'))u+=near*2.4+near2*.8+(c.v>=3&&c.v<=16?.5:0);if(tp.includes('c'))u+=col*(tp.includes('s')?1:2.2);
   return u;}
 function maybeBot(){
   if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);
@@ -260,7 +260,7 @@ function showHome(){
   $('joinB').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');P.code=c;nm();joinOnline(nm(),c);};
   $('rl').onclick=rules;
 }
-function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:14px"><p>Chacun a 10 cartes et un <b>palier</b> à franchir (8 en tout). À ton tour : <b>1.</b> pioche (pioche ou dessus d’<i>une</i> défausse) · <b>2.</b> pose ton palier si tu peux · <b>3.</b> défausse une carte.</p><p>Une fois ton palier posé, ajoute tes cartes aux combinaisons de la table (les tiennes ou celles des autres). Qui vide sa main avance de 2 paliers, ceux qui ont posé leur palier avancent de 1. Le premier à finir le palier 8 atteint la Lune !</p><p>'+REQ.map((r,i)=>'<b>'+(i+1)+'.</b> '+reqTxt(i)).join('<br>')+'</p><p>Suite = valeurs qui se suivent (1 à 9), couleur = même couleur, brelan = même chiffre.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
+function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:14px"><p>Chacun a 10 cartes et un <b>palier</b> à franchir (8 en tout). À ton tour : <b>1.</b> pioche (pioche ou dessus d’<i>une</i> défausse) · <b>2.</b> pose ton palier si tu peux · <b>3.</b> défausse une carte.</p><p>Une fois ton palier posé, ajoute tes cartes aux combinaisons de la table (les tiennes ou celles des autres). Qui vide sa main avance de 2 paliers, ceux qui ont posé leur palier avancent de 1. Le premier à finir le palier 8 atteint la Lune !</p><p>'+REQ.map((r,i)=>'<b>'+(i+1)+'.</b> '+reqTxt(i)).join('<br>')+'</p><p>Suite = valeurs qui se suivent (1 à 18), couleur = même couleur, brelan = même chiffre.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
 function leave(){clearTimeout(H&&H.bt);try{conns.forEach(c=>c.conn&&c.conn.close());}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conns=[];H=null;V=null;isHost=false;sel=new Set();closeOv();}
 function startGame(humans,bots){
   const names=humans.slice();const bn=['Luna','Comète','Orion','Nova','Astro'];for(let i=0;i<bots;i++)names.push(bn[i]);
@@ -315,7 +315,7 @@ function render(){
   h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'<p class="muted" style="margin:6px">Aucune combinaison posée pour l’instant.</p>')+'</div>';
   h+='<div id="lg">'+esc(v.log||'')+'</div>';
   h+='<div id="hd">'+hand.map(c=>cardH(c,'bg'+(sel.has(c.id)?' sel':''))).join('')+'</div>';
-  h+='<div id="ac"><button class="ob alt" id="so" style="flex:.6">'+(sortMode?'Trier 1-9':'Trier couleur')+'</button><button class="ob" id="lay"'+(v.phase==='play'&&mine&&!pl.laid?'':' disabled style="opacity:.4"')+'>Poser le palier</button><button class="ob" id="ds"'+(v.phase==='play'&&mine&&sel.size===1?'':' disabled style="opacity:.4"')+'>Défausser</button></div>';
+  h+='<div id="ac"><button class="ob alt" id="so" style="flex:.6">'+(sortMode?'Trier 1-18':'Trier couleur')+'</button><button class="ob" id="lay"'+(v.phase==='play'&&mine&&!pl.laid?'':' disabled style="opacity:.4"')+'>Poser le palier</button><button class="ob" id="ds"'+(v.phase==='play'&&mine&&sel.size===1?'':' disabled style="opacity:.4"')+'>Défausser</button></div>';
   $('main').innerHTML=h;
   $('main').querySelectorAll('#hd .cd').forEach(el=>el.onclick=()=>{const id=+el.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);render();});
   $('main').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(!(mine&&v.phase==='draw'))return toast(mine?'Tu as déjà pioché.':'Pas ton tour.');send({a:'draw',src:+b.dataset.d});});
