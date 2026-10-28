@@ -455,4 +455,81 @@ obDefine({id:'dynamo',name:'La dynamo',lab:'Difficile',theme:'cristal',rw:40,par
   return{parts,items,recipes:[{a:'w2a',b:'w2b',out:'w2'},{a:'w3a',b:'w3b',out:'w3'}],
    hints:['Six fils emmêlés sur la face avant : échange deux extrémités voisines à droite jusqu’à ce qu’aucun ne se croise.','Un bout de câble vert traîne sur la face gauche.','Sélectionne un demi-câble, puis touche l’autre moitié dans l’inventaire.','La petite clé ouvre la serrure de la face gauche. Le second câble apparaît ensuite ailleurs.','Les câbles et l’ampoule se branchent sur la face arrière.']};
  }});
+
+/* ---------- Nouveaux systèmes (extrêmes) ---------- */
+const lightsInit=(R,N,k)=>{const s=Array(N*N).fill(1);const used=[];const tap=i=>{const x=i%N,y=(i/N)|0;[[0,0],[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const X=x+dx,Y=y+dy;if(X>=0&&X<N&&Y>=0&&Y<N)s[Y*N+X]^=1;});};
+  while(used.length<k){const i=R.int(0,N*N-1);if(!used.includes(i)){used.push(i);tap(i);}}if(s.every(v=>v))tap(0);return s;};
+const slidersInit=(R,n)=>{const t=Array.from({length:n},()=>R.int(1,9));const i=t.map(v=>{let x;do{x=R.int(0,9);}while(x===v);return x;});return{t,i};};
+const simonSeq=(R,L)=>{let q;do{q=Array.from({length:L},()=>R.int(0,3));}while(q.every(v=>v===q[0]));return q;};
+const digitMarks=(t,x0,dx,y,s,c)=>t.map((v,i)=>mark(String(v),x0+i*dx,y,s,c||'gl'));
+
+obDefine({id:'planetarium',name:'Le planétarium',lab:'Extrême',theme:'cristal',rw:110,parts:11,icon:'g5',
+ intro:'Des lampes, des curseurs, une mélodie de lumières. Rien ne se lit tant qu’on n’a pas regardé de près.',
+ win:D=>D('sock'),
+ build(R){
+  const {t,i}=slidersInit(R,4),seq=simonSeq(R,6),cols=['#2f55d4','#d4342c','#2fa84f','#e0b030'];
+  const parts=[
+   {t:'lights',id:'L',f:0,x:20,y:4,w:60,h:62,n:3,init:lightsInit(R,3,5),col:'#ffd060',key:true},
+   {t:'hatch',id:'h0',f:0,x:28,y:70,w:44,h:24,open:()=>D('L'),give:['o2','g1']},
+   {t:'hot',id:'hv',f:3,x:34,y:20,w:32,h:26,uses:'o2',fail:'On ne voit rien à l’œil nu…',msg:'Des chiffres minuscules apparaissent.'},
+   {t:'marks',f:3,x:6,y:50,w:88,h:24,plate:1,need:()=>D('hv'),items:digitMarks(t,12.5,25,52,9)},
+   {t:'sliders',id:'S',f:1,x:6,y:6,w:88,h:52,init:i,target:t,key:true},
+   {t:'hatch',id:'h1',f:1,x:28,y:64,w:44,h:28,open:()=>D('S'),give:['c1','g3']},
+   {t:'keyhole',id:'kh',f:2,x:36,y:10,w:28,h:34,key:'c1',key2:1,keyed:1},
+   {t:'hatch',id:'h2',f:2,x:20,y:54,w:60,h:32,open:()=>D('kh'),give:['g5']},
+   {t:'simon',id:'sim',f:4,x:6,y:8,w:88,h:34,cols,seq,key:true},
+   {t:'hatch',id:'h4',f:4,x:30,y:50,w:40,h:24,open:()=>D('sim'),give:['g7']},
+   {t:'socket',id:'sock',f:5,x:6,y:30,w:88,h:36,slots:[{g:'g1'},{g:'g3'},{g:'g5'},{g:'g7'}],key:true}];
+  return{parts,items:{o2:O('Loupe','o2'),c1:K('Clé de cristal','c1'),g1:G('g1'),g3:G('g3'),g5:G('g5'),g7:G('g7')},
+   hints:['Sur la face avant, touche une lampe : elle change aussi ses voisines. Il faut toutes les allumer.','La loupe sert sur la face droite : une zone brille, regarde-la de près.','Les quatre chiffres révélés règlent les quatre curseurs de la face gauche (de haut en bas).','La clé de cristal va dans la serrure de la face arrière.','Sur le dessus, appuie sur ▶ : observe la mélodie de couleurs et reproduis-la.','Les quatre gemmes se logent sous la boîte.']};
+ }});
+
+obDefine({id:'mine',name:'Le coffre de la mine',lab:'Extrême',theme:'rouille',rw:120,parts:12,icon:'r1',
+ intro:'Un coffre de mineur : câbles, engrenages et manivelle. Chaque pièce manque quelque part ailleurs.',
+ win:D=>D('sock'),
+ build(R){
+  const n=5,cols=['#d4342c','#2f55d4','#2fa84f','#e0b030','#9a45c8'];
+  let init;do{init=R.shuf([0,1,2,3,4]);}while(init.reduce((a,v,k)=>a+init.slice(k+1).filter(x=>x<v).length,0)<5);
+  const {t,i}=slidersInit(R,3),gg=R.shuf(['g0','g2','g4','g7','g8']).slice(0,3);
+  const parts=[
+   {t:'knot',id:'knot',f:0,x:6,y:6,w:88,h:52,n,cols,init,key:true},
+   {t:'hatch',id:'h0',f:0,x:30,y:64,w:40,h:26,open:()=>D('knot'),give:['r0','r3']},
+   {t:'marks',f:5,x:10,y:20,w:80,h:24,plate:1,items:digitMarks(t,20,30,50,10)},
+   {t:'sliders',id:'S',f:1,x:6,y:6,w:88,h:42,init:i,target:t,key:true},
+   {t:'hatch',id:'h1',f:1,x:20,y:54,w:60,h:32,open:()=>D('S'),give:['r1','m0']},
+   {t:'lights',id:'L',f:2,x:22,y:6,w:56,h:58,n:3,init:lightsInit(R,3,4),col:'#7be0ff',key:true},
+   {t:'hatch',id:'h2',f:2,x:28,y:68,w:44,h:24,open:()=>D('L'),give:[gg[0]]},
+   {t:'train',id:'train',f:3,x:4,y:4,w:92,h:58,slots:[{x:30,y:48,w:46,g:'r0'},{x:68,y:30,w:28,g:'r1'},{x:72,y:72,w:36,g:'r3'}],key:true},
+   {t:'crank',id:'crank',f:3,x:28,y:66,w:44,h:30,item:'m0',turns:6,need:()=>D('train'),key:true,give:['c2']},
+   {t:'keyhole',id:'kh',f:4,x:36,y:8,w:28,h:34,key:'c2',key2:1,keyed:1},
+   {t:'hatch',id:'h4',f:4,x:16,y:50,w:68,h:34,open:()=>D('kh'),give:[gg[1],gg[2]]},
+   {t:'socket',id:'sock',f:5,x:6,y:58,w:88,h:34,slots:gg.map(g=>({g})),key:true}];
+  const items={r0:O('Grand engrenage','r0'),r1:O('Petit engrenage','r1'),r3:O('Engrenage de fer','r3'),m0:O('Manivelle','m0'),c2:K('Petite clé','c2')};
+  gg.forEach(g=>items[g]=G(g));
+  return{parts,items,
+   hints:['Face avant : échange deux extrémités voisines à droite jusqu’à ce qu’aucun fil ne se croise.','Sous la boîte, trois chiffres sont gravés. Ils règlent les curseurs de la face gauche (de haut en bas).','Le côté droit : allume toutes les lampes (chacune change aussi ses voisines).','Sur la face arrière, trois axes vides attendent des engrenages.','Une fois les engrenages posés, place la manivelle et tourne-la : elle libère une clé.','La clé va dans la serrure du dessus. Les gemmes se logent sous la boîte.']};
+ }});
+
+obDefine({id:'sablier',name:'Le sablier d’ébène',lab:'Extrême',theme:'egypt',rw:130,parts:13,icon:'k4',
+ intro:'Une boîte au sable fin qui garde ses secrets en couches : un papyrus, une loupe, une mélodie, un code.',
+ win:D=>D('sock'),
+ build(R){
+  const {t,i}=slidersInit(R,5),seq=simonSeq(R,7),cols=['#d4342c','#2f55d4','#2fa84f','#e0b030'],{ex,code}=mathSet(R);
+  const parts=[
+   {t:'lights',id:'L',f:0,x:18,y:4,w:64,h:68,n:4,init:lightsInit(R,4,6),col:'#ffb030',key:true},
+   {t:'hatch',id:'h0',f:0,x:28,y:76,w:44,h:18,open:()=>D('L'),give:['pap','o2']},
+   {t:'sliders',id:'S',f:1,x:6,y:6,w:88,h:56,init:i,target:t,key:true},
+   {t:'hatch',id:'h1',f:1,x:28,y:68,w:44,h:24,open:()=>D('S'),give:['c3','g2']},
+   {t:'keyhole',id:'kh',f:2,x:36,y:10,w:28,h:34,key:'c3',key2:1,keyed:1},
+   {t:'hatch',id:'h2',f:2,x:16,y:54,w:68,h:32,open:()=>D('kh'),give:['g4']},
+   {t:'hot',id:'hv',f:3,x:30,y:14,w:40,h:30,uses:'o2',fail:'Il y a quelque chose, mais trop fin pour l’œil nu.',msg:'Des signes minuscules se révèlent.'},
+   {t:'marks',f:3,x:6,y:50,w:88,h:24,plate:1,need:()=>D('hv'),items:ex.map((e,k)=>mark(e,12.5+k*25,52,6,'gl'))},
+   {t:'ring',id:'ring',f:4,x:4,y:4,w:92,h:22,n:4,syms:DG,spr:'c4',code,key:true},
+   {t:'hatch',id:'h4',f:4,x:30,y:30,w:40,h:20,open:()=>D('ring'),give:['g6']},
+   {t:'simon',id:'sim',f:4,x:6,y:56,w:88,h:34,cols,seq,need:()=>D('ring'),key:true},
+   {t:'hatch',id:'h5',f:5,x:30,y:8,w:40,h:20,open:()=>D('sim'),give:['g8']},
+   {t:'socket',id:'sock',f:5,x:6,y:40,w:88,h:36,slots:[{g:'g2'},{g:'g4'},{g:'g6'},{g:'g8'}],key:true}];
+  return{parts,items:{pap:NT('Papyrus',digitMarks(t,12,19,45,9,'dk'),'Cinq niveaux.'),o2:O('Loupe','o2'),c3:K('Clé d’ébène','c3'),g2:G('g2'),g4:G('g4'),g6:G('g6'),g8:G('g8')},
+   hints:['Sur la face avant, 16 lampes : en toucher une change aussi ses voisines. Allume-les toutes.','Le papyrus donne cinq chiffres : ce sont les positions des cinq curseurs de la face gauche (de haut en bas).','La clé d’ébène va dans la serrure de la face arrière.','La loupe (trouvée derrière les lampes) sert sur la face droite : une zone brille.','Les signes révélés sont quatre calculs : leurs résultats règlent les quatre anneaux du dessus (de gauche à droite).','Le dessus cache ensuite une mélodie (appuie sur ▶). Les gemmes se logent sous la boîte.']};
+ }});
 })();
