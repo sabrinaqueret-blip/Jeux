@@ -84,6 +84,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 <h2>Réflexion</h2>
 <div class="grid">
 <a class="g" href="sudoku/" data-n="Sudoku Expert"><span class="ic"><img src="sudoku/icons/icon-192.png" alt=""></span><b>Sudoku Expert</b></a>
+<a class="g" href="fleches/" data-n="Mots fléchés"><span class="ic"><img src="fleches/icons/icon-192.png" alt=""></span><b>Mots fléchés</b></a>
 <a class="g" href="mots/" data-n="Mots mêlés"><span class="ic"><img src="mots/icons/icon-192.png" alt=""></span><b>Mots mêlés</b></a>
 <a class="g" href="motus/" data-n="Motus"><span class="ic"><img src="motus/icons/icon-192.png" alt=""></span><b>Motus</b></a>
 <a class="g" href="bac/" data-n="Petit bac"><span class="ic"><img src="bac/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Petit bac</b></a>
@@ -110,7 +111,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 </script>
 <script>
 (function(){
-  const VERSION='n°177 · 28/10 18:44';
+  const VERSION='n°178 · 28/10 18:59';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
   document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));const im=x.querySelector('img');if(im)im.src=im.getAttribute('src')+'?v='+encodeURIComponent(VERSION);x.addEventListener('click',()=>{try{localStorage.setItem('hub-last',x.dataset.n+'|'+x.getAttribute('href')+'|'+im.getAttribute('src'));}catch(e){}});});

@@ -17,6 +17,7 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 - `serpents/` : Serpents et échelles (2 à 6 joueurs, robots ou en ligne avec un code)
 - `dominos/` : Dominos (2 à 4 joueurs, robots ou en ligne avec un code)
 - `yams/` : Yams (seul, contre des robots ou en ligne jusqu'à 4 joueurs avec un code)
+- `fleches/` : Mots fléchés (3 niveaux, 62 grilles, ~600 mots avec définitions, reprise de la grille en cours)
 - `mots/` : Mots mêlés (mots français ou définitions → mots anglais)
 - `motus/` : Motus (mots français de 5 à 8 lettres, mot du jour)
 - `navale/` : Bataille navale (solo 3 niveaux ou en ligne avec code)

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14202e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mots fléchés">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Mots fléchés</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#fbefd9;--muted:#cdb892;--gold:#f0c060;--ca:#e8453c;--cb:#ffd84a;--bd1:#2a4a8a;--bd2:#1a2f66}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none}
+body{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);background-image:radial-gradient(circle at 50% 0,#2b4468,#14202e 70%)}
+section{max-width:520px;margin:0 auto;padding:10px 0}
+h1{margin:6px 0;text-align:center;font-size:28px}h2{text-align:center;margin:8px 0}
+.muted{color:var(--muted);text-align:center;margin:4px 0 10px}
+button,input{font:inherit}
+.ob{display:block;width:100%;margin:8px 0;padding:14px;border-radius:16px;border:2px solid var(--gold);background:var(--gold);color:#2a1c12;font-weight:800;background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);text-shadow:0 1px 0 #ffffff55;transition:transform .08s}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted);text-shadow:none;background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0))}
+input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);background:var(--panel);color:var(--ink);text-align:center}
+.join{display:flex;gap:8px;margin-top:6px}.join input{letter-spacing:6px;font-weight:800;text-transform:uppercase}.join .ob{width:auto;margin:0;padding:0 18px}
+.code{font-size:56px;font-weight:900;letter-spacing:10px;color:var(--gold);background:var(--panel);border:3px dashed var(--gold);border-radius:16px;padding:6px 18px 6px 28px;text-align:center;margin:12px 0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:8px 0}
+.tabs button{padding:8px 14px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font-weight:700}
+.tabs button.on{background:var(--gold);color:#2a1c12;border-color:var(--gold);box-shadow:0 0 14px #f6c85f99}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0 2px;font-weight:800}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #st{flex:1;text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hero{display:block;width:108px;height:108px;margin:0 auto 4px;border-radius:26px;box-shadow:0 12px 26px #000b,0 0 0 2px #ffffff33 inset}
+#home h1{background:linear-gradient(90deg,#ffe08a,#ff9ad0);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:32px}
+.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:56px;height:44px;border-radius:12px;border:3px solid transparent;padding:0;background:#0006;font-size:20px;color:var(--ink)}.themes button.on{border-color:var(--gold)}
+#bw{width:min(100%,calc(100vh - 230px));margin:14px auto 0}
+#bd{display:grid;gap:__GAP__;aspect-ratio:__COLS__/__ROWS__;padding:__PAD__;border-radius:18px;touch-action:manipulation;background:linear-gradient(160deg,var(--bd1),var(--bd2));box-shadow:0 12px 26px #000a,0 0 0 2px #ffffff22 inset;position:relative;overflow:hidden}
+.c{position:relative;border-radius:__CR__;display:flex;align-items:center;justify-content:center;background:#0006;box-shadow:inset 0 3px 8px #000a;overflow:hidden;cursor:pointer}
+.c.win{box-shadow:0 0 0 3px #fff,0 0 18px 4px #ffe066;z-index:2}
+.d{width:86%;height:86%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:min(11vw,54px);font-weight:900;line-height:1}
+.d.a{background:radial-gradient(circle at 35% 30%,#fff9,var(--ca) 45%,#0005 130%);box-shadow:0 2px 4px #000a,inset 0 -4px 6px #0005}
+.d.b{background:radial-gradient(circle at 35% 30%,#fff9,var(--cb) 45%,#0005 130%);box-shadow:0 2px 4px #000a,inset 0 -4px 6px #0005}
+.d .sy{font-size:60%;filter:drop-shadow(0 1px 1px #0008)}
+.d.n{background:none!important;box-shadow:none!important;border-radius:0}
+.d.n .sy{font-size:min(14vw,72px)}
+.d.drop{animation:dr .38s cubic-bezier(.5,0,.8,.6)}
+@keyframes dr{from{transform:translateY(calc(var(--dy)*-110%))}to{transform:none}}
+.d.pop{animation:pp .25s}@keyframes pp{from{transform:scale(.3)}to{transform:none}}
+.hov{background:#ffffff14}
+#bar{display:flex;gap:8px;margin-top:14px}#bar .ob{margin:0;padding:10px}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9;backdrop-filter:blur(6px)}
+#ov[hidden]{display:none}#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:26px;padding:18px;max-width:380px;width:100%;max-height:92vh;overflow:auto;text-align:center;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;z-index:10;max-width:90%;text-align:center}
+#toast[hidden]{display:none}[hidden]{display:none!important}.gold{color:var(--gold);font-weight:800}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.sc{display:flex;gap:8px;justify-content:center;margin:6px 0}.sc span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px}
+
+body{background-image:radial-gradient(circle at 50% 0,#2a2f6a,#0f1530 70%)}
+.vch{display:flex;gap:6px;justify-content:center;margin:2px 0 8px}.vch button{padding:0;border:2px solid transparent;border-radius:12px;background:none;width:50px;height:50px;overflow:hidden;opacity:.6}.vch button.on{border-color:var(--gold);opacity:1}.vch img{width:100%;height:100%;object-fit:cover}.pl img.vt{width:100%;height:46px;object-fit:cover;border-radius:8px;margin-bottom:3px}#req{display:flex;gap:10px;align-items:center;text-align:left}#req img{width:84px;height:84px;border-radius:10px;flex:none;object-fit:cover}
+body{background-image:radial-gradient(circle at 50% 0,#2b3a5c,#101830 70%)}
+#cb{background:#0008;border-radius:12px;padding:7px 10px;margin:4px 0;text-align:center;font-size:14px;min-height:38px;display:flex;align-items:center;justify-content:center;gap:8px}
+#cb b{color:var(--gold)}
+#gd{display:grid;margin:6px auto;background:#e9dfc6;border:3px solid #c9a24a;border-radius:6px;gap:1px;width:fit-content;max-width:100%;box-shadow:0 6px 16px #000a}
+.cl{background:#2b3f70;color:#fff;overflow:hidden;display:flex;flex-direction:column;justify-content:space-evenly;padding:1px 2px;line-height:1.05;text-align:center;cursor:pointer}
+.cl.o{background:#1b2650}.cl div{display:flex;align-items:center;gap:1px;overflow:hidden;flex:1;min-height:0}.cl i{font-style:normal;color:var(--gold);flex:none;font-weight:900}
+.cl span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;text-align:left}
+.lt{background:#fffaf0;display:flex;align-items:center;justify-content:center;font-weight:800;color:#1b2650;position:relative;cursor:pointer;user-select:none}
+.lt.w{background:#d6e6ff}.lt.s{background:#ffe08a}.lt.bad{color:#d33;background:#ffd6d6}.lt.hint{color:#1f7a3b}
+#kb{display:flex;flex-direction:column;gap:5px;margin:8px 0}.kr{display:flex;gap:4px;justify-content:center}
+.kr button{flex:1;max-width:36px;height:42px;border-radius:8px;border:0;background:#fffaf0;color:#1b2650;font-weight:800;font-size:17px;box-shadow:0 2px 3px #0008}
+.kr button.w{max-width:56px;background:#e8b85a}
+#ac{display:flex;gap:8px}#ac .ob{margin:4px 0;padding:10px 6px;font-size:14px}
+</style>
+</head>
+<body>
+<section id="home"></section>
+<section id="game" hidden>
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="st"></span><span class="gm" id="gm">0 💎</span></div>
+  <div id="main"></div>
+</section>
+<div id="ov" hidden></div><div id="toast" hidden></div>
+
+<script src="data.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='fleches-v1',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(typeof j.gems!=='number')j.gems=20;return j;}
+function addGems(n){const j=wal();j.gems+=n;try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}gmUpdate();return j.gems;}
+function gmUpdate(){$('gm').textContent=wal().gems+' 💎';}
+let P={lvl:'f',done:{f:[],m:[],d:[]},cur:null,best:{}};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
+function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
+const LV={f:['Facile',3],m:['Moyen',5],d:['Difficile',8]};
+let G=null,timer=null;
+function showHome(){
+  clearInterval(timer);show('home');
+  const tot=l=>(PZ[l]||[]).length;
+  $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Mots fléchés</h1><p class="muted">Remplis la grille : chaque case définition indique le sens du mot par une flèche.</p>'+
+   '<div class="tabs">'+Object.keys(LV).map(l=>'<button data-l="'+l+'" class="'+(P.lvl===l?'on':'')+'">'+LV[l][0]+'</button>').join('')+'</div>'+
+   '<button class="ob" id="nw">Nouvelle grille</button>'+(P.cur?'<button class="ob alt" id="rs">Reprendre la grille en cours</button>':'')+
+   '<button class="ob alt" id="rl" style="margin-top:14px">📖 Comment jouer</button>'+
+   '<p class="muted sm">Grilles terminées : '+['f','m','d'].map(l=>LV[l][0]+' '+P.done[l].length+'/'+tot(l)).join(' · ')+'</p>';
+  $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.lvl=b.dataset.l;saveP();showHome();});
+  $('nw').onclick=()=>newGame(P.lvl);
+  if($('rs'))$('rs').onclick=()=>startFrom(P.cur);
+  $('rl').onclick=()=>{openOv('<h2>Comment jouer</h2><div style="text-align:left;font-size:14px"><p>Touche une case blanche, puis écris avec le clavier. Les cases bleues sont les définitions : la flèche (→ ou ↓) montre où commence le mot, et le nombre entre parenthèses donne sa longueur.</p><p>Touche une deuxième fois une case pour changer de sens. « Vérifier » colore les erreurs, « Indice » révèle la lettre choisie.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;};
+}
+function newGame(l){
+  const all=PZ[l]||[];let pool=all.map((p,i)=>i).filter(i=>!P.done[l].includes(i));if(!pool.length){P.done[l]=[];pool=all.map((p,i)=>i);}
+  const i=pool[(Math.random()*pool.length)|0];
+  startFrom({l,i,e:{},t:0,h:0});
+}
+function startFrom(cur){
+  P.cur=cur;saveP();const p=PZ[cur.l][cur.i];
+  G={cur,p,R:p.r,C:p.c,runs:[],cellRuns:{},sel:null,bad:new Set(),hint:new Set(cur.hs||[]),done:false};
+  for(const key in p.k){const [r,c]=key.split(',').map(Number);
+    for(const k of p.k[key]){const cells=[];let rr=k.d==='R'?r:r+1,cc=k.d==='R'?c+1:c;
+      while(rr<G.R&&cc<G.C&&p.g[rr][cc]!=='#'){cells.push([rr,cc]);if(k.d==='R')cc++;else rr++;}
+      const id=G.runs.length;G.runs.push({id,cells,d:k.d,t:k.t,n:k.n,src:[r,c]});
+      cells.forEach(([a,b])=>{(G.cellRuns[a+','+b]=G.cellRuns[a+','+b]||{})[k.d]=id;});}}
+  show('game');buildGrid();
+  clearInterval(timer);timer=setInterval(()=>{if(G&&!G.done){G.cur.t++;$('st').textContent=fmt(G.cur.t);if(G.cur.t%10===0)saveP();}},1000);
+  const first=G.runs[0];if(first)selectCell(first.cells[0][0],first.cells[0][1],first.d);
+}
+const fmt=t=>((t/60)|0)+':'+String(t%60).padStart(2,'0');
+function cs(){const w=Math.min($('main').clientWidth||window.innerWidth-32,460)-8;return Math.floor((w-(G.C-1))/G.C);}
+function buildGrid(){
+  const s=cs();const fs=Math.max(6.5,s/6.6);
+  let h='<div id="cb"></div><div id="gd" style="grid-template-columns:repeat('+G.C+','+s+'px);grid-template-rows:repeat('+G.R+','+s+'px)">';
+  for(let r=0;r<G.R;r++)for(let c=0;c<G.C;c++){
+    if(G.p.g[r][c]==='#'){const ks=G.p.k[r+','+c]||[];
+      h+='<div class="cl'+((r+c)%2?' o':'')+'" data-r="'+r+'" data-c="'+c+'" style="font-size:'+fs+'px">'+ks.map((k,i)=>'<div data-k="'+G.runs.findIndex(x=>x.src[0]===r&&x.src[1]===c&&x.d===k.d)+'"><i>'+(k.d==='R'?'→':'↓')+'</i><span>'+esc(k.t)+'</span></div>').join('')+'</div>';}
+    else h+='<div class="lt" id="c'+r+'_'+c+'" data-r="'+r+'" data-c="'+c+'" style="font-size:'+(s*.55)+'px"></div>';}
+  h+='</div><div id="ac"><button class="ob alt" id="vf">Vérifier</button><button class="ob alt" id="hn">Indice</button><button class="ob alt" id="cl">Effacer le mot</button></div><div id="kb"></div>';
+  $('main').innerHTML=h;
+  $('gd').querySelectorAll('.lt').forEach(el=>el.onclick=()=>tapCell(+el.dataset.r,+el.dataset.c));
+  $('gd').querySelectorAll('.cl div[data-k]').forEach(el=>el.onclick=ev=>{ev.stopPropagation();const run=G.runs[+el.dataset.k];if(run)selectCell(run.cells[0][0],run.cells[0][1],run.d);});
+  const rows=['AZERTYUIOP','QSDFGHJKLM','WXCVBN'];
+  $('kb').innerHTML=rows.map((r,i)=>'<div class="kr">'+(i===2?'':'')+r.split('').map(ch=>'<button data-ch="'+ch+'">'+ch+'</button>').join('')+(i===2?'<button class="w" data-ch="⌫">⌫</button>':'')+'</div>').join('');
+  $('kb').querySelectorAll('button').forEach(b=>b.onclick=()=>key(b.dataset.ch));
+  $('vf').onclick=verify;$('hn').onclick=hint;$('cl').onclick=clearWord;
+  refresh();
+}
+function tapCell(r,c){const cr=G.cellRuns[r+','+c]||{};
+  if(G.sel&&G.sel.r===r&&G.sel.c===c){const other=G.sel.d==='R'?'D':'R';if(cr[other]!=null)return selectCell(r,c,other);}
+  selectCell(r,c,cr[G.sel?G.sel.d:'R']!=null?(G.sel?G.sel.d:'R'):(cr.R!=null?'R':'D'));}
+function selectCell(r,c,d){const cr=G.cellRuns[r+','+c]||{};if(cr[d]==null)d=cr.R!=null?'R':'D';G.sel={r,c,d,run:cr[d]};refresh();}
+function refresh(){
+  if(!G)return;const run=G.sel?G.runs[G.sel.run]:null;
+  document.querySelectorAll('.lt').forEach(el=>{const r=+el.dataset.r,c=+el.dataset.c,k=r+','+c;
+    el.textContent=G.cur.e[k]||'';el.classList.remove('w','s','bad','hint');
+    if(run&&run.cells.some(x=>x[0]===r&&x[1]===c))el.classList.add('w');
+    if(G.sel&&G.sel.r===r&&G.sel.c===c)el.classList.add('s');
+    if(G.bad.has(k))el.classList.add('bad');if(G.hint.has(k))el.classList.add('hint');});
+  $('cb').innerHTML=run?'<b>'+(run.d==='R'?'→':'↓')+'</b> '+esc(run.t)+' <span class="muted">('+run.n+')</span>':'Touche une case';
+}
+function key(ch){
+  if(!G||G.done||!G.sel)return;const run=G.runs[G.sel.run],i=run.cells.findIndex(x=>x[0]===G.sel.r&&x[1]===G.sel.c),k=G.sel.r+','+G.sel.c;
+  if(ch==='⌫'){if(G.cur.e[k]){delete G.cur.e[k];G.bad.delete(k);}else if(i>0){const p=run.cells[i-1];G.sel.r=p[0];G.sel.c=p[1];const kk=p[0]+','+p[1];delete G.cur.e[kk];G.bad.delete(kk);}refresh();saveP();return;}
+  if(G.hint.has(k)){}else{G.cur.e[k]=ch;G.bad.delete(k);}
+  if(i<run.cells.length-1){const p=run.cells[i+1];G.sel.r=p[0];G.sel.c=p[1];}
+  refresh();saveP();checkDone();
+}
+function allCells(){const out=[];for(let r=0;r<G.R;r++)for(let c=0;c<G.C;c++)if(G.p.g[r][c]!=='#')out.push([r,c]);return out;}
+function verify(){G.bad=new Set();let ok=true,empty=0;for(const [r,c] of allCells()){const v=G.cur.e[r+','+c];if(!v){empty++;ok=false;}else if(v!==G.p.g[r][c]){G.bad.add(r+','+c);ok=false;}}
+  refresh();if(ok)return checkDone();toast(G.bad.size?G.bad.size+' lettre'+(G.bad.size>1?'s':'')+' fausse'+(G.bad.size>1?'s':'')+' en rouge.':'Pas d’erreur, continue ! ('+empty+' cases vides)');}
+function hint(){if(!G||G.done||!G.sel)return toast('Choisis une case.');const k=G.sel.r+','+G.sel.c;G.cur.e[k]=G.p.g[G.sel.r][G.sel.c];G.hint.add(k);G.bad.delete(k);G.cur.h=(G.cur.h||0)+1;G.cur.hs=[...G.hint];refresh();saveP();checkDone();}
+function clearWord(){if(!G||G.done||!G.sel)return;const run=G.runs[G.sel.run];run.cells.forEach(([r,c])=>{const k=r+','+c;if(!G.hint.has(k)){delete G.cur.e[k];G.bad.delete(k);}});refresh();saveP();}
+function checkDone(){
+  for(const [r,c] of allCells())if(G.cur.e[r+','+c]!==G.p.g[r][c])return;
+  G.done=true;clearInterval(timer);const l=G.cur.l,g=LV[l][1],t=G.cur.t,h=G.cur.h||0;
+  if(!P.done[l].includes(G.cur.i))P.done[l].push(G.cur.i);const prev=P.best[l];if(!prev||t<prev)P.best[l]=t;P.cur=null;saveP();addGems(g);
+  openOv('<h2>🎉 Grille terminée !</h2><p>Temps : <b>'+fmt(t)+'</b>'+(h?' · '+h+' indice'+(h>1?'s':''):'')+'</p><p class="muted">Meilleur temps ('+LV[l][0]+') : '+fmt(P.best[l])+'</p><p class="gold">+'+g+' 💎</p><button class="ob" id="nx">Grille suivante</button><button class="ob alt" id="q">Menu</button>');
+  $('nx').onclick=()=>{closeOv();newGame(l);};$('q').onclick=()=>{closeOv();showHome();};
+}
+$('bmenu').onclick=()=>{saveP();if(G&&!G.done){openOv('<h2>Menu</h2><button class="ob" id="n">Reprendre</button><button class="ob alt" id="y">Quitter (la grille est gardée)</button>');$('n').onclick=closeOv;$('y').onclick=()=>{closeOv();showHome();};}else showHome();};
+gmUpdate();showHome();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+window.__l={get G(){return G;},key,verify,newGame,tapCell,PZ:()=>PZ};
+</script>
+</body>
+</html>
