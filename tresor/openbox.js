@@ -59,6 +59,7 @@ const css=`
 .sb{background:none;border:0;color:var(--gold);font-size:15px;padding:4px 0 10px}
 .bn{position:relative;display:block;width:100%;height:118px;border:2px solid #c9962a;border-radius:18px;margin-bottom:12px;overflow:hidden;color:#fff;text-align:left;background-size:cover;background-position:center;padding:0;box-shadow:0 6px 16px #000a}
 .bn::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#000e,#0002 75%)}.bn div{position:absolute;left:14px;right:14px;bottom:10px;z-index:1}.bn b{font-size:19px;display:block}.bn small{opacity:.92;display:block;font-size:12.5px}.bn .tag{color:#ffe08a;background:#f0c06033;border:1px solid #c9962a;border-radius:8px;padding:1px 7px;margin-right:6px}
+.sg{height:1.05em;width:auto;vertical-align:middle;filter:drop-shadow(0 2px 2px #000a)}.eng .sg{height:1em}.rg span img.sg{position:static;width:auto;height:70%;inset:auto;filter:brightness(.42) contrast(1.3) drop-shadow(0 1px 0 #fff7)}.tl2{overflow:hidden;min-width:0;min-height:0;padding:0}.tl2 .sg{height:calc(var(--st)*.15);width:auto;max-width:90%;object-fit:contain}
 .stage{overflow:visible!important;box-shadow:none!important}
 .scene{position:absolute;inset:0;perspective:1300px;perspective-origin:50% 42%}
 .cube{position:absolute;inset:0;transform-style:preserve-3d}
@@ -88,10 +89,12 @@ const css=`
 `;
 const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
 
-const SY=['☀','☾','★','♠','♣','♥','♦','⚓','☘','⚡','♞','✿'].map(s=>s+'︎');
+const SY=['☀','☾','★','☠','⚷','♥','♦','⚓','☘','⚡','♞','✿'];
+const YF={'☀':0,'☾':1,'★':2,'⚓':3,'☘':4,'♥':5,'♦':6,'⚡':7,'♞':8,'✿':9,'⚷':10,'☠':11};
+const G=t=>String(t).replace(/[\u2600-\u27BF\u2665\u2666\u265E\u26A1\u2693\u2620\u26B7]\uFE0E?/g,c=>{const k=c[0];return k in YF?'<img class="sg" src="img/ob/y'+YF[k]+'.webp" alt="" draggable="false">':c;});
 const DINK={d0:'#3a2a12',d1:'#f6e7b8',d2:'#3b1d0a',d3:'#2b2418',d4:'#222',d5:'#3a2a12',d6:'#222',d7:'#fff',d8:'#123'};
 const FACES=['Face avant','Côté gauche','Face arrière','Côté droit','Dessus'];
-const TH={wood:{img:'p_wood',safe:[11,11,78,78]},egypt:{img:'p_egypt',safe:[17,17,66,66]},steam:{img:'p_steam',safe:[11,11,78,78]},night:{img:'p_night',safe:[16,16,68,68]}};
+const TH={wood:{img:'p_wood',safe:[11,11,78,78]},obsidian:{img:'p_obsidian',safe:[15,15,70,70]},egypt:{img:'p_egypt',safe:[17,17,66,66]},steam:{img:'p_steam',safe:[11,11,78,78]},night:{img:'p_night',safe:[16,16,68,68]}};
 window.OBX={SY,boxes:[]};
 let OB=null;
 const D=id=>!!OB.done[id],F=f=>!!OB.flags[f],H=id=>OB.inv.includes(id)||!!OB.flags['used:'+id];
@@ -101,25 +104,25 @@ const stSize=()=>{const m=$('main');const w=Math.min(m.clientWidth-4,window.inne
 window.addEventListener('resize',()=>{if(OB&&!OB.over)stSize();});
 
 /* ---------- liste des boîtes ---------- */
-const LV=[{n:1,nm:'Facile',ic:'k1',th:'wood',st:'★',tx:'Une boîte, quelques mécanismes.'},{n:2,nm:'Moyen',ic:'k3',th:'egypt',st:'★★',tx:'Plus de mécanismes, des pièges.'},{n:3,nm:'Difficile',ic:'g2',th:'night',st:'★★★',tx:'Des boîtes retorses à fouiller.'},{n:4,nm:'Extrême',ic:'d2',th:'steam',st:'★★★★',tx:'Deux boîtes difficiles d’affilée.'}];
-const lvOf=d=>({'Facile':1,'Moyen':2,'Difficile':3})[d.lab]||3;
+const LV=[{n:1,nm:'Facile',ic:'k1',th:'wood',st:'★',tx:'Une boîte, quelques mécanismes.'},{n:2,nm:'Moyen',ic:'k3',th:'egypt',st:'★★',tx:'Plus de mécanismes, des pièges.'},{n:3,nm:'Difficile',ic:'g2',th:'night',st:'★★★',tx:'Des boîtes retorses à fouiller.'},{n:4,nm:'Extrême',ic:'k8',th:'obsidian',st:'★★★★',tx:'La boîte la plus retorse. Courage.'}];
+const lvOf=d=>({'Facile':1,'Moyen':2,'Difficile':3,'Extrême':4})[d.lab]||3;
 window.obList=function(box){
   box.innerHTML='';
   box.append(el('p','muted sm','Choisis un niveau : une boîte tirée au hasard, aucun mode d’emploi. Fais-la tourner du doigt, touche, déplace.'));
   const g=el('div','lvl');
   LV.forEach(l=>{const done=(ST.ob&&ST.ob.lv&&ST.ob.lv[l.n])||0;
-    const b=el('button','lc t'+l.n,'<i style="background-image:url(img/ob/p_'+l.th+'.webp)"></i><span class="st">'+l.st+'</span><div><b>'+l.nm+'</b><small>'+l.tx+'</small><small class="gold">💎 '+(l.n<4?OBX.boxes.filter(d=>lvOf(d)===l.n).map(d=>d.rw).reduce((a,x)=>Math.min(a,x),999)+' à '+OBX.boxes.filter(d=>lvOf(d)===l.n).map(d=>d.rw).reduce((a,x)=>Math.max(a,x),0):'≈ 80')+(done?' · ✔ ×'+done:'')+'</small></div><img src="img/ob/'+l.ic+'.webp" alt="">');
+    const b=el('button','lc t'+l.n,'<i style="background-image:url(img/ob/p_'+l.th+'.webp)"></i><span class="st">'+l.st+'</span><div><b>'+l.nm+'</b><small>'+l.tx+'</small><small class="gold">💎 '+(OBX.boxes.filter(d=>lvOf(d)===l.n).map(d=>d.rw).reduce((a,x)=>Math.min(a,x),999)+' à '+OBX.boxes.filter(d=>lvOf(d)===l.n).map(d=>d.rw).reduce((a,x)=>Math.max(a,x),0))+(done?' · ✔ ×'+done:'')+'</small></div><img src="img/ob/'+l.ic+'.webp" alt="">');
     b.onclick=()=>obLevel(l.n);g.append(b);});
   box.append(g);
 };
 function obLevel(n){
-  let pool=n<4?OBX.boxes.filter(d=>lvOf(d)===n):OBX.boxes.filter(d=>lvOf(d)===3);
+  let pool=OBX.boxes.filter(d=>lvOf(d)===n);
   const last=ST.ob&&ST.ob.last;
   let ch=[];
-  if(n<4){const p=pool.filter(d=>d.id!==last);ch=[p.length?p[Math.floor(Math.random()*p.length)]:pool[0]];}
+  if(true){const p=pool.filter(d=>d.id!==last);ch=[p.length?p[Math.floor(Math.random()*p.length)]:pool[0]];}
   else{const p=pool.slice().sort(()=>Math.random()-.5);ch=p.slice(0,2);}
-  const tot=ch.reduce((a,d)=>a+d.rw,0)+(n===4?20:0);
-  openOv('<div style="font-size:30px;color:var(--gold)">'+LV[n-1].st+'</div><h2>'+LV[n-1].nm+'</h2><p class="muted">'+(n<4?'Une boîte mystère.':'Deux boîtes mystère à la suite.')+'</p><p class="gold">Récompense : '+tot+' 💎</p><button class="ob" id="go">Ouvrir</button><button class="ob alt" id="cn">Retour</button>');
+  const tot=ch.reduce((a,d)=>a+d.rw,0)+0;
+  openOv('<div style="font-size:30px;color:var(--gold)">'+LV[n-1].st+'</div><h2>'+LV[n-1].nm+'</h2><p class="muted">'+'Une boîte mystère.'+'</p><p class="gold">Récompense : '+tot+' 💎</p><button class="ob" id="go">Ouvrir</button><button class="ob alt" id="cn">Retour</button>');
   $('cn').onclick=closeOv;$('go').onclick=()=>{closeOv();obRun(n,ch,tot);};
 }
 function obRun(n,ch,tot){const d=ch[0];obStart(d);OB.lv=n;OB.chain=ch.slice(1);OB.tot=tot;OB.num=1;OB.of=ch.length;}
@@ -193,7 +196,7 @@ function pick(id){const it=OB.b.items[id];
   OB.sel=OB.sel===id?null:id;if(OB.sel)toast(it.name);draw();}
 function showNote(id){const it=OB.b.items[id],n=it.note;
   openOv('<h2>'+it.name+'</h2><div class="ovn">'+(n.marks||[]).map(mk).join('')+(n.text?'<div class="tx">'+n.text+'</div>':'')+'</div><button class="ob" id="ok">Fermer</button>');$('ok').onclick=closeOv;}
-const mk=i=>'<span class="eng '+(i.c||'dk')+'" style="'+(i.col?'color:'+i.col+';':'')+'left:'+i.x+'%;top:'+i.y+'%;font-size:'+(i.s?'calc(var(--st)*'+(i.s/100)+')':'')+';'+(i.r?'transform:translate(-50%,-50%) rotate('+i.r+'deg);':'')+'letter-spacing:'+(i.ls||0)+'px">'+i.t+'</span>';
+const mk=i=>'<span class="eng '+(i.c||'dk')+'" style="'+(i.col?'color:'+i.col+';':'')+'left:'+i.x+'%;top:'+i.y+'%;font-size:'+(i.s?'calc(var(--st)*'+(i.s/100)+')':'')+';'+(i.r?'transform:translate(-50%,-50%) rotate('+i.r+'deg);':'')+'letter-spacing:'+(i.ls||0)+'px">'+G(i.t)+'</span>';
 function hint(){const hs=OB.b.hints||[];if(OB.hintN>=hs.length){toast('Plus d’indice pour cette boîte.');return;}if(gems()<3){toast('Il te faut 3 💎.');return;}
   addGems(-3);OB.hints++;const h=hs[OB.hintN++];openOv('<h2>💡 Indice '+OB.hintN+'</h2><p>'+h+'</p><button class="ob" id="ok">Merci</button>');$('ok').onclick=closeOv;}
 function solve(p,quiet){OB.done[p.id]=true;if(!quiet){toast(p.msg||'Clic ! Quelque chose s’est débloqué.');OB.fx=1;}
@@ -206,7 +209,7 @@ function win(){const t=Date.now()-OB.t0,id=OB.d.id;ST.ob=ST.ob||{done:{},best:{}
   if(OB.chain&&OB.chain.length){const nx=OB.chain[0];addGems(OB.d.rw);save();
     openOv('<img src="img/coffre1.webp" alt="" style="width:50%;max-width:180px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Première boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+OB.d.rw+' 💎</p><p class="muted">Une deuxième boîte t’attend, plus retorse encore.</p><button class="ob" id="nx">Boîte suivante</button>');
     $('nx').onclick=()=>{closeOv();const n=OB.lv,ch=OB.chain.slice(1),tot=OB.tot,k=OB.num+1,of=OB.of;obStart(nx);OB.lv=n;OB.chain=ch;OB.tot=tot;OB.num=k;OB.of=of;};return;}
-  const bonus=OB.lv===4?20:0;if(OB.lv)ST.ob.lv[OB.lv]=(ST.ob.lv[OB.lv]||0)+1;addGems(OB.d.rw+bonus);save();
+  const bonus=0;if(OB.lv)ST.ob.lv[OB.lv]=(ST.ob.lv[OB.lv]||0)+1;addGems(OB.d.rw+bonus);save();
   const lv=OB.lv;
   openOv('<img src="img/coffre2.webp" alt="" style="width:60%;max-width:220px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+(OB.d.rw+bonus)+' 💎</p><p class="muted">'+OB.d.name+' · '+fmt(t)+(OB.hints?' · '+OB.hints+' indice'+(OB.hints>1?'s':''):'')+'</p>'+(lv?'<button class="ob" id="rp">Nouvelle boîte ('+LV[lv-1].nm+')</button>':'<button class="ob" id="rp">Rejouer</button>')+'<button class="ob alt" id="hm">Menu Openbox</button>');
   $('rp').onclick=()=>{closeOv();if(lv)obLevel(lv);else obStart(OB.d);};$('hm').onclick=()=>{closeOv();OB=null;home();};}
@@ -216,7 +219,7 @@ const shake=n=>{if(n){bad(n);}};
 const T={};
 T.ring=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.init?p.init.slice():Array(p.n).fill(0));const w=el('div','row');const done=D(p.id);
   for(let i=0;i<p.n;i++){const sy=Array.isArray(p.syms[0])?p.syms[i]:p.syms;const sp=(Array.isArray(p.spr)?p.spr[i]:p.spr)||'d0';
-    const b=el('button','rg'+(OB.anim&&OB.anim.id===p.id&&OB.anim.i===i?' sp':''),im(sp)+'<span style="color:'+(DINK[sp]||'#222')+'">'+sy[s[i]]+'</span>');
+    const b=el('button','rg'+(OB.anim&&OB.anim.id===p.id&&OB.anim.i===i?' sp':''),im(sp)+'<span style="color:'+(DINK[sp]||'#222')+'">'+G(sy[s[i]])+'</span>');
     b.onclick=()=>{if(D(p.id))return;s[i]=(s[i]+1)%sy.length;OB.anim={id:p.id,i};if(s.every((v,k)=>v===p.code[k]))solve(p);else draw();};w.append(b);}
   if(done)w.style.filter='drop-shadow(0 0 6px #5ee6a0)';return w;};
 T.lever=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.init?p.init.slice():Array(p.n).fill(0));const w=el('div','row');
@@ -240,7 +243,7 @@ T.hot=p=>{if(D(p.id)&&!p.spr)return null;const w=el('button','hs2',p.spr?im(p.sp
   w.onclick=()=>{if(D(p.id)&&!p.again)return;if(p.cond&&!p.cond()){toast(p.fail||'Rien ne se passe.');shake(w);return;}if(p.toggle){OB.flags[p.id]=!OB.flags[p.id];toast(OB.flags[p.id]?'Allumé.':'Éteint.');draw();return;}solve(p);};return w;};
 T.marks=p=>{const w=el('div','');w.style.pointerEvents='none';w.innerHTML=p.items.map(mk).join('');return w;};
 T.tiles=p=>{const N=3;const s=OB.st[p.id]||(OB.st[p.id]=p.init.slice());const w=el('div','tg');w.style.gridTemplateColumns='repeat(3,1fr)';
-  s.forEach((v,i)=>{const b=el('button','tl2'+(v?'':' e'),v?p.glyphs[v-1]:'');b.onclick=()=>{if(D(p.id))return;const z=s.indexOf(0),x=i%N,y=(i/N)|0,zx=z%N,zy=(z/N)|0;if(Math.abs(x-zx)+Math.abs(y-zy)!==1)return;s[z]=v;s[i]=0;
+  s.forEach((v,i)=>{const b=el('button','tl2'+(v?'':' e'),v?G(p.glyphs[v-1]):'');b.onclick=()=>{if(D(p.id))return;const z=s.indexOf(0),x=i%N,y=(i/N)|0,zx=z%N,zy=(z/N)|0;if(Math.abs(x-zx)+Math.abs(y-zy)!==1)return;s[z]=v;s[i]=0;
       if(s.every((q,j)=>q===(j+1)%9))solve(p);else draw();};w.append(b);});if(D(p.id))w.style.boxShadow='0 0 8px #5ee6a0';return w;};
 T.keyhole=p=>{const w=el('div','row');const f=D(p.id);const b=el('button','sl '+(f?'f':'e'),im(p.key));
   b.onclick=()=>{if(f)return;const it=OB.sel&&OB.b.items[OB.sel];if(!it||it.kind!=='key'){toast('Une serrure… il faudrait une clé.');shake(b);return;}

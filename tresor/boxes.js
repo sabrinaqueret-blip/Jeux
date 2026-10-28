@@ -132,4 +132,36 @@ obDefine({id:'cabinet',name:'Le cabinet du collectionneur',lab:'Difficile',theme
     nB:NT('Carnet du collectionneur',tg.map((v,i)=>mark(v?'▲':'▼',12+i*19,42,14,'dk')),'Les cinq manettes.')},
    hints:['Une des faces cache un petit élément qui scintille : touche-le.','Les calculs du côté droit donnent les chiffres des anneaux de la face avant, de haut en bas.','La clé dorée va dans une serrure qui n’était pas là au départ.','Le carnet donne les cinq manettes de la face arrière (▲ en haut).','Le panneau arrière a deux verrous : manettes ET les pastilles du dessus (leur ordre est gravé sous la serrure).','La clé noire ouvre une autre serrure, sur le côté droit, sous les calculs.','Quatre gemmes sur le dessus ; le diamant est un intrus.']};
  }});
+
+/* ---------- 6. La forge obsidienne (extrême) ---------- */
+obDefine({id:'obsidienne',name:'La forge obsidienne',lab:'Extrême',theme:'obsidian',rw:80,parts:7,icon:'k8',
+ intro:'Une boîte noire gravée de runes rouges. Elle ne pardonne rien : tout s’enchaîne, tout se déduit.',
+ win:D=>D('sock'),
+ build(R){
+  const gl=R.shuf(SY).slice(0,8),ks=perm(R,8).slice(0,4);
+  const solved=[1,2,3,4,5,6,7,8,0],init=solved.slice();let z=8,last=-1;
+  for(let t=0;t<90;t++){const x=z%3,y=(z/3)|0,c=[];if(x>0)c.push(z-1);if(x<2)c.push(z+1);if(y>0)c.push(z-3);if(y<2)c.push(z+3);const o=c.filter(q=>q!==last),q=R.pick(o.length?o:c);init[z]=init[q];init[q]=0;last=z;z=q;}
+  if(init.every((v,i)=>v===solved[i])){init[8]=init[7];init[7]=0;}
+  const ex=[],code=[];
+  while(ex.length<4){const op=R.pick(['+','−','×']);let a,b,r;if(op==='+'){a=R.int(1,8);b=R.int(1,9-a);r=a+b;}else if(op==='−'){a=R.int(3,9);b=R.int(1,a-1);r=a-b;}else{a=R.int(2,4);b=R.int(2,4);r=a*b;}
+    if(r>=1&&r<=9&&!ex.includes(a+' '+op+' '+b)){ex.push(a+' '+op+' '+b);code.push(r);}}
+  const cols=['#2f55d4','#d4342c','#2fa84f','#e0b030'],seq=Array.from({length:6},()=>R.int(0,3));
+  const parts=[
+   {t:'tiles',id:'tiles',f:0,x:10,y:6,w:80,h:80,glyphs:gl,init,key:true},
+   {t:'marks',f:3,x:0,y:0,w:100,h:30,items:ks.map((k,i)=>mark(String(k+1),14+i*24,22,12,'gl'))},
+   {t:'ring',id:'ring',f:1,x:4,y:30,w:92,h:30,n:4,syms:gl,spr:'d5',code:ks,key:true},
+   {t:'hatch',id:'h1',f:1,x:32,y:68,w:36,h:24,open:()=>D('ring'),give:['kob','g0']},
+   {t:'keyhole',id:'kh',f:2,x:36,y:10,w:28,h:34,key:'k8',key2:1,keyed:1},
+   {t:'hatch',id:'h2',f:2,x:16,y:56,w:68,h:30,open:()=>D('kh'),give:['grim','g1']},
+   {t:'ring',id:'ring2',f:3,x:4,y:34,w:92,h:28,n:4,syms:DG,spr:'d4',code,key:true},
+   {t:'hatch',id:'h3',f:3,x:28,y:68,w:44,h:24,open:()=>D('ring2'),give:['rune','g2']},
+   {t:'pads',id:'pads',f:4,x:8,y:6,w:84,h:26,cols,seq,key:true},
+   {t:'hatch',id:'h4',f:4,x:30,y:35,w:40,h:17,open:()=>D('pads'),give:['g4']},
+   {t:'socket',id:'sock',f:4,x:6,y:58,w:88,h:34,slots:[{g:'g0'},{g:'g1'},{g:'g2'},{g:'g4'}],key:true}];
+  parts.find(p=>p.id==='kh').key='k8';
+  return{parts,items:{kob:K('Clé d’obsidienne','k8'),g0:G('g0'),g1:G('g1'),g2:G('g2'),g4:G('g4'),
+    grim:NT('Grimoire',ex.map((e,i)=>mark(e,50,16+i*22,8,'dk')),'Quatre calculs.'),
+    rune:NT('Rune rouge',seq.map((c,i)=>mark('●',9+i*16.5,45,14,'dk',cols[c])),'')},
+   hints:['Remets les huit tuiles de la face avant dans l’ordre. Elles montrent huit signes.','Les nombres de la face arrière sont des positions dans la grille résolue (gauche à droite, ligne par ligne).','Les quatre signes trouvés se règlent sur les anneaux d’un côté.','La clé d’obsidienne va dans la serrure de la face droite.','Le grimoire contient quatre calculs : leurs résultats sont les chiffres des anneaux de la face arrière.','La rune rouge donne l’ordre des pastilles du dessus. Les gemmes se logent aussi sur le dessus.']};
+ }});
 })();
