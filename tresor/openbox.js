@@ -521,7 +521,8 @@ T.crank=p=>{const w=el('div','crk');const s=OB.st[p.id]||(OB.st[p.id]={has:false
   hub.onclick=()=>{if(done)return;if(!s.has){const it=OB.sel&&OB.b.items[OB.sel];if(!it||it.spr!==p.item){toast('Il manque une manivelle pour tourner ça.');shake(hub);return;}OB.flags['used:'+OB.sel]=true;OB.inv=OB.inv.filter(x=>x!==OB.sel);OB.sel=null;s.has=true;toast('La manivelle est en place. Tourne !');draw();return;}
     s.n++;OB.anim={id:p.id};if(s.n>=p.turns)solve(p);else draw();};
   w.append(hub);return w;};
-T.keyhole=p=>{const w=el('div','row');const f=D(p.id);const b=p.lock?el('button','pkb '+(f?'f':'e'),im(p.lock+(f&&p.lockO?'_o':(p.lockO?'_c':'')))):el('button','sl '+(f?'f':'e'),im(p.key));
+const LKS=[['pl_br',1],['pl_st',1],['pl_go',1],['lk_orn',0],['lk_iris',0],['lk_cast',0]];
+T.keyhole=p=>{if(!p.lock){let h=0;String(p.key).split('').forEach(c=>h=(h*7+c.charCodeAt(0))%97);const L=LKS[h%LKS.length];p={...p,lock:L[0],lockO:L[1]};}const w=el('div','row');const f=D(p.id);const b=p.lock?el('button','pkb '+(f?'f':'e'),im(p.lock+(f&&p.lockO?'_o':(p.lockO?'_c':'')))):el('button','sl '+(f?'f':'e'),im(p.key));
   b.onclick=()=>{if(f)return;const it=OB.sel&&OB.b.items[OB.sel];if(!it||it.kind!=='key'){toast('Une serrure… il faudrait une clé.');shake(b);return;}
     if(it.spr!==p.key){toast('Cette clé ne convient pas.');shake(b);OB.sel=null;draw();return;}OB.flags['used:'+OB.sel]=true;OB.inv=OB.inv.filter(x=>x!==OB.sel);OB.sel=null;solve(p);};w.append(b);return w;};
 
