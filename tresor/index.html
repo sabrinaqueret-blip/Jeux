@@ -103,6 +103,8 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1
 </div>
 <div id="ov" hidden></div>
 <div id="toast" hidden></div>
+<script src="openbox.js"></script>
+<script src="boxes.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
@@ -429,6 +431,9 @@ const fmt=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+' min '+Strin
 function bgSet(a){$('app').style.backgroundImage=a?'linear-gradient(rgba(10,20,32,.45),rgba(10,20,32,.72)),url(img/'+a.id+'.webp)':'none';}
 /* ====== accueil ====== */
 function home(){RUN=null;TS=0;bgSet(null);$('sc').textContent='La chasse au trésor';const m=$('main');m.innerHTML='';
+  if(window.obLeave)obLeave();
+  const tb=el('div','row2');tb.style.marginBottom='10px';[['ob','📦 Openbox'],['adv','🗺 Aventures']].forEach(([k,t])=>{const b=el('button','mb',t);b.style.borderColor=((ST.tab||'ob')===k)?'var(--gold)':'';b.style.background=((ST.tab||'ob')===k)?'#f0c06033':'#0006';b.onclick=()=>{ST.tab=k;save();home();};tb.append(b);});m.append(tb);
+  if((ST.tab||'ob')==='ob'){obList(m);return;}
   m.append(el('p','muted sm','Choisis une aventure. Plus elle est longue et difficile, plus le trésor est gros. Les épreuves sont différentes à chaque partie.'));
   ADV.forEach(a=>{const b=el('button','adv','<div class="ic" style="background-image:url(img/ic_'+a.id+'.webp)"></div><div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><br><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
     b.onclick=()=>intro(a);m.append(b);});}
