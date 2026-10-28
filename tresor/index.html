@@ -22,7 +22,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1
 #main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:10px;-webkit-overflow-scrolling:touch}
 .card{background:#0a1420d9;border-radius:18px;padding:12px;margin:0 0 10px;box-shadow:0 10px 24px #0008,0 0 0 1px #ffffff22 inset}
 .adv{display:flex;gap:12px;align-items:center;width:100%;text-align:left;color:var(--ink);font:inherit;border:0;background:#0a1420d9;border-radius:18px;padding:12px;margin:0 0 10px;box-shadow:0 10px 24px #0008,0 0 0 1px #ffffff22 inset}
-.adv .ic{width:64px;height:64px;border-radius:16px;background:#0006 center/cover;display:flex;align-items:center;justify-content:center;font-size:34px;flex:none;box-shadow:0 0 0 2px var(--gold) inset}
+.adv .ic{width:64px;height:64px;border-radius:16px;background:#0006 center/165%;display:flex;align-items:center;justify-content:center;font-size:34px;flex:none;box-shadow:0 0 0 2px var(--gold) inset}
 .adv b{display:block;font-size:17px}.adv small{color:var(--muted)}
 .tag{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--gold);color:#12202e;font-weight:800;font-size:12px;margin-right:4px}
 .pips{display:flex;gap:5px;justify-content:center;margin:2px 0 8px;flex-wrap:wrap}
@@ -430,7 +430,7 @@ function bgSet(a){$('app').style.backgroundImage=a?'linear-gradient(rgba(10,20,3
 /* ====== accueil ====== */
 function home(){RUN=null;TS=0;bgSet(null);$('sc').textContent='La chasse au trésor';const m=$('main');m.innerHTML='';
   m.append(el('p','muted sm','Choisis une aventure. Plus elle est longue et difficile, plus le trésor est gros. Les épreuves sont différentes à chaque partie.'));
-  ADV.forEach(a=>{const b=el('button','adv','<div class="ic" style="background-image:linear-gradient(#0005,#0005),url(img/'+a.id+'.webp)">'+a.ic+'</div><div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><br><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
+  ADV.forEach(a=>{const b=el('button','adv','<div class="ic" style="background-image:url(img/ic_'+a.id+'.webp)"></div><div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><br><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
     b.onclick=()=>intro(a);m.append(b);});}
 function intro(a){const has=ST.run&&ST.run.id===a.id;
   openOv('<img src="img/coffre1.webp" alt="" style="width:50%;max-width:180px;border-radius:20px;display:block;margin:0 auto 4px"><h2>'+a.n+'</h2><p class="muted">'+a.lab+' · '+a.len+' épreuves</p><p>Résous toutes les énigmes pour ouvrir le coffre : <span class="gold">'+a.rw+' 💎</span>.<br>Un indice coûte 3 💎, changer d’énigme 5 💎.</p>'
