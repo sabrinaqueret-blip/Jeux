@@ -221,11 +221,11 @@ function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne p
 
 /* ================= affichage ================= */
 let built=false;const anim={t:null,steps:[],i:-1,shown:{}};
-const XE=[106,206,305,410,512,614,718,818,918],YE=[100,202,304.5,407,510,612,713.5,814,915];
+const XE=[100,203,306,408,511,614,717,820,923],YE=[100,203,306,409,512,614.5,717.5,820.5,923];
 function cellXY(pos,k,n){
-  if(pos>=60){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;return [(512+(cc-(cols-1)/2)*52)/10.24,(510+(rr-(Math.ceil(n/cols)-1)/2)*48+22)/10.24];}
+  if(pos>=60){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;return [(511+(cc-(cols-1)/2)*54)/10.24,(510+(rr-(Math.ceil(n/cols)-1)/2)*50+22)/10.24];}
   const [r,c]=SPIRAL[pos];let ox=0,oy=0;
-  if(n>1){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;ox=(cc-(cols-1)/2)*26;oy=(rr-(Math.ceil(n/cols)-1)/2)*20;}
+  if(n>1){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;ox=(cc-(cols-1)/2)*28;oy=(rr-(Math.ceil(n/cols)-1)/2)*22;}
   return [((XE[c]+XE[c+1])/2+ox)/10.24,((YE[r]+YE[r+1])/2+oy+16)/10.24];}
 function buildBoard(v){
   const u=100/8;let h='<div id="bw"><div id="bd"><div id="fl">';
@@ -233,7 +233,7 @@ function buildBoard(v){
   h+='</div></div></div><div id="dz"><div class="dd"><img id="d1" src="img/d1.webp" alt="" style="opacity:.5"><img id="d2" src="img/d2.webp" alt="" style="opacity:.5"></div><button class="ob" id="rb">Lancer les dés</button></div><div id="lg"></div>'+
    '<div class="lgd"><span><img src="img/i_goose.webp" alt="">oie : rejoue</span><span><img src="img/i_bridge.webp" alt="">pont → 12</span><span><img src="img/i_inn.webp" alt="">1 tour</span><span><img src="img/i_dice.webp" alt="">26 ⇄ 53</span><span><img src="img/i_well.webp" alt="">puits</span><span><img src="img/i_prison.webp" alt="">prison</span><span><img src="img/i_maze.webp" alt="">→ 30</span><span><img src="img/i_skull.webp" alt="">→ départ</span></div>';
   $('main').innerHTML='<div id="ps"></div>'+h;
-  const bw=$('bd').getBoundingClientRect().width||360;$('bd').style.setProperty('--nf',Math.max(7,Math.round(bw*.026))+'px');$('bd').style.setProperty('--pw',(v.pl.length>3?6.6:7.6)+'%');
+  const bw=$('bd').getBoundingClientRect().width||360;$('bd').style.setProperty('--nf',Math.max(7,Math.round(bw*.026))+'px');$('bd').style.setProperty('--pw',(v.pl.length>3?3.8:4.4)+'%');
   $('rb').onclick=()=>{const V=window.__l.V;if(!(V&&V.turn===V.me&&!V.over))return toast('Pas ton tour.');send({a:'roll'});};
   built=true;
 }
