@@ -294,7 +294,7 @@ PZ.taquin=(d,R)=>{
   return{title:'🧩 La mosaïque brisée',story:'Remets les morceaux dans l’ordre (1, 2, 3…, la case vide en bas à droite). Touche un morceau pour le faire glisser vers le vide.',
     hints:['Termine d’abord la ligne du haut, puis la suivante.','Les deux dernières lignes se finissent ensemble.','L’image du fond t’aide à retrouver la place de chaque morceau.'],
     mount(root,win){const gr=el('div','grid');gr.style.gridTemplateColumns='repeat(' + N + ',1fr)';root.append(gr);let mc=0;const cnt=el('div','muted sm','Coups : 0');root.append(cnt);
-      const draw=()=>{gr.innerHTML='';g.forEach((v,i)=>{const t=el('div','tl'+(v?'':' e'),v||'');if(v){const s=v-1;t.style.backgroundImage='url(../cartes-img/'+CUR.bg+'/bg1.webp)';t.style.backgroundSize=(N*100)+'% '+(N*100)+'%';t.style.backgroundPosition=((s%N)*100/(N-1))+'% '+(((s/N)|0)*100/(N-1))+'%';}
+      const draw=()=>{gr.innerHTML='';g.forEach((v,i)=>{const t=el('div','tl'+(v?'':' e'),v||'');if(v){const s=v-1;t.style.backgroundImage='url(img/'+CUR.id+'.webp)';t.style.backgroundSize=(N*100)+'% '+(N*100)+'%';t.style.backgroundPosition=((s%N)*100/(N-1))+'% '+(((s/N)|0)*100/(N-1))+'%';}
         t.onclick=()=>{const zi=g.indexOf(0),x=i%N,y=(i/N)|0,zx=zi%N,zy=(zi/N)|0;if(!v||(x!==zx&&y!==zy))return;
           const st=x===zx?N*Math.sign(zy-y):Math.sign(zx-x),dist=x===zx?Math.abs(zy-y):Math.abs(zx-x);let p=zi;for(let k=0;k<dist;k++){g[p]=g[p-st];p-=st;}g[i]=0;mc++;cnt.textContent='Coups : '+mc;draw();
           if(g.every((q,j)=>q===(j+1)%(N*N)))setTimeout(win,300);};gr.append(t);});};draw();}};
@@ -426,14 +426,14 @@ function newRun(a){const seed=Math.floor(Math.random()*1e9),R=mkR(seed),used=[],
 function tick(){if(RUN&&TS){RUN.el+=Date.now()-TS;}TS=Date.now();}
 function persist(){tick();ST.run=RUN;save();}
 const fmt=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+' min '+String(s%60).padStart(2,'0')+' s';};
-function bgSet(a){$('app').style.backgroundImage=a?'linear-gradient(rgba(10,20,32,.80),rgba(10,20,32,.92)),url(../cartes-img/'+a.bg+'/bg1.webp)':'none';}
+function bgSet(a){$('app').style.backgroundImage=a?'linear-gradient(rgba(10,20,32,.45),rgba(10,20,32,.72)),url(img/'+a.id+'.webp)':'none';}
 /* ====== accueil ====== */
 function home(){RUN=null;TS=0;bgSet(null);$('sc').textContent='La chasse au trésor';const m=$('main');m.innerHTML='';
   m.append(el('p','muted sm','Choisis une aventure. Plus elle est longue et difficile, plus le trésor est gros. Les épreuves sont différentes à chaque partie.'));
-  ADV.forEach(a=>{const b=el('button','adv','<div class="ic" style="background-image:linear-gradient(#0005,#0005),url(../cartes-img/'+a.bg+'/bg1.webp)">'+a.ic+'</div><div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><br><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
+  ADV.forEach(a=>{const b=el('button','adv','<div class="ic" style="background-image:linear-gradient(#0005,#0005),url(img/'+a.id+'.webp)">'+a.ic+'</div><div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><br><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
     b.onclick=()=>intro(a);m.append(b);});}
 function intro(a){const has=ST.run&&ST.run.id===a.id;
-  openOv('<div style="font-size:54px">'+a.ic+'</div><h2>'+a.n+'</h2><p class="muted">'+a.lab+' · '+a.len+' épreuves</p><p>Résous toutes les énigmes pour ouvrir le coffre : <span class="gold">'+a.rw+' 💎</span>.<br>Un indice coûte 3 💎, changer d’énigme 5 💎.</p>'
+  openOv('<img src="img/coffre1.webp" alt="" style="width:50%;max-width:180px;border-radius:20px;display:block;margin:0 auto 4px"><h2>'+a.n+'</h2><p class="muted">'+a.lab+' · '+a.len+' épreuves</p><p>Résous toutes les énigmes pour ouvrir le coffre : <span class="gold">'+a.rw+' 💎</span>.<br>Un indice coûte 3 💎, changer d’énigme 5 💎.</p>'
    +(has?'<button class="ob" id="rs">Reprendre ('+(ST.run.step+1)+'/'+a.len+')</button><button class="ob alt" id="nw">Nouvelle aventure</button>':'<button class="ob" id="nw">Commencer</button>')+'<button class="ob alt" id="cn">Retour</button>');
   if(has)$('rs').onclick=()=>{closeOv();CUR=a;RUN=ST.run;TS=Date.now();step();};
   $('nw').onclick=()=>{closeOv();CUR=a;RUN=newRun(a);TS=Date.now();persist();step();};$('cn').onclick=closeOv;}
@@ -451,7 +451,7 @@ function step(){const a=CUR,k=RUN.step,d=stepD(a,k),R=mkR(RUN.seed*7+k*131+RUN.s
 function win(){const last=RUN.step>=CUR.len-1;persist();
   if(!last){openOv('<div style="font-size:54px">🔓</div><h2>Bravo !</h2><p class="muted">Épreuve '+(RUN.step+1)+'/'+CUR.len+' réussie.</p><button class="ob" id="nx">Suite →</button>');$('nx').onclick=()=>{closeOv();RUN.step++;persist();step();};return;}
   tick();const t=RUN.el,id=CUR.id;ST.done[id]=(ST.done[id]||0)+1;if(!ST.best[id]||t<ST.best[id])ST.best[id]=t;ST.run=null;save();addGems(CUR.rw);
-  openOv('<div style="font-size:64px">💰</div><h2>Le trésor est à toi !</h2><p class="gold" style="font-size:22px">+'+CUR.rw+' 💎</p><p class="muted">'+CUR.n+' · '+fmt(t)+(RUN.hints?' · '+RUN.hints+' indice'+(RUN.hints>1?'s':''):'')+'</p><button class="ob" id="rp">Rejouer (autres énigmes)</button><button class="ob alt" id="hm">Aventures</button>');
+  openOv('<img src="img/coffre2.webp" alt="" style="width:70%;max-width:260px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Le trésor est à toi !</h2><p class="gold" style="font-size:22px">+'+CUR.rw+' 💎</p><p class="muted">'+CUR.n+' · '+fmt(t)+(RUN.hints?' · '+RUN.hints+' indice'+(RUN.hints>1?'s':''):'')+'</p><button class="ob" id="rp">Rejouer (autres énigmes)</button><button class="ob alt" id="hm">Aventures</button>');
   $('rp').onclick=()=>{closeOv();RUN=newRun(CUR);TS=Date.now();persist();step();};$('hm').onclick=()=>{closeOv();home();};}
 $('bmenu').onclick=()=>{openOv('<img class="mi" src="icons/icon-192.png" alt=""><h2>La chasse au trésor</h2><button class="ob" id="rs">Reprendre</button><button class="ob alt" id="ad">Aventures</button><button class="ob alt" id="hm">Retour aux jeux</button>');
   $('rs').onclick=closeOv;$('ad').onclick=()=>{closeOv();if(RUN)persist();home();};$('hm').onclick=()=>{if(RUN)persist();location.href='../';};};
