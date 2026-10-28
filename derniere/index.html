@@ -104,6 +104,18 @@ body{background-image:radial-gradient(circle at 50% 0,#2b2a5c,#101530 70%)}
 #lg{color:var(--muted);text-align:center;font-size:13px;min-height:20px}
 .plr{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}.plr span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:700}
 .cpk{display:flex;gap:12px;justify-content:center;margin:12px 0}.cpk button{width:62px;height:62px;border-radius:50%;border:3px solid #fff;padding:0}
+.uc{background:none!important;border:0!important;box-shadow:none!important;filter:drop-shadow(0 2px 3px #000a);background-size:100% 100%!important;background-repeat:no-repeat!important}
+.uc .ov{display:none}.uc b{color:var(--ink2,#222);text-shadow:none;font-style:normal;font-size:30px}
+.uc.c0{background-image:url(img/u_0.webp)!important;--ink2:#c42a20}.uc.c1{background-image:url(img/u_1.webp)!important;--ink2:#c28f00}.uc.c2{background-image:url(img/u_2.webp)!important;--ink2:#1f8a3b}.uc.c3{background-image:url(img/u_3.webp)!important;--ink2:#1f56c4}
+.uc.tW,.uc.tF{background-image:url(img/u_W.webp)!important}.uc.tA{background-image:url(img/u_A.webp)!important}.uc.tB{background-image:url(img/u_B.webp)!important}
+.uc.c4 b{--ink2:#222;font-size:24px}.uc.c4 b.l{font-size:17px}
+.uc i{display:none}
+.uc.bk{background-image:url(img/u_dos.webp)!important}.uc.bk b{color:#fff;text-shadow:0 0 4px #000,0 0 3px #000;transform:none;font-size:20px;font-style:normal}
+.uc.bgc b{font-size:44px}.uc.bgc.c4 b{font-size:36px}.uc.bgc.c4 b.l{font-size:26px}
+.uc.sm b{font-size:15px}
+.uc.no{filter:brightness(.5) saturate(.6) drop-shadow(0 2px 3px #000a)}
+.uc.pl{filter:drop-shadow(0 0 5px #f0c060) drop-shadow(0 2px 3px #000a)}
+.uc{width:56px;height:80px}.uc.bgc{width:88px;height:124px}.uc.sm{width:30px;height:44px}
 </style>
 </head>
 <body>
@@ -301,7 +313,7 @@ function joinOnline(name,code){
 }
 function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne peux pas jouer cette carte.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
 /* ================= affichage ================= */
-const cardH=(c,cls)=>'<div class="uc c'+c.c+' '+(cls||'')+'" data-id="'+c.id+'"><span class="ov"></span><i>'+(SYM[c.t]||c.t)+'</i><b'+((SYM[c.t]||c.t).length>2?' class="l"':'')+'>'+(SYM[c.t]||c.t)+'</b></div>';
+const cardH=(c,cls)=>'<div class="uc c'+c.c+' t'+c.t+' '+(cls||'')+'" data-id="'+c.id+'"><span class="ov"></span><i>'+(SYM[c.t]||c.t)+'</i><b'+((SYM[c.t]||c.t).length>2?' class="l"':'')+'>'+(SYM[c.t]||c.t)+'</b></div>';
 function onView(v){V=v;if(!v.endInfo)closeOv();render();if(v.endInfo)setTimeout(endDialog,700);}
 function render(){
   const v=V;if(!v)return;const me=v.me,mine=v.turn===me,pl=v.pl[me];
