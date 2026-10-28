@@ -217,7 +217,7 @@ function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid,ax=null,to
     const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;const k=0.3;
     if(ax==='y'){tot+=dx;OB.M=mm(Ry(dx*k),OB.M);}else{tot+=dy;OB.M=mm(Rx(-dy*k),OB.M);}
     setT(cube,false);});
-  let tm=null;const later=()=>{clearTimeout(tm);const ob=OB;tm=setTimeout(()=>{if(OB===ob&&cube.isConnected&&!down&&!cube.classList.contains('rest'))rest(cube);},430);};
+  let tm=null;const later=()=>{clearTimeout(tm);const ob=OB;tm=setTimeout(()=>{if(OB===ob&&cube.isConnected&&!down&&!cube.classList.contains('rest')){setFace(OB.face);draw();}},430);};
   const end=()=>{if(!down)return;down=false;if(!drag){if(!cube.classList.contains('rest'))later();return;}
     let T=M0;
     if(Math.abs(tot)>40){T=ax==='y'?mm(Ry(tot>0?90:-90),M0):mm(Rx(tot>0?-90:90),M0);T=snapM(T);OB.M=T;const nf=curF();if(OB.face>=4&&nf!==0){OB.M=M0;}else OB.face=nf;}
@@ -245,7 +245,7 @@ function draw(){
   stg.append(el('div','dimv'+(OB.th==='night'&&!F('lamp')?' on':'')));
   rest(cube);bindDrag(stg,cube);
   w.append(stg);w.append(el('div','muted sm drh','↔↕ Glisse sur la boîte pour changer de face, ou touche un bouton'));
-  const fn=el('div','fnv');['Avant','Gauche','Arrière','Droite','Dessus','Dessous'].forEach((nm,i)=>{const ps=OB.b.parts.filter(p=>p.f===i&&p.key),ok=ps.length&&ps.every(p=>D(p.id));const b=el('button',(i===OB.face?'on ':'')+(ok?'ok':''),nm+(ok?' ✔':''));b.onclick=()=>{if(i===OB.face)return;setFace(i);draw();};fn.append(b);});w.append(fn);
+  const fn=el('div','fnv');['Avant','Gauche','Arrière','Droite','Dessus','Dessous'].forEach((nm,i)=>{const ps=OB.b.parts.filter(p=>p.f===i&&p.key),ok=ps.length&&ps.every(p=>D(p.id));const b=el('button',(i===OB.face?'on ':'')+(ok?'ok':''),nm+(ok?' ✔':''));b.onclick=()=>{try{setFace(i);draw();}catch(e){toast('Erreur : '+e.message);}};fn.append(b);});w.append(fn);
   const inv=el('div','invb');if(!OB.inv.length)inv.append(el('span','em','Inventaire vide'));
   OB.inv.forEach(id=>{const it=OB.b.items[id];const b=el('button','it'+(OB.sel===id?' sel':''),it.kind==='note'?'<div class="note"></div>':im(it.spr)+(it.wv!=null?'<i class="wb">'+it.wv+'</i>':''));b.onclick=()=>pick(id);inv.append(b);});
   w.append(inv);
