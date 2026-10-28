@@ -71,7 +71,7 @@ function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTime
 function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
 function closeOv(){$('ov').hidden=true;}
 function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
-const NSC=6,W=720,H=540;
+const NSC=12,W=720,H=540;
 const LV=[{n:5,r:.085,thr:36,ty:[0,1,3,4],name:'Facile'},{n:7,r:.065,thr:26,ty:[0,1,2,3,4,5,6],name:'Moyen'},{n:9,r:.05,thr:19,ty:[0,1,2,5,6],name:'Difficile'}];
 const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
 let G=null,tmr=null;
