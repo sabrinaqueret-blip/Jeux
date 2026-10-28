@@ -72,6 +72,7 @@ const css=`
 .cav{background:radial-gradient(ellipse at 50% 30%,#3a2a1c,#0b0705 85%)!important;border:2px solid #000a}
 .cav .open{left:50%!important;top:-34%!important;width:70%!important;height:38%;object-fit:contain;transform:translateX(-50%) perspective(160px) rotateX(58deg)!important;transform-origin:50% 100%!important;opacity:1!important}
 .face.cur{display:block}
+.lsv{width:100%;height:100%;overflow:visible;filter:var(--tn) drop-shadow(0 3px 3px #000b)}.lsv .arm.au{animation:larm .22s ease-out}.lsv .arm.ad{animation:larm2 .22s ease-out}@keyframes larm{from{transform:rotate(180deg)}to{transform:rotate(0)}}@keyframes larm2{from{transform:rotate(0)}to{transform:rotate(180deg)}}
 .in>.p{position:absolute!important}
 .cav{display:flex;justify-content:center;align-items:center;gap:4%;padding:2%}.cav>.hs2{height:100%!important;flex:0 1 38%!important;transform:scale(1.35);z-index:2}.cav>.hs2 img{max-height:100%}
 .stage{overflow:visible!important;box-shadow:none!important}
@@ -253,8 +254,16 @@ T.ring=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.init?p.init.slice():Array(p.n).fi
       b.addEventListener('pointermove',mv);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);});
     w.append(b);}
   if(done)w.style.filter='drop-shadow(0 0 6px #5ee6a0)';return w;};
+const LVC={l0:'#d4342c',l1:'#d98a3d',l2:'#4a90e0',l3:'#3fae5c',l4:'#e0c030'};
+const leverSvg=(up,col,an)=>{const id='g'+Math.random().toString(36).slice(2,7);
+  return '<svg viewBox="0 0 60 100" class="lsv"><defs><linearGradient id="'+id+'p" x1="0" x2="1"><stop offset="0" stop-color="#8a6a2e"/><stop offset=".45" stop-color="#e6c978"/><stop offset="1" stop-color="#7a5a22"/></linearGradient><linearGradient id="'+id+'a" x1="0" x2="1"><stop offset="0" stop-color="#777"/><stop offset=".4" stop-color="#f4f4f4"/><stop offset="1" stop-color="#666"/></linearGradient><radialGradient id="'+id+'b" cx=".35" cy=".3"><stop offset="0" stop-color="#fff"/><stop offset=".25" stop-color="'+col+'"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient></defs>'
+  +'<rect x="8" y="30" width="44" height="40" rx="7" fill="url(#'+id+'p)" stroke="#2a1c08" stroke-width="1.5"/><circle cx="14" cy="36" r="2.2" fill="#3a2a10"/><circle cx="46" cy="36" r="2.2" fill="#3a2a10"/><circle cx="14" cy="64" r="2.2" fill="#3a2a10"/><circle cx="46" cy="64" r="2.2" fill="#3a2a10"/>'
+  +'<rect x="22" y="42" width="16" height="16" rx="8" fill="#1a1208" stroke="#000" stroke-width="1"/>'
+  +'<g class="arm'+(an?' '+an:'')+'" style="transform-origin:30px 50px;transform:rotate('+(up?0:180)+'deg)"><rect x="26.5" y="8" width="7" height="42" rx="3.5" fill="url(#'+id+'a)" stroke="#222" stroke-width="1"/><circle cx="30" cy="9" r="8.5" fill="url(#'+id+'b)" stroke="#2a0a0a" stroke-width="1"/></g>'
+  +'<circle cx="30" cy="50" r="5.5" fill="url(#'+id+'p)" stroke="#2a1c08" stroke-width="1.2"/></svg>';};
 T.lever=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.init?p.init.slice():Array(p.n).fill(0));const w=el('div','row');
-  for(let i=0;i<p.n;i++){const sp=(Array.isArray(p.spr)?p.spr[i]:p.spr)||'l0';const b=el('button','lv'+(s[i]?'':' dn')+(OB.anim&&OB.anim.id===p.id&&OB.anim.i===i?(s[i]?' au':' ad'):''),im(sp));
+  for(let i=0;i<p.n;i++){const sp=(Array.isArray(p.spr)?p.spr[i]:p.spr)||'l0';const an=OB.anim&&OB.anim.id===p.id&&OB.anim.i===i?(s[i]?'au':'ad'):'';
+    const b=el('button','lv',leverSvg(!!s[i],LVC[sp]||'#d4342c',an));
     b.onclick=()=>{if(D(p.id))return;s[i]=s[i]?0:1;OB.anim={id:p.id,i};if(s.every((v,k)=>v===p.target[k]))solve(p);else draw();};w.append(b);}
   if(D(p.id))w.style.filter='drop-shadow(0 0 6px #5ee6a0)';return w;};
 T.pads=p=>{const s=OB.st[p.id]||(OB.st[p.id]=[]);const w=el('div','row');const dots=el('div','pdots');p.seq.forEach((_,i)=>dots.append(el('i',i<s.length?'on':'')));w.append(dots);
