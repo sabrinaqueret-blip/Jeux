@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#1a1008">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Petits chevaux">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Petits chevaux</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#fbefd9;--muted:#cdb892;--gold:#f0c060;--ca:#e8453c;--cb:#ffd84a;--bd1:#2a4a8a;--bd2:#1a2f66}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none}
+body{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);background-image:radial-gradient(circle at 50% 0,#2b4468,#14202e 70%)}
+section{max-width:520px;margin:0 auto;padding:10px 0}
+h1{margin:6px 0;text-align:center;font-size:28px}h2{text-align:center;margin:8px 0}
+.muted{color:var(--muted);text-align:center;margin:4px 0 10px}
+button,input{font:inherit}
+.ob{display:block;width:100%;margin:8px 0;padding:14px;border-radius:16px;border:2px solid var(--gold);background:var(--gold);color:#2a1c12;font-weight:800;background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);text-shadow:0 1px 0 #ffffff55;transition:transform .08s}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted);text-shadow:none;background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0))}
+input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);background:var(--panel);color:var(--ink);text-align:center}
+.join{display:flex;gap:8px;margin-top:6px}.join input{letter-spacing:6px;font-weight:800;text-transform:uppercase}.join .ob{width:auto;margin:0;padding:0 18px}
+.code{font-size:56px;font-weight:900;letter-spacing:10px;color:var(--gold);background:var(--panel);border:3px dashed var(--gold);border-radius:16px;padding:6px 18px 6px 28px;text-align:center;margin:12px 0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:8px 0}
+.tabs button{padding:8px 14px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font-weight:700}
+.tabs button.on{background:var(--gold);color:#2a1c12;border-color:var(--gold);box-shadow:0 0 14px #f6c85f99}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0 2px;font-weight:800}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #st{flex:1;text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hero{display:block;width:108px;height:108px;margin:0 auto 4px;border-radius:26px;box-shadow:0 12px 26px #000b,0 0 0 2px #ffffff33 inset}
+#home h1{background:linear-gradient(90deg,#ffe08a,#ff9ad0);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:32px}
+.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:56px;height:44px;border-radius:12px;border:3px solid transparent;padding:0;background:#0006;font-size:20px;color:var(--ink)}.themes button.on{border-color:var(--gold)}
+
+body{background-image:radial-gradient(circle at 50% 0,#4a2f1c,#1a1008 70%);--gold:#e8b85a}
+#bw{width:min(100%,calc(100vh - 290px));margin:6px auto 0}
+#bd{position:relative;width:100%;aspect-ratio:1;border-radius:10px;background:linear-gradient(135deg,#7a4a22,#5b3416);box-shadow:0 10px 26px #000b,inset 0 0 0 3px #3a200c,inset 0 0 0 6px #b98a4a55}
+#fl{position:absolute;inset:3.2%;background:#a8692f;border-radius:4px;overflow:hidden}
+#fl>*{position:absolute}
+.pc{background:#e3b778;box-shadow:inset 0 0 0 1px #8a5a2a88;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:2.2vmin;color:#fff}
+.pc.s{font-weight:900;text-shadow:0 1px 2px #000}
+.yd,.ct{pointer-events:none}
+.hp{width:7.4%;transform:translate(-50%,-80%);transition:left .35s ease,top .35s ease;filter:drop-shadow(0 2px 2px #000a);cursor:default}
+.hp.mv{cursor:pointer;animation:bob .6s infinite alternate;filter:drop-shadow(0 0 5px #fff) drop-shadow(0 0 7px #ffe066)}
+@keyframes bob{to{transform:translate(-50%,-92%)}}
+#dz{display:flex;align-items:center;gap:12px;margin:10px 0}
+#dz img{width:64px;height:64px;filter:drop-shadow(0 3px 4px #000a)}#dz img.r{animation:shake .5s}
+@keyframes shake{20%{transform:rotate(-25deg) translateY(-8px)}50%{transform:rotate(25deg) translateY(4px)}80%{transform:rotate(-10deg)}}
+#dz .ob{margin:0;flex:1}
+#ps{display:flex;gap:6px;overflow-x:auto;padding:4px 0}
+.pl2{flex:1;min-width:76px;background:#0008;border-radius:14px;padding:5px;text-align:center;font-size:12px;font-weight:700;border:2px solid transparent}
+.pl2.t{border-color:var(--gold);box-shadow:0 0 12px #e8b85a88}.pl2 b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl2 i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+#lg{color:var(--muted);text-align:center;font-size:13px;min-height:20px}
+.plr{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}.plr span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:700}
+</style>
+</head>
+<body>
+<section id="home"></section>
+<section id="game" hidden>
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="st"></span><span class="gm" id="gm">0 💎</span></div>
+  <div id="main"></div>
+</section>
+<div id="ov" hidden></div><div id="toast" hidden></div>
+<script src="peerjs.min.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+class FakeConn{
+  constructor(ch,me,other){this.ch=ch;this.me=me;this.other=other;this.h={};this.open=false;
+    ch.addEventListener('message',e=>{const m=e.data;if(m.to!==me||m.from!==other)return;
+      if(m.k==='data')this.h.data&&this.h.data(JSON.parse(JSON.stringify(m.d)));
+      if(m.k==='close')this.h.close&&this.h.close();
+      if(m.k==='open'&&!this.open){this.open=true;this.ch.postMessage({k:'ack',from:me,to:other});this.h.open&&this.h.open();}
+      if(m.k==='ack'&&!this.open){this.open=true;this.h.open&&this.h.open();}});}
+  on(n,f){this.h[n]=f;}
+  send(d){this.ch.postMessage({k:'data',from:this.me,to:this.other,d:JSON.parse(JSON.stringify(d))});}
+  close(){this.ch.postMessage({k:'close',from:this.me,to:this.other});}
+}
+class FakePeer{
+  constructor(id){this.id=id||('c'+Math.random().toString(36).slice(2,8));this.ch=new BroadcastChannel('dominos'+'-fake');this.h={};
+    this.ch.addEventListener('message',e=>{const m=e.data;if(m.to===this.id&&m.k==='hello'){const c=new FakeConn(this.ch,this.id,m.from);this.h.connection&&this.h.connection(c);c.ch.postMessage({k:'open',from:this.id,to:m.from});}});
+    setTimeout(()=>this.h.open&&this.h.open(this.id),20);}
+  on(n,f){this.h[n]=f;}
+  connect(id){const c=new FakeConn(this.ch,this.id,id);setTimeout(()=>this.ch.postMessage({k:'hello',from:this.id,to:id}),30);return c;}
+  destroy(){}
+}
+function mkPeer(id){
+  if(/net=bc/.test(location.search))return new FakePeer(id);
+  if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  return id?new Peer(id,cfg):new Peer(cfg);
+}
+
+const CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const genCode=()=>Array.from({length:4},()=>CHARS[(Math.random()*CHARS.length)|0]).join('');
+const KEY='chevaux-v1',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(typeof j.gems!=='number')j.gems=20;return j;}
+function addGems(n){const j=wal();j.gems+=n;try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}gmUpdate();return j.gems;}
+function gmUpdate(){$('gm').textContent=wal().gems+' 💎';}
+let P={name:'',code:'',bots:1,lvl:1,w:0,l:0,ob:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
+function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
+function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+const mod=(x,n)=>((x%n)+n)%n;
+let H=null,peer=null,conns=[],isHost=false,myIdx=0,V=null,roomCode='';
+function nextRound(){}
+
+const HEX=['#b8312f','#2c55a5','#d9a520','#3d7a3a'],CN=['Rouge','Bleu','Jaune','Vert'];
+const START=[0,13,26,39];
+const TRACK=(()=>{const t=[];for(let c=1;c<=5;c++)t.push([6,c]);for(let r=5;r>=0;r--)t.push([r,6]);t.push([0,7],[0,8]);for(let r=1;r<=5;r++)t.push([r,8]);for(let c=9;c<=14;c++)t.push([6,c]);t.push([7,14],[8,14]);for(let c=13;c>=9;c--)t.push([8,c]);for(let r=9;r<=14;r++)t.push([r,8]);t.push([14,7],[14,6]);for(let r=13;r>=9;r--)t.push([r,6]);for(let c=5;c>=0;c--)t.push([8,c]);t.push([7,0],[6,0]);return t;})();
+const HOME=[[1,2,3,4,5].map(c=>[7,c]),[1,2,3,4,5].map(r=>[r,7]),[13,12,11,10,9].map(c=>[7,c]),[13,12,11,10,9].map(r=>[r,7])];
+const YARD=[[0,0],[0,9],[9,9],[9,0]];
+const COLMAP={2:[0,2],3:[0,1,2],4:[0,1,2,3]};
+const slotXY=(col,i)=>{const [r,c]=YARD[col];return [c+3+(i%2?1.25:-1.25),r+3+(i<2?-1.0:1.0)+.6];};
+function cellXY(col,p,i){if(p<0)return slotXY(col,i);if(p<=50){const [r,c]=TRACK[(START[col]+p)%52];return [c+.5,r+.5+.35];}if(p<=55){const [r,c]=HOME[col][p-51];return [c+.5,r+.5+.35];}return [7.5+(i%2?.35:-.35)*1,7.5+(i<2?-.25:.25)+.35];}
+function hlog(s){H.log=s;}
+const NP=()=>H.pl.length;
+function legal(pl,d){const r=[];pl.pos.forEach((p,i)=>{if(p<0){if(d===6)r.push(i);}else if(p+d<=56)r.push(i);});return r;}
+function trackIdx(pl,p){return p>=0&&p<=50?(START[pl.col]+p)%52:-1;}
+function doMove(i,pi,d){
+  const pl=H.pl[i],p=pl.pos[pi];let np=p<0?0:p+d;pl.pos[pi]=np;let msg=pl.name+(p<0?' sort un cheval.':' avance de '+d+'.');
+  if(np<=50){const ix=trackIdx(pl,np);if(!START.includes(ix)){H.pl.forEach((q,j)=>{if(j===i)return;q.pos.forEach((pp,k)=>{if(pp>=0&&trackIdx(q,pp)===ix){q.pos[k]=-1;msg=pl.name+' capture un cheval de '+q.name+' !';H.cap=(H.cap||0)+1;}});});}}
+  if(np===56)msg=pl.name+' rentre un cheval à l’arrivée !';
+  hlog(msg);
+  if(pl.pos.every(x=>x===56)){H.over=true;H.win=i;hlog(pl.name+' a gagné !');return;}
+  if(d===6&&H.sixes<2){H.sixes++;hlog(msg+' Il rejoue !');}else{H.turn=mod(i+1,NP());H.sixes=0;H.tries=0;}
+}
+function view(p){return {me:p,turn:H.turn,phase:H.phase,dice:H.dice,roll:H.roll,legal:H.legal||[],log:H.log,over:H.over,win:H.win,pl:H.pl.map(q=>({name:q.name,col:q.col,pos:q.pos,bot:q.bot}))};}
+function pushViews(){H.pl.forEach((q,i)=>{if(q.bot)return;const v=view(i);if(i===0)setTimeout(()=>onView(v),0);else{const c=conns.find(x=>x.p===i);if(c&&c.conn&&c.conn.open)try{c.conn.send({t:'view',v});}catch(e){}}});maybeBot();}
+function act(p,m){
+  if(!H||H.over||H.turn!==p)return 'invalid';const pl=H.pl[p];
+  if(m.a==='roll'){
+    if(H.phase!=='roll')return 'invalid';const d=1+((Math.random()*6)|0);H.dice=d;H.roll=(H.roll||0)+1;
+    const lg=legal(pl,d);
+    if(!lg.length){const allIn=pl.pos.every(x=>x<0);
+      if(allIn&&H.tries<2){H.tries++;hlog(pl.name+' fait '+d+'… encore un essai ('+(H.tries+1)+'/3).');}
+      else{hlog(pl.name+' fait '+d+' : aucun coup possible.');H.turn=mod(p+1,NP());H.sixes=0;H.tries=0;}
+      H.legal=[];pushViews();return;}
+    if(lg.length===1){hlog(pl.name+' fait '+d+'.');H.legal=[];doMove(p,lg[0],d);H.phase='roll';pushViews();return;}
+    H.legal=lg;H.phase='move';hlog(pl.name+' fait '+d+' : choisis un cheval.');pushViews();return;
+  }
+  if(m.a==='move'){
+    if(H.phase!=='move'||!H.legal.includes(m.i))return 'invalid';const d=H.dice;H.legal=[];H.phase='roll';doMove(p,m.i,d);pushViews();return;
+  }
+  return 'invalid';
+}
+/* ---- robots ---- */
+function maybeBot(){if(!H||H.over)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);H.bt=setTimeout(botStep,H.phase==='roll'?(window.__spd||1)*900:(window.__spd||1)*700);}
+function botStep(){
+  if(!H||H.over)return;const i=H.turn,p=H.pl[i];if(!p.bot)return;
+  if(H.phase==='roll'){act(i,{a:'roll'});return;}
+  const d=H.dice,lv=P.lvl;let best=H.legal[0],bs=-1e9;
+  for(const k of H.legal){const pp=p.pos[k],np=pp<0?0:pp+d;let s=Math.random()*(lv===0?60:6);
+    if(lv>0){
+      if(np===56)s+=80;if(pp<0)s+=45;if(pp>=0&&pp<=50&&np>50)s+=25;
+      const ix=np<=50?(START[p.col]+np)%52:-1;
+      if(ix>=0&&!START.includes(ix)){H.pl.forEach((q,j)=>{if(j!==i)q.pos.forEach(x=>{if(x>=0&&trackIdx(q,x)===ix)s+=70;});});}
+      // danger : un adversaire derrière à 1-6 cases
+      if(ix>=0&&!START.includes(ix)){H.pl.forEach((q,j)=>{if(j!==i)q.pos.forEach(x=>{const qi=trackIdx(q,x);if(qi>=0){const dist=mod(ix-qi,52);if(dist>=1&&dist<=6)s-=14;}});});}
+      s+=np*.35;
+    }
+    if(s>bs){bs=s;best=k;}}
+  act(i,{a:'move',i:best});
+}
+/* ================= accueil / réseau ================= */
+function showHome(){
+  leave();show('home');
+  $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Petits chevaux</h1><p class="muted">Sors tes quatre chevaux avec un 6, fais le tour du plateau et rentre-les à l’arrivée. Contre des robots, ou à plusieurs avec un code.</p>'+
+   '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'">'+
+   '<div class="tabs"><span>Robots :</span>'+[1,2,3].map(n=>'<button data-b="'+n+'" class="'+(P.bots===n?'on':'')+'">'+n+'</button>').join('')+'</div>'+
+   '<div class="tabs"><span>Niveau :</span>'+['Facile','Moyen','Fort'].map((n,i)=>'<button data-l="'+i+'" class="'+(P.lvl===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
+   '<button class="ob" id="solo">Jouer contre les robots</button>'+
+   '<button class="ob alt" id="host">Créer une partie en ligne</button>'+
+   '<div class="join"><input id="cd" maxlength="4" placeholder="CODE" value="'+esc(P.code)+'" aria-label="Code de la partie" autocapitalize="characters"><button class="ob alt" id="joinB">Rejoindre</button></div>'+
+   '<button class="ob alt" id="rl" style="margin-top:14px">📖 Règles</button><p class="muted sm">Victoires '+P.w+' · Défaites '+P.l+'</p>';
+  const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
+  $('home').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.bots=+b.dataset.b;nm();saveP();showHome();});
+  $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;nm();saveP();showHome();});
+  $('solo').onclick=()=>startGame([nm()],P.bots);
+  $('host').onclick=()=>hostOnline(nm());
+  $('joinB').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');P.code=c;nm();joinOnline(nm(),c);};
+  $('rl').onclick=rules;
+}
+function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:14px"><p>Chaque joueur a 4 chevaux dans son écurie. Pour en sortir un, il faut faire un <b>6</b> : le cheval se place sur ta case de départ. Un 6 permet aussi de <b>rejouer</b>.</p><p>Fais avancer tes chevaux dans le sens des aiguilles d’une montre sur le tour du plateau. Si tu tombes sur un cheval adverse, il retourne à son écurie (sauf sur une case de départ, qui protège).</p><p>Après un tour complet, ton cheval monte dans ton couloir de couleur jusqu’au centre : il faut le <b>nombre exact</b> pour y entrer. Si tous tes chevaux sont à l’écurie, tu as 3 essais pour faire un 6.</p><p>Le premier qui rentre ses 4 chevaux gagne !</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
+function leave(){clearTimeout(H&&H.bt);try{conns.forEach(c=>c.conn&&c.conn.close());}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conns=[];H=null;V=null;isHost=false;built=false;endDialog.paid=0;closeOv();}
+function startGame(humans,bots){
+  const names=humans.slice();const bn=['Luna','Comète','Orion'];for(let i=0;i<bots;i++)names.push(bn[i]);
+  const cm=COLMAP[names.length]||COLMAP[4];
+  H={pl:names.map((n,i)=>({name:n,bot:i>=humans.length,col:cm[i],pos:[-1,-1,-1,-1]})),turn:0,phase:'roll',dice:0,roll:0,legal:[],tries:0,sixes:0,over:false,log:'À '+names[0]+' de lancer le dé !'};
+  isHost=true;myIdx=0;built=false;endDialog.paid=0;show('game');pushViews();
+}
+function hostOnline(name){
+  leave();isHost=true;myIdx=0;roomCode=genCode();show('home');$('home').innerHTML='<h2>Création de la partie…</h2>';
+  const names=[name];
+  const lobby=()=>{show('home');$('home').innerHTML='<h2>Ta partie</h2><p class="muted">Donne ce code à tes amis (jusqu’à 4 joueurs) :</p><div class="code">'+roomCode+'</div><div class="plr">'+names.map(n=>'<span>'+esc(n)+'</span>').join('')+'</div><div class="tabs"><span>+ Robots :</span>'+[0, 1, 2, 3].map(n=>'<button data-b="'+n+'" class="'+((P.ob||0)===n?'on':'')+'">'+n+'</button>').join('')+'</div><button class="ob" id="go">Lancer la partie</button><button class="ob alt" id="back">Annuler</button>';
+    $('home').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.ob=+b.dataset.b;lobby();});$('back').onclick=showHome;
+    $('go').onclick=()=>{const bots=Math.min(P.ob||0,4-names.length);if(names.length+bots<2)return toast('Il faut au moins 2 joueurs (ajoute un robot).');
+      conns.forEach(c=>{try{c.conn.send({t:'start'});}catch(e){}});startGame(names,bots);};};
+  const open=tries=>{
+    try{peer=mkPeer('chevaux-'+roomCode);}catch(e){toast(e.message,5000);return showHome();}
+    peer.on('open',lobby);
+    peer.on('error',e=>{if(e.type==='unavailable-id'&&tries<5){roomCode=genCode();open(tries+1);}else{toast('Connexion impossible ('+(e.type||'erreur')+').',5000);showHome();}});
+    peer.on('connection',c=>{
+      const o={conn:c,p:-1};
+      c.on('data',m=>{if(m.t==='hello'&&o.p<0){const nm=String(m.name||'Joueur').slice(0,12),full=()=>{try{c.send({t:'full'});}catch(e){}};if(H){const od=conns.find(x=>x.dead&&H.pl[x.p]&&H.pl[x.p].name===nm);if(od){conns[conns.indexOf(od)]=o;o.p=od.p;H.pl[o.p].bot=false;toast(nm+' est de retour !',3500);pushViews();maybeBot();}else full();}else if(names.length>=4)full();else{o.p=names.length;names.push(nm);conns.push(o);lobby();}}else if(o.p>0&&m.t==='act'){const r=act(o.p,m.a);if(r==='invalid')try{c.send({t:'err'});}catch(e){}}else if(o.p>0&&m.t==='next'&&H&&H.pause)nextRound();});
+      c.on('close',()=>{if(H){if(o.p>0&&conns.indexOf(o)>=0){o.dead=true;H.pl[o.p].bot=true;toast(H.pl[o.p].name+' a quitté : un robot joue à sa place (reconnexion possible).',5000);maybeBot();pushViews();}}else{const i=conns.indexOf(o);if(i>=0){conns.splice(i,1);names.splice(o.p,1);conns.forEach(x=>{if(x.p>o.p)x.p--;});lobby();}}});
+    });
+  };
+  open(0);
+}
+function joinOnline(name,code){
+  leave();show('home');$('home').innerHTML='<h2>Connexion…</h2><p class="muted">Recherche de la partie '+code+'</p><button class="ob alt" id="back">Annuler</button>';$('back').onclick=showHome;
+  let opened=false;try{peer=mkPeer();}catch(e){toast(e.message,5000);return showHome();}
+  const fail=m=>{toast(m,5000);showHome();};
+  peer.on('error',e=>fail(e.type==='peer-unavailable'?'Aucune partie avec ce code.':'Connexion impossible ('+(e.type||'erreur')+').'));
+  peer.on('open',()=>{const c=peer.connect('chevaux-'+code,{reliable:true});peer.conn=c;
+    c.on('open',()=>{opened=true;c.send({t:'hello',name});$('home').innerHTML='<h2>Connecté !</h2><p class="muted">En attente du lancement par l’hôte…</p><button class="ob alt" id="back">Quitter</button>';$('back').onclick=showHome;});
+    c.on('data',m=>{if(m.t==='full')fail('La partie est complète ou déjà commencée.');else if(m.t==='view'){if($('game').hidden)show('game');onView(m.v);}else if(m.t==='err')toast('Action impossible.');});
+    c.on('close',()=>{if(V&&!V.over){openOv('<h2>Connexion perdue</h2><p class="muted">Un robot joue à ta place. Reconnecte-toi avec le même code et le même nom pour reprendre.</p><button class="ob" id="rc">Se reconnecter</button><button class="ob alt" id="q">Quitter</button>');$('rc').onclick=()=>{closeOv();joinOnline(name,code);};$('q').onclick=showHome;}});});
+  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},15000);
+}
+function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne peux pas jouer ce domino.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
+
+/* ================= affichage ================= */
+let built=false;
+function buildBoard(v){
+  const u=100/15;let h='<div id="bw"><div id="bd"><div id="fl">';
+  const pos=(r,c,w)=>'left:'+c*u+'%;top:'+r*u+'%;width:'+(w||1)*u+'%;height:'+(w||1)*u+'%';
+  // cases de la croix
+  const cells={};TRACK.forEach(([r,c],i)=>{cells[r+','+c]={t:i};});
+  for(let col=0;col<4;col++){HOME[col].forEach(([r,c])=>{cells[r+','+c]={h:col};});}
+  for(let col=0;col<4;col++){const [r,c]=TRACK[START[col]];cells[r+','+c]={t:START[col],s:col};}
+  for(const k in cells){const [r,c]=k.split(',').map(Number),o=cells[k];let bg='';
+    if(o.h!==undefined)bg='background:'+HEX[o.h]+'cc';else if(o.s!==undefined)bg='background:'+HEX[o.s];
+    h+='<div class="pc'+(o.s!==undefined?' s':'')+'" style="'+pos(r,c)+';'+bg+'">'+(o.s!==undefined?'★':'')+'</div>';}
+  ['yr','yb','yy','yg'].forEach((n,col)=>{const [r,c]=YARD[col];h+='<img class="yd" src="img/'+n+'.webp" alt="" style="'+pos(r,c,6)+'">';});
+  h+='<img class="ct" src="img/ctr.webp" alt="" style="'+pos(6,6,3)+'">';
+  v.pl.forEach((q,i)=>{for(let k=0;k<4;k++)h+='<img class="hp" data-i="'+i+'" data-k="'+k+'" src="img/h'+q.col+'.webp" alt="">';});
+  h+='</div></div></div><div id="dz"><img id="dice" src="img/d1.webp" alt="" style="opacity:.5"><button class="ob" id="rb">Lancer le dé</button></div><div id="lg"></div>';
+  $('main').innerHTML='<div id="ps"></div>'+h;
+  $('rb').onclick=()=>{const V=window.__l.V;if(!(V&&V.turn===V.me&&!V.over&&V.phase==='roll'))return toast(V&&V.turn===V.me&&V.phase==='move'?'Touche un cheval qui brille.':'Pas ton tour.');send({a:'roll'});};
+  built=true;
+}
+function onView(v){const prev=V;V=v;if(!built||!prev||prev.pl.length!==v.pl.length)built=false;render(!prev||v.roll!==prev.roll);if(v.over)setTimeout(endDialog,1100);}
+function render(anim){
+  const v=V;if(!v)return;if(!built)buildBoard(v);
+  const me=v.me,mine=v.turn===me&&!v.over;
+  $('st').textContent=v.over?'Partie terminée':(mine?(v.phase==='move'?'Choisis un cheval':'À toi de lancer !'):'Tour de '+v.pl[v.turn].name);
+  $('ps').innerHTML=v.pl.map((q,i)=>'<div class="pl2'+(v.turn===i?' t':'')+'"><b><i style="background:'+HEX[q.col]+'"></i>'+esc(q.name)+(i===me?' (toi)':'')+'</b><span>'+q.pos.filter(x=>x===56).length+'/4 arrivés</span></div>').join('');
+  const u=100/15,fl=document.querySelectorAll('.hp');
+  fl.forEach(el=>{const i=+el.dataset.i,k=+el.dataset.k,q=v.pl[i],[x,y]=cellXY(q.col,q.pos[k],k);
+    el.style.left=x*u+'%';el.style.top=y*u+'%';el.style.zIndex=10+Math.round(y*2);
+    const can=mine&&v.phase==='move'&&i===me&&v.legal.includes(k);el.classList.toggle('mv',can);
+    el.onclick=can?()=>send({a:'move',i:k}):null;});
+  const dc=$('dice');if(v.dice){dc.src='img/d'+v.dice+'.webp';dc.style.opacity=1;if(anim){dc.classList.remove('r');void dc.offsetWidth;dc.classList.add('r');}}
+  $('rb').disabled=!(mine&&v.phase==='roll');$('rb').style.opacity=$('rb').disabled?.5:1;
+  $('lg').textContent=v.log||'';
+}
+function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Action impossible.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
+function endDialog(){
+  const v=V;if(!v||!v.over)return;const iWon=v.win===v.me;
+  if(!endDialog.paid){endDialog.paid=1;if(iWon){addGems(Math.min(12,v.pl.length*4));P.w++;}else{addGems(1);P.l++;}saveP();}
+  openOv('<h2>'+(iWon?'🏆 Tu as gagné !':esc(v.pl[v.win].name)+' gagne la partie')+'</h2><p class="gold">+'+(iWon?Math.min(12,v.pl.length*4):1)+' 💎</p><button class="ob" id="q">Menu</button>');$('q').onclick=showHome;
+}
+$('bmenu').onclick=()=>{if(V&&!V.over){openOv('<h2>Menu</h2><button class="ob alt" id="rl">📖 Règles</button><button class="ob" id="n">Reprendre</button><button class="ob alt" id="y">Quitter la partie</button>');$('n').onclick=closeOv;$('rl').onclick=rules;$('y').onclick=showHome;}else showHome();};
+gmUpdate();showHome();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+window.__l={get H(){return H;},get V(){return V;},act,botStep,startGame};
+
+</script>
+</body>
+</html>
