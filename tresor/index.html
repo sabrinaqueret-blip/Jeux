@@ -421,7 +421,7 @@ const ADV=[
  {id:'atelier',n:'L’atelier du Professeur',ic:'⚙️',bg:'steampunk',lvl:4,len:10,rw:130,lab:'Expert',fl:['Des engrenages tournent derrière la cloison.','La vapeur siffle : un mécanisme se réveille.','Le Professeur a laissé un dernier verrou.']},
  {id:'temple',n:'Le temple des étoiles',ic:'🔮',bg:'astro',lvl:5,len:12,rw:200,lab:'Légendaire',fl:['Les étoiles dessinent une énigme sur la voûte.','Le sol vibre : une porte cosmique s’éveille.','Seuls les plus malins vont plus loin.']}];
 const STORY={
- tombeau:{col:'#e0b84a',tk:'🏺',intro:'Au fond du désert, on dit que le pharaon Khéops-Ré a scellé son trésor derrière quatre épreuves. Les pilleurs ont tous échoué. Toi, tu as une lampe, du sang-froid… et ton esprit.',
+ tombeau:{sp:'tb',col:'#e0b84a',tk:'🏺',intro:'Au fond du désert, on dit que le pharaon Khéops-Ré a scellé son trésor derrière quatre épreuves. Les pilleurs ont tous échoué. Toi, tu as une lampe, du sang-froid… et ton esprit.',
   ch:['La dalle d’entrée se soulève dans un grondement. Un couloir étroit s’enfonce dans le noir.','Des hiéroglyphes luisent sur les murs. Quelqu’un a voulu t’avertir.','Une salle poussiéreuse, des urnes brisées. Le trésor est tout près.','La chambre du pharaon. Un dernier verrou garde son coffre doré.'],
   fin:'Le couvercle cède. L’or du pharaon scintille à la lueur de ta lampe : le tombeau n’a plus de secret pour toi.'},
  ile:{col:'#4fb8d8',tk:'⚓',intro:'Le capitaine Barbe-Rouge a enterré sa fortune sur une île que personne ne retrouve. Sa carte est déchirée en morceaux, et chaque cachette est piégée. À toi de naviguer.',
@@ -468,7 +468,7 @@ function intro(a){const has=ST.run&&ST.run.id===a.id;
 let P=null,HSH=0;
 function step(){const a=CUR,k=RUN.step,d=stepD(a,k),R=mkR(RUN.seed*7+k*131+RUN.salt[k]*977);P=PZ[RUN.ty[k]](d,R);HSH=0;bgSet(a);$('sc').textContent=a.ic+' '+a.n;
   const m=$('main');m.innerHTML='';m.scrollTop=0;
-  m.append(el('div','pips',a.len?Array.from({length:a.len},(_,i)=>'<i class="'+(i<k?'dn':i===k?'on':'')+'">'+(i<k?STORY[a.id].tk:i===k?(k===a.len-1?'👑':i+1):'🔒')+'</i>').join(''):''));
+  m.append(el('div','pips',a.len?Array.from({length:a.len},(_,i)=>'<i class="'+(i<k?'dn':i===k?'on':'')+'">'+(i<k?(STORY[a.id].sp?'<img src="img/h/'+STORY[a.id].sp+(i%12)+'.webp" alt="" style="height:20px;width:20px;object-fit:contain">':STORY[a.id].tk):i===k?(k===a.len-1?'👑':i+1):'🔒')+'</i>').join(''):''));
   const S=STORY[a.id];m.append(el('div','chap','<div class="chi" style="background-image:linear-gradient(transparent 30%,#0a1420f0),url(img/'+a.id+'.webp)"></div><div class="cht"><small style="color:'+S.col+'">Chapitre '+(k+1)+' / '+a.len+'</small><p>'+(S.ch[k]||R.pick(a.fl))+'</p></div>'));
   const c=el('div','card');c.style.boxShadow='0 10px 24px #0008,0 0 0 2px '+S.col+'88 inset';c.append(el('div','pt',P.title),el('p','story',P.story));const pz=el('div');pz.id='pz';c.append(pz,el('div','',''));const fb=el('div');fb.id='fb';c.append(fb);m.append(c);
   const hb=el('div','row2');const hi=el('button','mb','💡 Indice (3 💎)'),ch=el('button','mb','🔄 Autre énigme (5 💎)');hb.append(hi,ch);m.append(hb);const hs=el('div');hs.id='hints';m.append(hs);
