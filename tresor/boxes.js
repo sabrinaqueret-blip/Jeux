@@ -572,10 +572,10 @@ function genMir(R,cols,rows,nm,nd,no){
 const VCOLS=['#d4342c','#2f55d4','#2fa84f','#e0b030','#9a45c8','#e07a30'],PCOLS=['#d4342c','#2f55d4','#2fa84f','#e0b030','#222'];
 const colMarks=cols=>(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('●',x0+i*dx,y,s,c||'gl',cols[v]));
 const moonMarks=(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('<img class="sg" src="img/ob/mn'+v+'.webp" alt="">',x0+i*dx,y,s+2,c||'gl'));
-const bulbMarks=(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('<img class="sg" src="img/ob/'+(v?'bu_on':'bu_off')+'.webp" alt="">',x0+i*dx,y,s+4,c||'gl'));
+const bulbMarks=(a,b)=>(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('<img class="sg" src="img/ob/'+(v?b:a)+'.webp" alt="">',x0+i*dx,y,s+4,c||'gl'));
 const TOOLS=[['chain','chain',null,'tl_pl','Pince',88,12,'Une chaîne barre le passage : il faut en couper un maillon.'],['bolt_c','bolt_c','bolt_o','tl_wr','Clé à molette',52,20,'Un verrou rouillé est serré à fond : il faut le desserrer.'],['pl_st_c','pl_st_c','pl_st_o','tl_ha','Marteau',32,32,'Un vieux cadenas noir est rouillé : il faut le fracasser.'],['lk_cast','lk_cast',null,'tl_sd','Tournevis',32,32,'Une plaque de fonte est coincée : il faut la forcer.']];
 const cm=(m,x0,dx,y,s,c)=>m.marksFn?m.marksFn(m.d,x0,dx,y,s,c):digitMarks(m.d,x0,dx,y,s,c);
-const PIPEB={tp_s:[1,0,1,0],tp_s2:[1,0,1,0],tp_v:[1,0,1,0],tp_e:[0,1,1,0],tp_e2:[0,1,1,0],tp_x:[1,1,1,1],tp_c:[0,0,0,1],tp_z:[0,0,0,0]};
+const PIPEB={tp_t:[0,1,1,1],tp_t2:[0,1,1,1],tp_t3:[0,1,1,1],tp_x3:[1,1,1,1],tp_vx:[1,1,1,1],tp_s3:[1,0,1,0],tp_s4:[1,0,1,0],tp_g:[1,0,1,0],tp_f:[1,0,1,0],tp_r:[1,0,1,0],tp_e3:[0,1,1,0],tp_e4:[0,1,1,0],tp_e5:[0,1,1,0],tp_s:[1,0,1,0],tp_s2:[1,0,1,0],tp_v:[1,0,1,0],tp_e:[0,1,1,0],tp_e2:[0,1,1,0],tp_x:[1,1,1,1],tp_c:[0,0,0,1],tp_z:[0,0,0,0]};
 const popn=(spr,r)=>{const bb=PIPEB[spr];return[0,1,2,3].map(d=>bb[((d-r)%4+4)%4]);};
 const PDIR=[[0,-1],[1,0],[0,1],[-1,0]];
 function genPipes(R,cols,rows){
@@ -591,9 +591,9 @@ function genPipes(R,cols,rows){
   cells[sr*cols]='tp_src';cells[tr*cols+cols-1]='tp_snk';
   path.forEach(([r,c],i)=>{const prev=i===0?[sr,0]:path[i-1],next=i===path.length-1?[tr,cols-1]:path[i+1];
     const dIn=PDIR.findIndex(([dx,dy])=>r+dy===prev[0]&&c+dx===prev[1]),dOut=PDIR.findIndex(([dx,dy])=>r+dy===next[0]&&c+dx===next[1]);
-    const straight=(dIn+2)%4===dOut;const spr=straight?R.pick(['tp_s','tp_s','tp_s2','tp_v']):R.pick(['tp_e','tp_e2']);
+    const straight=(dIn+2)%4===dOut;const spr=straight?R.pick(['tp_s','tp_s','tp_s2','tp_v','tp_s3','tp_g','tp_f','tp_r']):R.pick(['tp_e','tp_e2','tp_e3','tp_e4','tp_e5']);
     cells[r*cols+c]=spr;for(let rot=0;rot<4;rot++){const o=popn(spr,rot);if(o[dIn]&&o[dOut]&&o.filter(Boolean).length===2){sol[r*cols+c]=rot;break;}}});
-  for(let i=0;i<rows*cols;i++)if(!cells[i]){cells[i]=R.pick(['tp_s','tp_e','tp_e2','tp_c','tp_z','tp_x','tp_s2','tp_v','tp_e']);sol[i]=R.int(0,3);}
+  for(let i=0;i<rows*cols;i++)if(!cells[i]){cells[i]=R.pick(['tp_s','tp_e','tp_e2','tp_c','tp_z','tp_x','tp_s2','tp_v','tp_e','tp_t','tp_t2','tp_t3','tp_x3','tp_vx','tp_e3','tp_s3']);sol[i]=R.int(0,3);}
   const init=sol.map((v,i)=>R.int(0,3));
   // ensure not solved
   const p0={cells,rows,cols,sr,tr};
@@ -652,9 +652,9 @@ function mod(kind,R,L){
  case 'runes':{const k=[4,5,6,8][L-1],n=[3,3,4,4][L-1],sy=R.shuf([0,1,2,3,4,5,6,7,8,9,10,11]).slice(0,k),sprs=sy.map(v=>'sy'+v);
   return{kind,h:24,hh:20,digits:n,range:[0,k-1],marksFn:(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('<img class="sg" src="img/ob/'+sprs[v]+'.webp" alt="">',x0+i*dx,y,s+2,c||'gl')),
    parts:(P,d)=>[{t:'cycle',id:P,x:5,y:0,w:90,h:24,sprs,target:d,init:d.map(v=>(v+R.int(1,k-1))%k),key:true}],hint:f=>'Sur '+FN[f]+', des pierres gravées : touche chacune pour changer son symbole jusqu’à reproduire la séquence trouvée.'};}
- case 'switches':{const n=[3,3,4,5][L-1];let perm;do{perm=R.shuf(Array.from({length:n},(_,i)=>i));}while(perm.every((v,i)=>v===i));
-  return{kind,h:34,hh:20,digits:n,range:[0,1],gen:R=>{let d;do{d=Array.from({length:n},()=>R.int(0,1));}while(d.every(v=>!v)||d.every(v=>v));return d;},marksFn:bulbMarks,
-   parts:(P,d)=>[{t:'switches',id:P,x:10,y:0,w:80,h:34,perm,target:d,key:true}],hint:f=>'Sur '+FN[f]+', des lampes et des interrupteurs : chaque interrupteur est relié à une lampe, mais pas forcément celle du dessus. Essaie, puis reproduis le motif trouvé.'};}
+ case 'switches':{const n=[3,3,4,5][L-1],sk=R.pick([{l0:'bu_off',l1:'bu_on',s0:'sw_a',s1:'sw_b'},{l0:'ld_r0',l1:'ld_g1',s0:'lv_up',s1:'lv_dn'},{l0:'bu_off',l1:'bu_on',s0:'lv_up',s1:'lv_dn'},{l0:'ld_r0',l1:'ld_g1',s0:'sw_a',s1:'sw_b'}]);let perm;do{perm=R.shuf(Array.from({length:n},(_,i)=>i));}while(perm.every((v,i)=>v===i));
+  return{kind,h:34,hh:20,digits:n,range:[0,1],gen:R=>{let d;do{d=Array.from({length:n},()=>R.int(0,1));}while(d.every(v=>!v)||d.every(v=>v));return d;},marksFn:bulbMarks(sk.l0,sk.l1),
+   parts:(P,d)=>[{t:'switches',id:P,x:10,y:0,w:80,h:34,perm,target:d,sk,key:true}],hint:f=>'Sur '+FN[f]+', des lampes et des interrupteurs : chaque interrupteur est relié à une lampe, mais pas forcément celle du dessus. Essaie, puis reproduis le motif trouvé.'};}
  case 'fuses':{const nb=[1,2,2,3][L-1],n=nb+(nb===1?1:(nb===3?1:2)),bad=R.shuf(Array.from({length:n},(_,i)=>i<nb)),v=bad.map(()=>R.int(0,1)),ids=Array.from({length:nb},(_,i)=>'fz'+i),defs={};ids.forEach(id=>defs[id]={name:'Fusible neuf',kind:'part',spr:'fu_ok'});
   return{kind,h:n>2?36:22,hh:20,needItems:ids,itemDefs:defs,itemHint:'Les fusibles neufs sont cachés dans les cavités ou ramassés sur les faces.',parts:P=>[{t:'fuses',id:P,x:8,y:0,w:84,h:n>2?36:22,bad,v,key:true}],hint:f=>'Sur '+FN[f]+', un tableau de fusibles : remplace ceux qui sont grillés (noircis) par des fusibles neufs.'};}
  case 'tool':{let o;do{o=R.pick(TOOLS);}while(mod.usedT.includes(o[3]));mod.usedT.push(o[3]);const[spr,s1,sD,tid,tn,w,h,txt]=o,defs={};defs[tid]={name:tn,kind:'part',spr:tid};
@@ -720,14 +720,14 @@ function genBox(R,L){
     const add=p=>{p.f=f;p.y=Math.round((p.y+Y)*10)/10;parts.push(p);};
     if(e.m){const m=e.m,P=m.P,giv=rewards[m.i].slice();
       const ps=m.parts(P,m.d,giv);ps.forEach(add);
-      if(m.hh&&!m.inline)add({t:'hatch',id:'H'+m.i,x:28,y:m.h+4,w:44,h:m.hh,open:()=>D(P),give:giv});
+      if(m.hh&&!m.inline){const sk=R.pick([null,'door','drawer','door','drawer']);add({t:'hatch',id:'H'+m.i,x:sk?19:28,y:m.h+(sk?3:4),w:sk?62:44,h:m.hh+(sk?3:0),open:()=>D(P),give:giv,sk:sk||undefined});}
       m.f=f;}
     else if(e.c){const c=e.c,m=c.m;
       if(c.type==='plate')add({t:'marks',x:14,y:0,w:72,h:14,plate:1,items:cm(m,(100/m.digits)/2,100/m.digits,52,m.digits>4?8:9)});
       else{add({t:'hot',id:c.id,x:30,y:0,w:40,h:22,uses:'o2',fail:'Il y a quelque chose, mais trop fin pour l’œil nu.',msg:'Des chiffres minuscules apparaissent.'});
         add({t:'marks',x:14,y:26,w:72,h:14,plate:1,need:()=>D(c.id),items:cm(m,(100/m.digits)/2,100/m.digits,52,m.digits>4?8:9)});}
       c.f=f;}
-    else if(e.loose){const id=e.loose;add({t:'hot',id:'LS'+id,x:34,y:0,w:32,h:20,spr:id,pick:true,give:[id],msg:'Tu ramasses : '+items[id].name.toLowerCase()+'.'});e.f=f;}
+    else if(e.loose){const id=e.loose;add({t:'hot',id:'LS'+id,x:34,y:0,w:32,h:20,spr:items[id].spr||(items[id].kind==='note'?'pp_scroll':id),pick:true,give:[id],msg:'Tu ramasses : '+items[id].name.toLowerCase()+'.'});e.f=f;}
     else if(e.sock){add({t:'socket',id:'sock',x:6,y:0,w:88,h:34,slots:ms.map(m=>({g:m.gem})),key:true});e.f=f;}
    });});
   // hints in solving order
