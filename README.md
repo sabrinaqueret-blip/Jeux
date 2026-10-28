@@ -18,7 +18,7 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 - `dominos/` : Dominos (2 à 4 joueurs, robots ou en ligne avec un code)
 - `yams/` : Yams (seul, contre des robots ou en ligne jusqu'à 4 joueurs avec un code)
 - `chevaux/` : Petits chevaux (2 à 4 joueurs, robots ou en ligne, reconnexion possible)
-- `oie/` : Jeu de l'oie (2 à 6 joueurs, robots ou en ligne, plateau en spirale de 63 cases)
+- `oie/` : Jeu de l'oie (2 à 6 joueurs, robots ou en ligne, plateau en spirale, arrivée au centre)
 - `differences/` : Différences (3 niveaux, différences générées automatiquement à partir des illustrations, indices, 💎)
 - `fleches/` : Mots fléchés (3 niveaux, 109 grilles, ~1700 mots avec définitions, reprise de la grille en cours)
 - `mots/` : Mots mêlés (mots français ou définitions → mots anglais)
