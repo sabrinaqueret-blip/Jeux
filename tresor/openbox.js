@@ -202,25 +202,27 @@ function setFace(f){OB.M=CF[f].map(r=>r.slice());OB.face=f;}
 const cubeT=()=>{const M=OB.M;return 'translateZ(calc(var(--st)/-2)) matrix3d('+[M[0][0],M[1][0],M[2][0],0,M[0][1],M[1][1],M[2][1],0,M[0][2],M[1][2],M[2][2],0,0,0,0,1].join(',')+')';};
 const RF=[Ry(0),Ry(-90),Ry(180),Ry(90),Rx(90),Rx(-90)];
 const rollOf=()=>{const P=mm(OB.M,RF[OB.face]);return Math.round(Math.atan2(P[1][0],P[0][0])*180/Math.PI/90)*90;};
-function rest(cube){cube.classList.add('rest');cube.style.transition='none';cube.style.transform='none';cube.querySelectorAll('.face').forEach((fc,i)=>{if(i===OB.face){fc.style.transform='rotate('+rollOf()+'deg)';fc.style.display='block';}else fc.style.display='none';});}
+function rest(cube){cube.classList.add('rest');cube.style.transition='none';cube.style.transform='none';cube.querySelectorAll('.face').forEach((fc,i)=>{if(i===OB.face){fc.style.transform='none';fc.style.display='block';}else fc.style.display='none';});}
 function unrest(cube){if(!cube.classList.contains('rest'))return;cube.classList.remove('rest');cube.querySelectorAll('.face').forEach((fc,i)=>{fc.style.transform=FT[i]+' translateZ(calc(var(--st)/2))';fc.style.display='block';});cube.style.transition='none';cube.style.transform=cubeT();}
 function setT(c,tr){c.style.transition=tr?'transform .38s cubic-bezier(.3,.7,.2,1)':'none';c.style.transform=cubeT();}
 function nav(stg){stg.querySelectorAll('.nv').forEach(n=>n.remove());}
 function setName(){const nm=document.querySelector('.obt span');if(nm)nm.textContent=FACES[OB.face];}
-function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid,ax=null,tot=0,M0=null;
+function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid,ax=null,tot=0,M0=null,ign=false;
   stg.style.touchAction='none';
-  stg.addEventListener('pointerdown',e=>{down=true;drag=false;ax=null;tot=0;sx=lx=e.clientX;sy=ly=e.clientY;pid=e.pointerId;});
-  stg.addEventListener('pointermove',e=>{if(!down)return;
-    if(!drag){const ddx=e.clientX-sx,ddy=e.clientY-sy;if(Math.hypot(ddx,ddy)<20)return;drag=true;
-      const horiz=Math.abs(ddx)>=Math.abs(ddy);ax=horiz?(OB.face>=4?'z':'y'):'x';M0=OB.M.map(r=>r.slice());unrest(cube);try{stg.setPointerCapture(pid);}catch(_){}lx=sx;ly=sy;}
+  stg.addEventListener('pointerdown',e=>{down=true;drag=false;ign=false;ax=null;tot=0;sx=lx=e.clientX;sy=ly=e.clientY;pid=e.pointerId;});
+  stg.addEventListener('pointermove',e=>{if(!down||ign)return;
+    if(!drag){const ddx=e.clientX-sx,ddy=e.clientY-sy;if(Math.hypot(ddx,ddy)<20)return;
+      const horiz=Math.abs(ddx)>=Math.abs(ddy);if(horiz&&OB.face>=4){ign=true;return;}
+      drag=true;ax=horiz?'y':'x';M0=OB.M.map(r=>r.slice());unrest(cube);try{stg.setPointerCapture(pid);}catch(_){}lx=sx;ly=sy;}
     const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;const k=0.3;
-    if(ax==='y'){tot+=dx;OB.M=mm(Ry(dx*k),OB.M);}else if(ax==='z'){tot+=dx;OB.M=mm(Rz(dx*k),OB.M);}else{tot+=dy;OB.M=mm(Rx(-dy*k),OB.M);}
+    if(ax==='y'){tot+=dx;OB.M=mm(Ry(dx*k),OB.M);}else{tot+=dy;OB.M=mm(Rx(-dy*k),OB.M);}
     setT(cube,false);});
   let tm=null;const later=()=>{clearTimeout(tm);const ob=OB;tm=setTimeout(()=>{if(OB===ob&&cube.isConnected&&!down&&!cube.classList.contains('rest'))rest(cube);},430);};
-  const end=()=>{if(!down)return;down=false;if(!drag){if(!cube.classList.contains('rest'))later();return;}later();
-    let T=OB.M;
-    if(Math.abs(tot)>45){const s0=snapM(M0),s1=snapM(OB.M);if(JSON.stringify(s0)===JSON.stringify(s1)){T=ax==='y'?mm(Ry(tot>0?90:-90),M0):ax==='z'?mm(Rz(tot>0?90:-90),M0):mm(Rx(tot>0?-90:90),M0);}}
-    OB.M=snapM(T);OB.face=curF();setT(cube,true);setName();
+  const end=()=>{if(!down)return;down=false;if(!drag){if(!cube.classList.contains('rest'))later();return;}
+    let T=M0;
+    if(Math.abs(tot)>40){T=ax==='y'?mm(Ry(tot>0?90:-90),M0):mm(Rx(tot>0?-90:90),M0);T=snapM(T);OB.M=T;const nf=curF();if(OB.face>=4&&nf!==0){OB.M=M0;}else OB.face=nf;}
+    else OB.M=M0;
+    later();setT(cube,true);setName();
     const sup=ev=>{ev.stopPropagation();ev.preventDefault();};stg.addEventListener('click',sup,{capture:true,once:true});setTimeout(()=>stg.removeEventListener('click',sup,true),60);};
   stg.addEventListener('pointerup',end);stg.addEventListener('pointercancel',end);}
 function burst(stg){const f=el('div','flash');stg.append(f);setTimeout(()=>f.remove(),800);
@@ -241,8 +243,8 @@ function draw(){
     fc.append(inn,el('div','shade'));cube.append(fc);}
   sc.append(cube);stg.append(sc);
   stg.append(el('div','dimv'+(OB.th==='night'&&!F('lamp')?' on':'')));
-  rest(cube);
-  w.append(stg);
+  rest(cube);bindDrag(stg,cube);
+  w.append(stg);w.append(el('div','muted sm drh','↔↕ Glisse sur la boîte pour changer de face, ou touche un bouton'));
   const fn=el('div','fnv');['Avant','Gauche','Arrière','Droite','Dessus','Dessous'].forEach((nm,i)=>{const ps=OB.b.parts.filter(p=>p.f===i&&p.key),ok=ps.length&&ps.every(p=>D(p.id));const b=el('button',(i===OB.face?'on ':'')+(ok?'ok':''),nm+(ok?' ✔':''));b.onclick=()=>{if(i===OB.face)return;setFace(i);draw();};fn.append(b);});w.append(fn);
   const inv=el('div','invb');if(!OB.inv.length)inv.append(el('span','em','Inventaire vide'));
   OB.inv.forEach(id=>{const it=OB.b.items[id];const b=el('button','it'+(OB.sel===id?' sel':''),it.kind==='note'?'<div class="note"></div>':im(it.spr)+(it.wv!=null?'<i class="wb">'+it.wv+'</i>':''));b.onclick=()=>pick(id);inv.append(b);});
