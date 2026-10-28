@@ -155,29 +155,34 @@ const rd=t=>t*Math.PI/180,mm=(A,B)=>A.map((r,i)=>[0,1,2].map(j=>r[0]*B[0][j]+r[1
 const Rx=t=>{const c=Math.cos(rd(t)),s=Math.sin(rd(t));return[[1,0,0],[0,c,-s],[0,s,c]];},Ry=t=>{const c=Math.cos(rd(t)),s=Math.sin(rd(t));return[[c,0,s],[0,1,0],[-s,0,c]];};
 const CF=[Ry(0),Ry(90),Ry(180),Ry(-90),Rx(-90),Rx(90)].map(m=>m.map(r=>r.map(v=>Math.abs(v)<1e-9?0:Math.round(v*1e6)/1e6)));
 const FT=['rotateY(0deg)','rotateY(-90deg)','rotateY(180deg)','rotateY(90deg)','rotateX(90deg)','rotateX(-90deg)'];
+const Rz=t=>{const c=Math.cos(rd(t)),s=Math.sin(rd(t));return[[c,-s,0],[s,c,0],[0,0,1]];};
+const ALL=(()=>{const out=[];const seen=new Set();const q=[CF[0]];const gens=[Ry(90),Rx(90),Rz(90)].map(m=>m.map(r=>r.map(v=>Math.round(v))));const key=m=>m.flat().join();seen.add(key(CF[0]));while(q.length){const m=q.pop();out.push(m);gens.forEach(g=>{const n=mm(g,m);if(!seen.has(key(n))){seen.add(key(n));q.push(n);}});}return out;})();
+const snapM=M=>{let best=ALL[0],bd=1e9;ALL.forEach(A=>{let d=0;for(let i=0;i<3;i++)for(let j=0;j<3;j++){const e=A[i][j]-M[i][j];d+=e*e;}if(d<bd){bd=d;best=A;}});return best.map(r=>r.slice());};
 const NF=[[0,0,1],[-1,0,0],[0,0,-1],[1,0,0],[0,-1,0],[0,1,0]];
 const curF=()=>{let best=0,bz=-9;NF.forEach((n,i)=>{const z=OB.M[2][0]*n[0]+OB.M[2][1]*n[1]+OB.M[2][2]*n[2];if(z>bz){bz=z;best=i;}});return best;};
 function setFace(f){OB.M=CF[f].map(r=>r.slice());OB.face=f;}
 const cubeT=()=>{const M=OB.M;return 'translateZ(calc(var(--st)/-2)) matrix3d('+[M[0][0],M[1][0],M[2][0],0,M[0][1],M[1][1],M[2][1],0,M[0][2],M[1][2],M[2][2],0,0,0,0,1].join(',')+')';};
-function rest(cube){cube.classList.add('rest');cube.style.transition='none';cube.style.transform='none';cube.querySelectorAll('.face').forEach((fc,i)=>{if(i===OB.face){fc.style.transform='none';fc.style.display='block';}else fc.style.display='none';});}
+const RF=[Ry(0),Ry(-90),Ry(180),Ry(90),Rx(90),Rx(-90)];
+const rollOf=()=>{const P=mm(OB.M,RF[OB.face]);return Math.round(Math.atan2(P[1][0],P[0][0])*180/Math.PI/90)*90;};
+function rest(cube){cube.classList.add('rest');cube.style.transition='none';cube.style.transform='none';cube.querySelectorAll('.face').forEach((fc,i)=>{if(i===OB.face){fc.style.transform='rotate('+rollOf()+'deg)';fc.style.display='block';}else fc.style.display='none';});}
 function unrest(cube){if(!cube.classList.contains('rest'))return;cube.classList.remove('rest');cube.querySelectorAll('.face').forEach((fc,i)=>{fc.style.transform=FT[i]+' translateZ(calc(var(--st)/2))';fc.style.display='block';});cube.style.transition='none';cube.style.transform=cubeT();}
-function setT(c,tr){c.style.transition=tr?'transform .5s cubic-bezier(.3,.7,.2,1)':'none';c.style.transform=cubeT();}
+function setT(c,tr){c.style.transition=tr?'transform .38s cubic-bezier(.3,.7,.2,1)':'none';c.style.transform=cubeT();}
 function nav(stg){stg.querySelectorAll('.nv').forEach(n=>n.remove());}
 function setName(){const nm=document.querySelector('.obt span');if(nm)nm.textContent=FACES[OB.face];}
 function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid,ax=null,tot=0,M0=null;
   stg.style.touchAction='none';
   stg.addEventListener('pointerdown',e=>{down=true;drag=false;ax=null;tot=0;sx=lx=e.clientX;sy=ly=e.clientY;pid=e.pointerId;});
   stg.addEventListener('pointermove',e=>{if(!down)return;
-    if(!drag){const ddx=e.clientX-sx,ddy=e.clientY-sy;if(Math.hypot(ddx,ddy)<16)return;drag=true;ax=Math.abs(ddx)>=Math.abs(ddy)?'y':'x';M0=OB.M.map(r=>r.slice());unrest(cube);try{stg.setPointerCapture(pid);}catch(_){}lx=sx;ly=sy;}
+    if(!drag){const ddx=e.clientX-sx,ddy=e.clientY-sy;if(Math.hypot(ddx,ddy)<20)return;drag=true;
+      const horiz=Math.abs(ddx)>=Math.abs(ddy);ax=horiz?(OB.face>=4?'z':'y'):'x';M0=OB.M.map(r=>r.slice());unrest(cube);try{stg.setPointerCapture(pid);}catch(_){}lx=sx;ly=sy;}
     const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;const k=0.3;
-    if(ax==='y'){tot+=dx;OB.M=mm(Ry(dx*k),OB.M);}else{tot+=dy;OB.M=mm(Rx(-dy*k),OB.M);}
+    if(ax==='y'){tot+=dx;OB.M=mm(Ry(dx*k),OB.M);}else if(ax==='z'){tot+=dx;OB.M=mm(Rz(dx*k),OB.M);}else{tot+=dy;OB.M=mm(Rx(-dy*k),OB.M);}
     setT(cube,false);});
-  let tm=null;const later=()=>{clearTimeout(tm);const ob=OB;tm=setTimeout(()=>{if(OB===ob&&cube.isConnected&&!down&&!cube.classList.contains('rest'))rest(cube);},650);};
+  let tm=null;const later=()=>{clearTimeout(tm);const ob=OB;tm=setTimeout(()=>{if(OB===ob&&cube.isConnected&&!down&&!cube.classList.contains('rest'))rest(cube);},430);};
   const end=()=>{if(!down)return;down=false;if(!drag){if(!cube.classList.contains('rest'))later();return;}later();
-    let f=curF();
-    if(Math.abs(tot)>45){const f0=(()=>{const keep=OB.M;OB.M=M0;const r=curF();OB.M=keep;return r;})();
-      if(f===f0){const keep=OB.M;OB.M=ax==='y'?mm(Ry(tot>0?90:-90),M0):mm(Rx(tot>0?-90:90),M0);f=curF();OB.M=keep;}}
-    setFace(f);setT(cube,true);setName();
+    let T=OB.M;
+    if(Math.abs(tot)>45){const s0=snapM(M0),s1=snapM(OB.M);if(JSON.stringify(s0)===JSON.stringify(s1)){T=ax==='y'?mm(Ry(tot>0?90:-90),M0):ax==='z'?mm(Rz(tot>0?90:-90),M0):mm(Rx(tot>0?-90:90),M0);}}
+    OB.M=snapM(T);OB.face=curF();setT(cube,true);setName();
     const sup=ev=>{ev.stopPropagation();ev.preventDefault();};stg.addEventListener('click',sup,{capture:true,once:true});setTimeout(()=>stg.removeEventListener('click',sup,true),60);};
   stg.addEventListener('pointerup',end);stg.addEventListener('pointercancel',end);}
 function burst(stg){const f=el('div','flash');stg.append(f);setTimeout(()=>f.remove(),800);
