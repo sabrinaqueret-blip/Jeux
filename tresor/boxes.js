@@ -523,14 +523,14 @@ obDefine({id:'sablier',name:'Le sablier d’ébène',lab:'Extrême',theme:'egypt
    {t:'keyhole',id:'kh',f:2,x:36,y:10,w:28,h:34,key:'c3',key2:1,keyed:1},
    {t:'hatch',id:'h2',f:2,x:16,y:54,w:68,h:32,open:()=>D('kh'),give:['g4']},
    {t:'hot',id:'hv',f:3,x:30,y:14,w:40,h:30,uses:'o2',fail:'Il y a quelque chose, mais trop fin pour l’œil nu.',msg:'Des signes minuscules se révèlent.'},
-   {t:'marks',f:3,x:6,y:50,w:88,h:24,plate:1,need:()=>D('hv'),items:ex.map((e,k)=>mark(e,12.5+k*25,52,6,'gl'))},
+   {t:'marks',f:3,x:6,y:48,w:88,h:36,plate:1,need:()=>D('hv'),items:ex.map((e,k)=>mark(e,27+(k%2)*46,28+(k>>1)*44,7,'gl'))},
    {t:'ring',id:'ring',f:4,x:4,y:4,w:92,h:22,n:4,syms:DG,spr:'c4',code,key:true},
    {t:'hatch',id:'h4',f:4,x:30,y:30,w:40,h:20,open:()=>D('ring'),give:['g6']},
    {t:'simon',id:'sim',f:4,x:6,y:56,w:88,h:34,cols,seq,need:()=>D('ring'),key:true},
    {t:'hatch',id:'h5',f:5,x:30,y:8,w:40,h:20,open:()=>D('sim'),give:['g8']},
    {t:'socket',id:'sock',f:5,x:6,y:40,w:88,h:36,slots:[{g:'g2'},{g:'g4'},{g:'g6'},{g:'g8'}],key:true}];
   return{parts,items:{pap:NT('Papyrus',digitMarks(t,12,19,45,9,'dk'),'Cinq niveaux.'),o2:O('Loupe','o2'),c3:K('Clé d’ébène','c3'),g2:G('g2'),g4:G('g4'),g6:G('g6'),g8:G('g8')},
-   hints:['Sur la face avant, 16 lampes : en toucher une change aussi ses voisines. Allume-les toutes.','Le papyrus donne cinq chiffres : ce sont les positions des cinq curseurs de la face gauche (de haut en bas).','La clé d’ébène va dans la serrure de la face arrière.','La loupe (trouvée derrière les lampes) sert sur la face droite : une zone brille.','Les signes révélés sont quatre calculs : leurs résultats règlent les quatre anneaux du dessus (de gauche à droite).','Le dessus cache ensuite une mélodie (appuie sur ▶). Les gemmes se logent sous la boîte.']};
+   hints:['Sur la face avant, 16 lampes : en toucher une change aussi ses voisines. Allume-les toutes.','Le papyrus donne cinq chiffres : ce sont les positions des cinq curseurs de la face gauche (de haut en bas).','La clé d’ébène va dans la serrure de la face arrière.','La loupe (trouvée derrière les lampes) sert sur la face droite : une zone brille.','Les signes révélés sont QUATRE petits calculs séparés (un par case, lus ligne par ligne) : chaque résultat est un chiffre, et ces quatre chiffres règlent les quatre anneaux du dessus (de gauche à droite).','Le dessus cache ensuite une mélodie (appuie sur ▶). Les gemmes se logent sous la boîte.']};
  }});
 
 /* ================= GÉNÉRATEUR DE BOÎTES ================= */
