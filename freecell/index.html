@@ -33,7 +33,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bar button:disabled{opacity:.4}
 .card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);touch-action:none;will-change:transform;transition:transform .17s ease-out}
 .card.drag{transition:none;z-index:900!important}
-.card .fr,.card .bk{position:absolute;inset:0;border-radius:calc(var(--cw)*.11);overflow:hidden;box-sizing:border-box;box-shadow:0 1px 2px rgba(0,0,0,.35)}
+.card .fr,.card .bk{position:absolute;inset:0;border-radius:calc(var(--cw)*.11);overflow:hidden;box-sizing:border-box;box-shadow:0 -3px 6px rgba(0,0,0,.55),0 2px 5px rgba(0,0,0,.5),0 0 8px rgba(0,0,0,.3)}
 .card.nsh .bk{box-shadow:none}
 .card .fr{background:#fff;padding:calc(var(--cw)*.045)}
 .card .fr svg{width:100%;height:100%;display:block;border-radius:calc(var(--cw)*.05)}
@@ -44,7 +44,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .card.sel .fr{outline:3px solid #ffe45a;outline-offset:-2px;box-shadow:0 0 10px 2px #ffe45a}
 .card.hint .fr,.card.hint .bk{animation:hint .6s ease-in-out 3}
 @keyframes hint{50%{box-shadow:0 0 14px 5px #5ee6d0;filter:brightness(1.25)}}
-.glow .card:not(.dn) .fr{box-shadow:0 0 5px 1px var(--glow,#fff),0 1px 3px rgba(0,0,0,.5)}
+.glow .card:not(.dn) .fr{box-shadow:0 0 5px 1px var(--glow,#fff),0 -3px 6px rgba(0,0,0,.55),0 2px 5px rgba(0,0,0,.5)}
 .slot{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border:2px solid rgba(255,255,255,.28);border-radius:calc(var(--cw)*.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.35);font-size:calc(var(--cw)*.5);background:rgba(0,0,0,.12);z-index:1}
 .slot.tg{border-color:#5ee6d0;box-shadow:0 0 12px #5ee6d0;background:rgba(94,230,208,.18)}
 .slot.hot{border-color:#ffe45a}
