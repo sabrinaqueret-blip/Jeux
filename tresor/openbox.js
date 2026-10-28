@@ -138,7 +138,7 @@ function obLevel(n){
   let pool=OBX.boxes.filter(d=>lvOf(d)===n);
   const last=ST.ob&&ST.ob.last;
   let ch=[];
-  if(true){const p=pool.filter(d=>d.id!==last);ch=[p.length?p[Math.floor(Math.random()*p.length)]:pool[0]];}
+  if(true){const gn=pool.filter(d=>d.gen);const p=pool.filter(d=>d.id!==last&&!d.gen);ch=[gn.length&&(Math.random()<.75||!p.length)?gn[0]:(p.length?p[Math.floor(Math.random()*p.length)]:pool[0])];}
   else{const p=pool.slice().sort(()=>Math.random()-.5);ch=p.slice(0,2);}
   const tot=ch.reduce((a,d)=>a+d.rw,0)+0;
   openOv('<div style="font-size:30px;color:var(--gold)">'+LV[n-1].st+'</div><h2>'+LV[n-1].nm+'</h2><p class="muted">'+'Une boîte mystère.'+'</p><p class="gold">Récompense : '+tot+' 💎</p><button class="ob" id="go">Ouvrir</button><button class="ob alt" id="cn">Retour</button>');
@@ -152,8 +152,8 @@ function obIntro(d){
 /* ---------- partie ---------- */
 function obStart(d,seed){
   seed=seed||Math.floor(Math.random()*1e9);const R=mkR(seed);const b=d.build(R);
-  OB={d,b,seed,t0:Date.now(),face:0,ax:0,ay:0,done:{},inv:(b.inv0||[]).slice(),sel:null,st:{},flags:{},hintN:0,hints:0,over:false};
-  bgSet(null);$('sc').textContent='📦 '+d.name;stSize();draw();
+  OB={d,b,seed,th:b.theme||d.theme,t0:Date.now(),face:0,ax:0,ay:0,done:{},inv:(b.inv0||[]).slice(),sel:null,st:{},flags:{},hintN:0,hints:0,over:false};
+  bgSet(null);$('sc').textContent='📦 '+(b.name||d.name);stSize();draw();
 }
 window.obLeave=function(){OB=null;};
 const rd=t=>t*Math.PI/180,mm=(A,B)=>A.map((r,i)=>[0,1,2].map(j=>r[0]*B[0][j]+r[1]*B[1][j]+r[2]*B[2][j]));
@@ -193,7 +193,7 @@ function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid,ax=null,to
 function burst(stg){const f=el('div','flash');stg.append(f);setTimeout(()=>f.remove(),800);
   for(let i=0;i<16;i++){const p=el('div','pt2');const a=Math.random()*6.28,d=60+Math.random()*110;p.style.setProperty('--dx',Math.cos(a)*d+'px');p.style.setProperty('--dy',Math.sin(a)*d+'px');p.style.animationDelay=(Math.random()*.15)+'s';stg.append(p);setTimeout(()=>p.remove(),1200);}}
 function draw(){
-  const m=$('main');m.innerHTML='';m.scrollTop=0;const th=TH[OB.d.theme];
+  const m=$('main');m.innerHTML='';m.scrollTop=0;const th=TH[OB.th];
   if(!OB.M)setFace(OB.face);
   $('app').style.backgroundImage='linear-gradient(rgba(8,8,14,.55),rgba(8,8,14,.9)),url(img/ob/'+th.img+'.webp)';$('app').style.backgroundSize='cover';
   const total=OB.b.parts.filter(p=>p.key).length,dn=OB.b.parts.filter(p=>p.key&&D(p.id)).length;
@@ -207,7 +207,7 @@ function draw(){
     OB.b.parts.filter(p=>p.f===f&&(!p.need||p.need())).forEach(p=>{const n=T[p.t](p);if(!n)return;n.classList.add('p');n.style.left=p.x+'%';n.style.top=p.y+'%';n.style.width=p.w+'%';n.style.height=p.h+'%';inn.append(n);});
     fc.append(inn,el('div','shade'));cube.append(fc);}
   sc.append(cube);stg.append(sc);
-  stg.append(el('div','dimv'+(OB.d.theme==='night'&&!F('lamp')?' on':'')));
+  stg.append(el('div','dimv'+(OB.th==='night'&&!F('lamp')?' on':'')));
   const rd=el('button','rdr','⟲ Redresser');rd.onpointerdown=e=>e.stopPropagation();rd.onclick=()=>{setFace(OB.face);draw();};stg.append(rd);
   rest(cube);bindDrag(stg,cube);
   w.append(stg);w.append(el('div','muted sm drh','↔↕ Glisse sur la boîte pour la tourner (une direction à la fois)'));
@@ -249,7 +249,7 @@ const shake=n=>{if(n){bad(n);}};
 /* ---------- composants ---------- */
 const T={};
 T.ring=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.init?p.init.slice():Array(p.n).fill(0));const w=el('div','row');const done=D(p.id);
-  for(let i=0;i<p.n;i++){const sy=Array.isArray(p.syms[0])?p.syms[i]:p.syms;const sp=TH[OB.d.theme].kn||(Array.isArray(p.spr)?p.spr[i]:p.spr)||'d0';
+  for(let i=0;i<p.n;i++){const sy=Array.isArray(p.syms[0])?p.syms[i]:p.syms;const sp=TH[OB.th].kn||(Array.isArray(p.spr)?p.spr[i]:p.spr)||'d0';
     const step=360/sy.length,ang=s[i]*step,an=OB.anim&&OB.anim.id===p.id&&OB.anim.i===i;
     const b=el('button','rg'+(an?' sp':''),'<div class="rot" style="--a:'+ang+'deg;--b:'+(ang-step)+'deg">'+im(sp)+'<i class="ptr"></i></div><span class="ro">'+G(sy[s[i]])+'</span>');
     b.style.touchAction='none';

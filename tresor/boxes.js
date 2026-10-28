@@ -532,4 +532,118 @@ obDefine({id:'sablier',name:'Le sablier d’ébène',lab:'Extrême',theme:'egypt
   return{parts,items:{pap:NT('Papyrus',digitMarks(t,12,19,45,9,'dk'),'Cinq niveaux.'),o2:O('Loupe','o2'),c3:K('Clé d’ébène','c3'),g2:G('g2'),g4:G('g4'),g6:G('g6'),g8:G('g8')},
    hints:['Sur la face avant, 16 lampes : en toucher une change aussi ses voisines. Allume-les toutes.','Le papyrus donne cinq chiffres : ce sont les positions des cinq curseurs de la face gauche (de haut en bas).','La clé d’ébène va dans la serrure de la face arrière.','La loupe (trouvée derrière les lampes) sert sur la face droite : une zone brille.','Les signes révélés sont quatre calculs : leurs résultats règlent les quatre anneaux du dessus (de gauche à droite).','Le dessus cache ensuite une mélodie (appuie sur ▶). Les gemmes se logent sous la boîte.']};
  }});
+
+/* ================= GÉNÉRATEUR DE BOÎTES ================= */
+const FN=['la face avant','le côté gauche','la face arrière','le côté droit','le dessus','le dessous'];
+const GTH=['wood','lacque','pierre','jouet','marbre','rouille','cristal','sable','corail','jade','ice','clock','ivory','obsidian','egypt','steam'];
+const KEYSPR=['k0','k1','k2','k3','k4','k5','k6','k7','k8'];
+const KEYNM=['Clé de laiton','Clé d’argent','Clé ancienne','Clé de bronze','Clé noire','Clé dorée','Clé fine','Clé massive','Clé ouvragée'];
+const BOXN=['Le coffre','La boîte','Le coffret','Le cabinet','Le reliquaire'];
+const BOXQ=['de l’explorateur','du horloger','du capitaine','de l’alchimiste','du collectionneur','du voyageur','de l’inventeur','du bibliothécaire','de l’orfèvre','du mage'];
+const DECOY=[['Boussole','o4'],['Sablier','o5'],['Miroir','o6'],['Cloche','o7'],['Coquillage','o9'],['Bougeoir','o3']];
+function mod(kind,R,L){
+ const digits=n=>Array.from({length:n},()=>R.int(1,9));
+ switch(kind){
+ case 'lights':{const N=L>=3?4:3,init=lightsInit(R,N,N===3?R.int(3,5):R.int(5,8)),col=R.pick(['#ffb030','#7be0ff','#ff6a6a','#9dff7a']);
+  return{kind,big:1,h:62,hh:24,parts:P=>[{t:'lights',id:P,x:19,y:0,w:62,h:62,n:N,init,col,key:true}],hint:f=>'Sur '+FN[f]+', des lampes : en toucher une change aussi ses voisines. Il faut toutes les allumer.'};}
+ case 'simon':{const seq=simonSeq(R,[3,4,5,7][L-1]),cols=['#2f55d4','#d4342c','#2fa84f','#e0b030'];
+  return{kind,h:24,hh:20,parts:P=>[{t:'simon',id:P,x:4,y:0,w:92,h:24,cols,seq,key:true}],hint:f=>'Sur '+FN[f]+', appuie sur ▶ : observe la séquence de couleurs puis reproduis-la.'};}
+ case 'knot':{const n=[3,4,5,6][L-1],cols=['#d4342c','#2f55d4','#2fa84f','#e0b030','#9a45c8','#e07a30'].slice(0,n);let init;do{init=R.shuf(cols.map((_,i)=>i));}while(init.reduce((a,v,k)=>a+init.slice(k+1).filter(x=>x<v).length,0)<n-1);
+  return{kind,h:50,hh:24,parts:P=>[{t:'knot',id:P,x:6,y:0,w:88,h:50,n,cols,init,key:true}],hint:f=>'Sur '+FN[f]+', des fils emmêlés : échange deux extrémités voisines à droite jusqu’à ce qu’aucun ne se croise.'};}
+ case 'tiles':{const gl=R.shuf(SY).slice(0,8),init=tileInit(R,70+L*14);
+  return{kind,big:1,h:58,hh:24,parts:P=>[{t:'tiles',id:P,x:21,y:0,w:58,h:58,glyphs:gl,init,key:true}],hint:f=>'Sur '+FN[f]+', un taquin : fais glisser les tuiles pour les remettre dans l’ordre.'};}
+ case 'sliders':{const n=[3,3,4,5][L-1],{t,i}=slidersInit(R,n),h=n*10+4;
+  return{kind,h,hh:20,digits:n,parts:(P,d)=>[{t:'sliders',id:P,x:6,y:0,w:88,h,init:i,target:d,key:true}],hint:f=>'Sur '+FN[f]+', des curseurs à régler sur les bons chiffres (de haut en bas).'};}
+ case 'ring':{const n=[3,3,4,5][L-1];
+  return{kind,h:26,hh:20,digits:n,parts:(P,d)=>[{t:'ring',id:P,x:4,y:0,w:92,h:26,n,syms:DG,spr:'c4',code:d,key:true}],hint:f=>'Sur '+FN[f]+', des molettes à tourner du doigt sur le bon code.'};}
+ case 'gate':{let k;do{k=R.int(0,8);}while(mod.used.includes(k));mod.used.push(k);
+  return{kind,h:30,hh:26,needKey:KEYSPR[k],keyName:KEYNM[k],parts:(P)=>[{t:'keyhole',id:P,x:36,y:0,w:28,h:30,key:KEYSPR[k],key2:1,keyed:1}],hint:f=>'Une serrure sur '+FN[f]+' attend '+KEYNM[k].toLowerCase().replace('clé','une clé')+'.'};}
+ case 'train':{const turns=R.int(4,8);
+  return{kind,big:1,h:86,hh:0,inline:1,needItems:['r0','r1','r3','m0'],parts:(P,d,give)=>[{t:'train',id:P+'t',x:4,y:0,w:92,h:54,slots:[{x:30,y:48,w:46,g:'r0'},{x:68,y:30,w:28,g:'r1'},{x:72,y:72,w:36,g:'r3'}],key:true},
+    {t:'crank',id:P,x:28,y:57,w:44,h:28,item:'m0',turns,need:()=>D(P+'t'),key:true,give}],hint:f=>'Sur '+FN[f]+', trois axes vides : pose les trois engrenages, place la manivelle, puis tourne-la.'};}
+ }}
+const needsOf=m=>m.digits?'d':(m.needKey?'k':(m.needItems?'i':''));
+function genBox(R,L){
+ const CFG={1:{n:3,pool:['lights','simon','knot','sliders','ring'],max:{sliders:1,ring:1}},
+  2:{n:4,pool:['lights','simon','knot','sliders','ring','gate'],max:{lights:1,sliders:1,ring:1,gate:1}},
+  3:{n:5,pool:['lights','simon','knot','sliders','ring','gate','tiles','train'],max:{lights:1,tiles:1,train:1,gate:2,sliders:1,ring:1}},
+  4:{n:6,pool:['lights','simon','knot','sliders','ring','gate','tiles','train'],max:{lights:1,tiles:1,train:1,gate:2,sliders:2,ring:2,knot:2,simon:2}}}[L];
+ for(let tryN=0;tryN<400;tryN++){
+  const kinds=[],cnt={};let g=0;while(kinds.length<CFG.n&&g++<200){const k=R.pick(CFG.pool);if((cnt[k]||0)>=(CFG.max[k]||1))continue;cnt[k]=(cnt[k]||0)+1;kinds.push(k);}
+  if(kinds.length<CFG.n)continue;
+  if(kinds.filter(k=>k==='lights'||k==='tiles'||k==='train').length>(L>=4?2:3))continue;
+  mod.used=[];let ms=R.shuf(kinds).map(k=>mod(k,R,L));
+  const fi=ms.findIndex(m=>m.kind!=='gate'&&m.kind!=='train');if(fi<0)continue;if(fi>0){const t=ms[0];ms[0]=ms[fi];ms[fi]=t;}
+  const gems=R.shuf(['g0','g1','g2','g3','g4','g5','g6','g7','g8']);let gi=0;
+  const items={},rewards=ms.map(()=>[]),extra=[];let nid=0;
+  ms.forEach((m,i)=>{m.i=i;m.P='P'+i;m.gem=gems[gi++];items[m.gem]=G(m.gem);rewards[i].push(m.gem);});
+  const loose=[];
+  const supply=(id,j,force)=>{if(j>0&&!(L>=2&&R.int(1,100)<=22)&&!force){const i=R.int(0,j-1);rewards[i].push(id);return;}
+    loose.push(id);};
+  let loupe=false;
+  const carriers=[];
+  ms.forEach((m,j)=>{
+   if(m.needKey){items[m.needKey]=K(m.keyName,m.needKey);supply(m.needKey,j);}
+   if(m.needItems){const nm={r0:'Grand engrenage',r1:'Petit engrenage',r3:'Engrenage de fer',m0:'Manivelle'};m.needItems.forEach(id=>{items[id]=O(nm[id],id);supply(id,j);});}
+   if(m.digits){m.d=digits2(R,m.digits);
+     const w=L===1?[['plate',60],['note',40]]:L===2?[['plate',30],['note',40],['loupe',30]]:[['plate',15],['note',40],['loupe',45]];let r=R.int(1,100),ty='plate';for(const [t,p] of w){if(r<=p){ty=t;break;}r-=p;}
+     if(ty!=='plate'&&j===0)ty='plate';
+     if(ty==='plate')carriers.push({type:'plate',m,h:14});
+     else if(ty==='note'){const id='nt'+(nid++);const nn=R.pick(['Papyrus','Billet plié','Carnet','Parchemin','Feuille volante']);items[id]=NT(nn,digitMarks(m.d,(100/m.digits)/2+0,100/m.digits,45,m.digits>4?8:10,'dk'),'Chiffres à reporter.');m.clue={id,nn};supply(id,j);}
+     else{if(!loupe){loupe=true;items.o2=O('Loupe','o2');supply('o2',j);}carriers.push({type:'loupe',m,h:42,id:'LV'+j});}
+   }
+  });
+  // decoys
+  const deco=L>=3?R.shuf(DECOY).slice(0,L-1):[];deco.forEach(([n,s])=>{items[s]=O(n,s);const i=R.int(0,ms.length-1);rewards[i].push(s);});
+  // element list for packing
+  const els=[];
+  ms.forEach(m=>els.push({m,H:m.h+(m.hh?4+m.hh:0)}));
+  carriers.forEach(c=>els.push({c,H:c.h}));
+  loose.forEach(id=>els.push({loose:id,H:20}));
+  els.push({sock:1,H:34});
+  let lay=null;
+  for(let a=0;a<80&&!lay;a++){
+   const cap=Array(6).fill(94),fa=Array.from({length:6},()=>[]);let ok=true;
+   const ord=R.shuf(els).sort((x,y)=>(y.H>60)-(x.H>60));
+   for(const e of ord){const c=[0,1,2,3,4,5].filter(f=>cap[f]>=e.H);if(!c.length){ok=false;break;}const f=R.pick(c);cap[f]-=e.H;fa[f].push(e);}
+   if(ok)lay={fa};
+  }
+  if(!lay)continue;
+  // build parts
+  const parts=[];
+  lay.fa.forEach((arr,f)=>{arr=R.shuf(arr);const sum=arr.reduce((a,e)=>a+e.H,0),gap=Math.min(10,(94-sum)/(arr.length+1));let y=2+gap;
+   arr.forEach(e=>{const Y=y;y+=e.H+gap;
+    const add=p=>{p.f=f;p.y=Math.round((p.y+Y)*10)/10;parts.push(p);};
+    if(e.m){const m=e.m,P=m.P,giv=rewards[m.i].slice();
+      const ps=m.parts(P,m.d,giv);ps.forEach(add);
+      if(m.hh&&!m.inline)add({t:'hatch',id:'H'+m.i,x:28,y:m.h+4,w:44,h:m.hh,open:()=>D(P),give:giv});
+      m.f=f;}
+    else if(e.c){const c=e.c,m=c.m;
+      if(c.type==='plate')add({t:'marks',x:14,y:0,w:72,h:14,plate:1,items:digitMarks(m.d,(100/m.digits)/2,100/m.digits,52,m.digits>4?8:9)});
+      else{add({t:'hot',id:c.id,x:30,y:0,w:40,h:22,uses:'o2',fail:'Il y a quelque chose, mais trop fin pour l’œil nu.',msg:'Des chiffres minuscules apparaissent.'});
+        add({t:'marks',x:14,y:26,w:72,h:14,plate:1,need:()=>D(c.id),items:digitMarks(m.d,(100/m.digits)/2,100/m.digits,52,m.digits>4?8:9)});}
+      c.f=f;}
+    else if(e.loose){const id=e.loose;add({t:'hot',id:'LS'+id,x:34,y:0,w:32,h:20,spr:id,pick:true,give:[id],msg:'Tu ramasses : '+items[id].name.toLowerCase()+'.'});e.f=f;}
+    else if(e.sock){add({t:'socket',id:'sock',x:6,y:0,w:88,h:34,slots:ms.map(m=>({g:m.gem})),key:true});e.f=f;}
+   });});
+  // hints in solving order
+  const hints=[];
+  ms.forEach((m,j)=>{
+    if(m.digits){const c=carriers.find(c=>c.m===m);
+      if(c&&c.type==='plate')hints.push('Les chiffres pour '+FN[m.f]+' sont gravés sur '+FN[c.f]+'.');
+      else if(c)hints.push('La loupe (trouvée dans une cavité) sert sur '+FN[c.f]+' : une zone brille. Les chiffres révélés servent sur '+FN[m.f]+'.');
+      else if(m.clue)hints.push('Le '+m.clue.nn.toLowerCase()+' que tu trouves donne les chiffres à régler sur '+FN[m.f]+'.');}
+    hints.push(m.hint(m.f));
+    if(m.needKey)hints.push('La clé qu’il faut est cachée dans une cavité d’une autre face.');
+    if(m.needItems)hints.push('Engrenages et manivelle sont éparpillés dans les cavités ou ramassés sur les faces.');
+  });
+  hints.push('Chaque mécanisme résolu libère une gemme : toutes se logent sur '+FN[els.find(e=>e.sock).f]+'.');
+  const th=R.pick(GTH);
+  return{parts,items,hints,theme:th,name:R.pick(BOXN)+' '+R.pick(BOXQ)};
+ }
+ throw new Error('gen impossible');
+}
+const digits2=(R,n)=>Array.from({length:n},()=>R.int(1,9));
+[['Facile',1,12,3,'k1'],['Moyen',2,35,4,'k3'],['Difficile',3,60,5,'g2'],['Extrême',4,110,6,'k8']].forEach(([lab,L,rw,np,ic])=>
+ obDefine({id:'gen'+L,gen:1,name:'Boîte mystère',lab,rw,parts:np,icon:ic,intro:'Une boîte jamais vue : chaque mécanisme cache ce qu’il faut pour un autre.',win:D=>D('sock'),build(R){return genBox(R,L);}}));
 })();
