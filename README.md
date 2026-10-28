@@ -4,6 +4,8 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 
 - `rosine/` : Rosine la Lutine (plateformes, 5 mondes, boutique, duels pierre‑feuille‑ciseaux)
 - `coinche/` : Coinche à 4 joueurs (robots ou en ligne via un code de partie, PeerJS/WebRTC)
+- `morpion/` : Morpion (solo 3 niveaux ou en ligne avec code)
+- `puissance4/` : Puissance 4 (solo 3 niveaux ou en ligne avec code)
 - `dames/` : Dames françaises 10x10 (robot ou en ligne via un code, PeerJS)
 - `echecs/` : Échecs complets (robot ou en ligne via un code, PeerJS)
 - `mahjong/` : Mahjong solitaire (tortue, 144 tuiles, donne toujours solvable)
