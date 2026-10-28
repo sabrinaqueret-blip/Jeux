@@ -707,7 +707,9 @@ function genBox(R,L){
   const els=[];
   ms.forEach(m=>els.push({m,H:m.h+(m.hh?4+m.hh:0)}));
   carriers.forEach(c=>els.push({c,H:c.h}));
-  loose.forEach(id=>els.push({loose:id,H:20}));
+  const hid=new Set(loose.filter(()=>L>=3&&R.int(1,100)<=(L===4?75:35)));
+  loose.forEach(id=>els.push(hid.has(id)?{loose:id,hid:1,H:16}:{loose:id,H:20}));
+  if(L>=3)for(let q=0;q<(L===4?3:1);q++)els.push({decoy:1,H:16});
   els.push({sock:1,H:34});
   let lay=null;
   for(let a=0;a<80&&!lay;a++){
@@ -731,6 +733,8 @@ function genBox(R,L){
       else{add({t:'hot',id:c.id,x:30,y:0,w:40,h:22,uses:'o2',fail:'Il y a quelque chose, mais trop fin pour l’œil nu.',msg:'Des chiffres minuscules apparaissent.'});
         add({t:'marks',x:14,y:26,w:72,h:14,plate:1,need:()=>D(c.id),items:cm(m,(100/m.digits)/2,100/m.digits,52,m.digits>4?8:9)});}
       c.f=f;}
+    else if(e.decoy){add({t:'hot',id:'DC'+(nid++),x:R.int(8,70),y:R.int(0,3),w:22,h:13,glint:'fa',cond:()=>false,fail:R.pick(['Rien ici.','Juste une éraflure.','Une fausse piste.','Le métal sonne creux, mais rien ne bouge.'])});e.f=f;}
+    else if(e.loose&&e.hid){const id=e.loose;add({t:'hot',id:'LS'+id,x:R.int(8,70),y:R.int(0,3),w:22,h:13,glint:'fa',pick:true,give:[id],msg:'Quelque chose était dissimulé : '+items[id].name.toLowerCase()+'.'});e.f=f;}
     else if(e.loose){const id=e.loose;add({t:'hot',id:'LS'+id,x:34,y:0,w:32,h:20,spr:items[id].spr||(items[id].kind==='note'?'pp_scroll':id),pick:true,give:[id],msg:'Tu ramasses : '+items[id].name.toLowerCase()+'.'});e.f=f;}
     else if(e.sock){add({t:'socket',id:'sock',x:6,y:0,w:88,h:34,slots:ms.map(m=>({g:m.gem})),key:true});e.f=f;}
    });});
@@ -746,6 +750,7 @@ function genBox(R,L){
     if(m.needKey)hints.push('La clé qu’il faut est cachée dans une cavité d’une autre face.');
     if(m.needItems)hints.push(m.itemHint?m.itemHint:m.kind==='balance'?'Les poids sont éparpillés dans les cavités ou sur les faces : chacun porte sa valeur. Il faut une combinaison qui égale la pierre.':'Engrenages et manivelle sont éparpillés dans les cavités ou ramassés sur les faces.');
   });
+  els.filter(e=>e.hid).forEach(e=>hints.push('Un objet est dissimulé sur '+FN[e.f]+' : cherche une éraflure ou une zone suspecte et touche-la.'));
   hints.push('Chaque mécanisme résolu libère une gemme : toutes se logent sur '+FN[els.find(e=>e.sock).f]+'.');
   const th=R.pick(L>=3?GTH.filter(t=>t!=='jouet'):GTH);
   return{parts,items,hints,theme:th,name:R.pick(BOXN)+' '+R.pick(BOXQ)};
