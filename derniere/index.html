@@ -86,7 +86,7 @@ body{background-image:radial-gradient(circle at 50% 0,#2b2a5c,#101530 70%)}
 .uc.c0{--bg:#e03c31}.uc.c1{--bg:#f2c200}.uc.c2{--bg:#2fa84f}.uc.c3{--bg:#2f6fe0}.uc.c4{--bg:conic-gradient(#e03c31 0 25%,#f2c200 0 50%,#2fa84f 0 75%,#2f6fe0 0)}
 .uc .ov{position:absolute;width:74%;height:52%;border-radius:50%;background:#fff;transform:rotate(-24deg)}
 .uc b{position:relative;font-size:28px;color:var(--bg);text-shadow:0 1px 0 #0003;z-index:1;font-style:italic}
-.uc.c4 b{color:#222;font-size:22px}.uc.c1 b{color:#c99a00}
+.uc.c4 b{color:#222;font-size:20px}.uc.c4 b.l{font-size:16px}.uc.c1 b{color:#c99a00}
 .uc i{position:absolute;font-style:normal;font-size:11px;top:3px;left:5px;z-index:1}
 .uc.bgc{width:84px;height:126px;border-radius:12px}.uc.bgc b{font-size:42px}.uc.bgc.c4 b{font-size:34px}.uc.bgc i{font-size:15px;top:6px;left:8px}
 .uc.sm{width:30px;height:44px;border-width:2px;border-radius:6px}.uc.sm b{font-size:15px}.uc.sm i{display:none}
@@ -159,11 +159,11 @@ function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
 /* ================= RÈGLES ================= */
 
 const CC=['#e03c31','#f2c200','#2fa84f','#2f6fe0'],CNM=['rouge','jaune','vert','bleu'];
-const SYM={S:'⊘',R:'⇄',D:'+2',W:'★',F:'+4'};
-function mkDeck(){const d=[];let id=0;for(let c=0;c<4;c++){d.push({id:id++,c,t:'0'});for(let k=0;k<2;k++){for(let n=1;n<=9;n++)d.push({id:id++,c,t:''+n});['S','R','D'].forEach(t=>d.push({id:id++,c,t}));}}for(let i=0;i<4;i++){d.push({id:id++,c:4,t:'W'});d.push({id:id++,c:4,t:'F'});}return d;}
+const SYM={S:'⊘',R:'⇄',D:'+2',W:'★',F:'+4',A:'+2★',B:'★↻'};
+function mkDeck(){const d=[];let id=0;for(let c=0;c<4;c++){d.push({id:id++,c,t:'0'});for(let k=0;k<2;k++){for(let n=1;n<=9;n++)d.push({id:id++,c,t:''+n});['S','R','D'].forEach(t=>d.push({id:id++,c,t}));}}for(let i=0;i<4;i++){d.push({id:id++,c:4,t:'W'});d.push({id:id++,c:4,t:'F'});}d.push({id:id++,c:4,t:'A'});d.push({id:id++,c:4,t:'B'});return d;}
 function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 const cpts=c=>/^\d$/.test(c.t)?+c.t:(c.c===4?50:20);
-const playable=(c,top,col,hand)=>c.c===4?(c.t==='W'||!hand.some(x=>x.c===col)):(c.c===col||c.t===top.t);
+const playable=(c,top,col,hand)=>c.c===4?(c.t!=='F'||!hand.some(x=>x.c===col)):(c.c===col||c.t===top.t);
 let H=null,peer=null,conns=[],isHost=false,myIdx=0,V=null,roomCode='';
 const NP=()=>H.pl.length,mod=(x,n)=>((x%n)+n)%n;
 function reshuf(){if(H.deck.length)return;const top=H.disc.pop();H.deck=shuf(H.disc);H.disc=[top];}
@@ -204,6 +204,8 @@ function act(p,m){
     else if(c.t==='R'){H.dir*=-1;if(NP()===2)steps=2;}
     else if(c.t==='D'){drawN(nx,2);steps=2;}
     else if(c.t==='F'){drawN(nx,4);steps=2;}
+    else if(c.t==='A'){H.pl.forEach((q,k)=>{if(k!==p)drawN(k,2);});}
+    else if(c.t==='B')steps=0;
     hlog(pl.name+' joue '+(c.c===4?'un joker':'un '+CNM[c.c]+' '+(SYM[c.t]||c.t))+(c.c===4?' → '+CNM[H.col]:'')+'.');
     if(!pl.hand.length)return endRound(p);
     adv(p,steps);
@@ -231,7 +233,7 @@ function botStep(){
   const nx=H.pl[mod(i+H.dir,NP())],cnt=[0,0,0,0];p.hand.forEach(x=>{if(x.c<4)cnt[x.c]++;});
   let best=opts[0],bs=-1e9;
   for(const c of opts){let s=Math.random()*(lv===0?9:1.5);
-    if(lv>0){if(c.c===4)s-=c.t==='F'?9:5;else s+=cnt[c.c]*.6;if(['S','D'].includes(c.t))s+=nx.hand.length<=3?5:1;if(c.t==='R')s+=.5;if(c.t.length===1&&/\d/.test(c.t))s+=c.t/10;}
+    if(lv>0){if(c.c===4)s+=c.t==='F'?-9:c.t==='W'?-5:3;else s+=cnt[c.c]*.6;if(['S','D'].includes(c.t))s+=nx.hand.length<=3?5:1;if(c.t==='R')s+=.5;if(c.t.length===1&&/\d/.test(c.t))s+=c.t/10;}
     if(c.c===4&&p.hand.length<=2)s+=12;if(s>bs){bs=s;best=c;}}
   if(p.hand.length===2&&(lv>0||Math.random()<.6))act(i,{a:'uno'});
   if(!H||H.pause||H.over)return;
@@ -259,7 +261,7 @@ function showHome(){
   $('joinB').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');P.code=c;nm();joinOnline(nm(),c);};
   $('rl').onclick=rules;
 }
-function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:14px"><p>Chacun reçoit 7 cartes. À ton tour, pose une carte de la <b>même couleur</b>, du <b>même chiffre</b> ou du <b>même symbole</b> que celle du dessus. Sinon, pioche une carte : si elle peut se jouer, tu peux la poser, sinon tu passes.</p><p><b>⊘</b> le suivant passe son tour · <b>⇄</b> change le sens (avec 2 joueurs, tu rejoues) · <b>+2</b> le suivant pioche 2 cartes et passe · <b>★ Joker</b> tu choisis la couleur · <b>+4</b> comme un joker, le suivant pioche 4 cartes et passe ; il ne se pose que si tu n’as aucune carte de la couleur en cours.</p><p>Quand il te reste <b>une seule carte</b>, annonce « Dernière carte ! » avant de la poser… sinon un adversaire peut te surprendre (« Contre ! ») avant que le suivant joue : tu pioches 2 cartes.</p><p>Celui qui n’a plus de carte gagne la manche et marque les points des cartes des autres (chiffre = sa valeur, ⊘ ⇄ +2 = 20, jokers = 50). Premier à 500 points gagne la partie.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
+function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:14px"><p>Chacun reçoit 7 cartes. À ton tour, pose une carte de la <b>même couleur</b>, du <b>même chiffre</b> ou du <b>même symbole</b> que celle du dessus. Sinon, pioche une carte : si elle peut se jouer, tu peux la poser, sinon tu passes.</p><p><b>⊘</b> le suivant passe son tour · <b>⇄</b> change le sens (avec 2 joueurs, tu rejoues) · <b>+2</b> le suivant pioche 2 cartes et passe · <b>★ Joker</b> tu choisis la couleur · <b>+2★</b> tous les autres piochent 2 cartes et tu choisis la couleur · <b>★↻</b> tu choisis la couleur et tu rejoues · <b>+4</b> comme un joker, le suivant pioche 4 cartes et passe ; il ne se pose que si tu n’as aucune carte de la couleur en cours.</p><p>Quand il te reste <b>une seule carte</b>, annonce « Dernière carte ! » avant de la poser… sinon un adversaire peut te surprendre (« Contre ! ») avant que le suivant joue : tu pioches 2 cartes.</p><p>Celui qui n’a plus de carte gagne la manche et marque les points des cartes des autres (chiffre = sa valeur, ⊘ ⇄ +2 = 20, jokers = 50). Premier à 500 points gagne la partie.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
 function leave(){clearTimeout(H&&H.bt);try{conns.forEach(c=>c.conn&&c.conn.close());}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conns=[];H=null;V=null;isHost=false;closeOv();}
 function startGame(humans,bots){
   const names=humans.slice();const bn=['Luna','Comète','Orion','Nova','Astro'];for(let i=0;i<bots;i++)names.push(bn[i]);
@@ -299,7 +301,7 @@ function joinOnline(name,code){
 }
 function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne peux pas jouer cette carte.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
 /* ================= affichage ================= */
-const cardH=(c,cls)=>'<div class="uc c'+c.c+' '+(cls||'')+'" data-id="'+c.id+'"><span class="ov"></span><i>'+(SYM[c.t]||c.t)+'</i><b>'+(SYM[c.t]||c.t)+'</b></div>';
+const cardH=(c,cls)=>'<div class="uc c'+c.c+' '+(cls||'')+'" data-id="'+c.id+'"><span class="ov"></span><i>'+(SYM[c.t]||c.t)+'</i><b'+((SYM[c.t]||c.t).length>2?' class="l"':'')+'>'+(SYM[c.t]||c.t)+'</b></div>';
 function onView(v){V=v;if(!v.endInfo)closeOv();render();if(v.endInfo)setTimeout(endDialog,700);}
 function render(){
   const v=V;if(!v)return;const me=v.me,mine=v.turn===me,pl=v.pl[me];
