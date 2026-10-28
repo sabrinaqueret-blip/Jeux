@@ -18,6 +18,7 @@ const css=`
 .note{width:36px;height:42px;background:linear-gradient(#f3e3b8,#d8be84);border-radius:3px;box-shadow:0 2px 4px #0008;position:relative}
 .note::after{content:"";position:absolute;left:6px;right:6px;top:10px;height:3px;background:#8a6a2a66;box-shadow:0 7px #8a6a2a66,0 14px #8a6a2a66}
 .plq{background:radial-gradient(ellipse at 50% 30%,#2a1a0e,#0e0805);border:2px solid #c9a24a;border-radius:14px;box-shadow:inset 0 3px 10px #000,0 2px 0 #ffffff33,0 4px 8px #0008}
+.rdr{position:absolute;right:8px;bottom:8px;z-index:30;background:#000b;color:#e8c070;border:1.5px solid #c9a24a;border-radius:999px;padding:6px 12px;font:inherit;font-weight:800;font-size:13px}
 .eng{position:absolute;white-space:nowrap;font-weight:900;line-height:1;transform:translate(-50%,-50%)}
 .eng.gl{color:#e8c070;text-shadow:0 -1px 0 #fff8,0 2px 2px #000}
 .eng.dk{height:auto;border-radius:0;box-shadow:none;color:#3a2610;text-shadow:0 1px 0 #ffffff66,0 -1px 1px #0008}
@@ -204,6 +205,7 @@ function draw(){
     fc.append(inn,el('div','shade'));cube.append(fc);}
   sc.append(cube);stg.append(sc);
   stg.append(el('div','dimv'+(OB.d.theme==='night'&&!F('lamp')?' on':'')));
+  const rd=el('button','rdr','⟲ Redresser');rd.onpointerdown=e=>e.stopPropagation();rd.onclick=()=>{setFace(OB.face);draw();};stg.append(rd);
   rest(cube);bindDrag(stg,cube);
   w.append(stg);w.append(el('div','muted sm drh','↔↕ Glisse sur la boîte pour la tourner (une direction à la fois)'));
   const inv=el('div','invb');if(!OB.inv.length)inv.append(el('span','em','Inventaire vide'));
