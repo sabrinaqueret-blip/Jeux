@@ -500,8 +500,8 @@ T.hot=p=>{if(D(p.id)&&(!p.spr||p.pick))return null;const w=el('button','hs2'+(D(
   w.onclick=()=>{if(D(p.id)&&!p.again)return;if(p.uses&&OB.sel!==p.uses){toast(p.fail||'Il faudrait utiliser quelque chose ici.');shake(w);return;}if(p.cond&&!p.cond()){toast(p.fail||'Rien ne se passe.');shake(w);return;}if(p.toggle){OB.flags[p.id]=!OB.flags[p.id];toast(OB.flags[p.id]?'Allumé.':'Éteint.');draw();return;}solve(p);};return w;};
 T.marks=p=>{const w=el('div',p.plate?'plq':'');w.style.pointerEvents='none';w.innerHTML=p.items.map(mk).join('');return w;};
 T.tiles=p=>{const N=3;const s=OB.st[p.id]||(OB.st[p.id]=p.init.slice());const w=el('div','tg');w.style.gridTemplateColumns='repeat(3,1fr)';
-  s.forEach((v,i)=>{const b=el('button','tl2'+(v?'':' e'),v?G(p.glyphs[v-1]):'');b.onclick=()=>{if(D(p.id))return;const z=s.indexOf(0),x=i%N,y=(i/N)|0,zx=z%N,zy=(z/N)|0;if(Math.abs(x-zx)+Math.abs(y-zy)!==1)return;s[z]=v;s[i]=0;
-      if(s.every((q,j)=>q===(j+1)%9))solve(p);else draw();};w.append(b);});if(D(p.id))w.style.boxShadow='0 0 8px #5ee6a0';return w;};
+  const rd=()=>{w.textContent='';s.forEach((v,i)=>{const b=el('button','tl2'+(v?'':' e'),v?G(p.glyphs[v-1]):'');b.onclick=()=>{if(D(p.id))return;const z=s.indexOf(0),x=i%N,y=(i/N)|0,zx=z%N,zy=(z/N)|0;if(Math.abs(x-zx)+Math.abs(y-zy)!==1)return;s[z]=v;s[i]=0;
+      if(s.every((q,j)=>q===(j+1)%9))solve(p);else rd();};w.append(b);});};rd();if(D(p.id))w.style.boxShadow='0 0 8px #5ee6a0';return w;};
 T.knot=p=>{const n=p.n,r=OB.st[p.id]||(OB.st[p.id]=p.init.slice());const done=D(p.id);const sel=OB.st[p.id+'_s'];
   const w=el('div','kn');const Y=i=>(i+.5)*100/n;
   let svg='<svg viewBox="0 0 100 100" preserveAspectRatio="none">';
