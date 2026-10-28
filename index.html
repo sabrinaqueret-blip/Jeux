@@ -74,6 +74,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 <a class="g" href="tama/" data-n="Mon petit compagnon"><span class="ic"><img src="tama/icons/icon-192.png" alt=""></span><b>Mon petit compagnon</b></a>
 <a class="g" href="bac/" data-n="Petit bac"><span class="ic"><img src="bac/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Petit bac</b></a>
 <a class="g" href="pendu/" data-n="Pendu"><span class="ic"><img src="pendu/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Pendu</b></a>
+<a class="g" href="lune/" data-n="Cap sur la Lune"><span class="ic"><img src="lune/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Cap sur la Lune</b></a>
 <a class="g" href="rosine/" data-n="Rosine la Lutine"><span class="ic"><img src="rosine/icons/icon-192.png" alt=""></span><b>Rosine la Lutine</b></a>
 <a class="g" href="mots/" data-n="Mots mêlés"><span class="ic"><img src="mots/icons/icon-192.png" alt=""></span><b>Mots mêlés</b></a>
 <a class="g" href="motus/" data-n="Motus"><span class="ic"><img src="motus/icons/icon-192.png" alt=""></span><b>Motus</b></a>
@@ -101,7 +102,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 </script>
 <script>
 (function(){
-  const VERSION='n°161 · 28/10 17:04';
+  const VERSION='n°162 · 28/10 17:12';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
   document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));const im=x.querySelector('img');if(im)im.src=im.getAttribute('src')+'?v='+encodeURIComponent(VERSION);x.addEventListener('click',()=>{try{localStorage.setItem('hub-last',x.dataset.n+'|'+x.getAttribute('href')+'|'+im.getAttribute('src'));}catch(e){}});});

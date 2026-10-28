@@ -1,0 +1,32 @@
+{
+  "name": "Cap sur la Lune",
+  "short_name": "Cap Lune",
+  "description": "Cap sur la Lune : jeu de cartes à paliers, contre des robots ou en ligne avec un code, sans publicité.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14202e",
+  "theme_color": "#14202e",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
