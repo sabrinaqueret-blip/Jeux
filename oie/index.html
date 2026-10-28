@@ -41,12 +41,16 @@ body{background-image:radial-gradient(circle at 50% 0,#3a3a52,#14141e 70%);--gol
 #bd{position:relative;width:100%;aspect-ratio:1;border-radius:6px;background:url(img/bg.webp) center/100% 100%;box-shadow:0 10px 26px #000b}
 #fl{position:absolute;left:17.6%;top:17.6%;width:64.8%;height:64.8%}
 #fl>*{position:absolute}
-.oc{background:rgba(255,250,236,.8);border:1px solid #5a6a8a;border-radius:3px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.oc:nth-child(odd){background:rgba(246,238,214,.86)}
-.oc.sp{border-color:#b8872a;box-shadow:inset 0 0 0 1px #e8c46a}
-.oc.st{background:rgba(232,196,106,.85)}
-.oc b{position:absolute;left:2px;top:0;font-size:var(--nf,9px);color:#233;font-weight:800;line-height:1.1}
-.oc img{width:74%;height:74%;object-fit:contain;opacity:.95}
+.oc{background:linear-gradient(145deg,#fbf3dc,#efe0b8);border:1.5px solid #7a6238;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 2px #fffaf0aa,inset 0 -3px 5px #b8975a44,0 1px 2px #0005}
+.oc:nth-child(even){background:linear-gradient(145deg,#f3ead0,#e6d3a6)}
+.oc.g{background:linear-gradient(145deg,#fff1b8,#f0c960);border-color:#9a6f14}
+.oc.w{background:linear-gradient(145deg,#dcebf2,#aacbdc);border-color:#3f6a86}
+.oc.d{background:linear-gradient(145deg,#f4d6cc,#dba08f);border-color:#8a3a2a}
+.oc.v{background:linear-gradient(145deg,#d9ecd0,#a8cf9a);border-color:#4a7a3a}
+.oc.st{background:linear-gradient(145deg,#fff1b8,#e8b94a);border-color:#8a5a10}
+.oc.cr{background:radial-gradient(circle,#fff6c8,#eec24a);border-color:#8a5a10;box-shadow:0 0 8px #ffd54a,inset 0 0 0 2px #fffaf0aa}
+.oc b{position:absolute;left:3px;top:1px;font:700 var(--nf,9px)/1 Georgia,'Times New Roman',serif;color:#4a3414}
+.oc img{width:72%;height:72%;object-fit:contain;margin-top:6%}
 .pw{width:var(--pw,9%);transform:translate(-50%,-62%);transition:left .4s ease,top .4s ease;filter:drop-shadow(0 2px 2px #000a);pointer-events:none}
 #dz{display:flex;align-items:center;gap:10px;margin:10px 0}
 #dz .dd{display:flex;gap:6px}#dz .dd img{width:52px;height:52px;filter:drop-shadow(0 3px 4px #000a)}#dz .dd img.r{animation:shake .5s}
@@ -222,7 +226,8 @@ function buildBoard(v){
   const u=100/8;let h='<div id="bw"><div id="bd"><div id="fl">';
   SPIRAL.forEach(([r,c],i)=>{
     const sp=SPI[i]||(GEESE.includes(i)?'goose':'');
-    h+='<div class="oc'+(sp?' sp':'')+(i===0?' st':'')+'" style="left:'+c*u+'%;top:'+r*u+'%;width:'+u+'%;height:'+u+'%">'+(i===0?'<b style="position:static;font-size:var(--nf);text-align:center">Départ</b>':'<b>'+i+'</b>'+(sp?'<img src="img/i_'+sp+'.webp" alt="">':''))+'</div>';});
+    const cl=i===0?' st':i===63?' cr':GEESE.includes(i)?' g':(i===6||i===31)?' w':(i===42||i===52||i===58)?' d':(i===26||i===53||i===19)?' v':'';
+    h+='<div class="oc'+cl+'" style="left:'+c*u+'%;top:'+r*u+'%;width:'+u+'%;height:'+u+'%">'+(i===0?'<b style="position:static;font-size:calc(var(--nf) - 1px);text-align:center;font-style:italic">Départ</b>':'<b>'+i+'</b>'+(sp?'<img src="img/i_'+sp+'.webp" alt="">':''))+'</div>';});
   v.pl.forEach((q,i)=>{h+='<img class="pw" data-i="'+i+'" src="img/pw'+q.pw+'.webp" alt="">';});
   h+='</div></div></div><div id="dz"><div class="dd"><img id="d1" src="img/d1.webp" alt="" style="opacity:.5"><img id="d2" src="img/d2.webp" alt="" style="opacity:.5"></div><button class="ob" id="rb">Lancer les dés</button></div><div id="lg"></div>'+
    '<div class="lgd"><span><img src="img/i_goose.webp" alt="">oie : rejoue</span><span><img src="img/i_bridge.webp" alt="">pont → 12</span><span><img src="img/i_inn.webp" alt="">1 tour</span><span><img src="img/i_dice.webp" alt="">26 ⇄ 53</span><span><img src="img/i_well.webp" alt="">puits</span><span><img src="img/i_prison.webp" alt="">prison</span><span><img src="img/i_maze.webp" alt="">→ 30</span><span><img src="img/i_skull.webp" alt="">→ départ</span></div>';
