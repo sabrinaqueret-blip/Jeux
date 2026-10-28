@@ -161,7 +161,7 @@ function act(p,m){
   pushViews();
 }
 /* ---- robots ---- */
-function maybeBot(){if(!H||H.over)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);H.bt=setTimeout(botStep,(window.__spd||1)*(1200+((H.trail&&H.trail.steps.length)||0)*450));}
+function maybeBot(){if(!H||H.over)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);H.bt=setTimeout(botStep,(window.__spd||1)*(1500+((H.trail&&H.trail.steps.length)||0)*520));}
 function botStep(){if(!H||H.over)return;const i=H.turn;if(!H.pl[i].bot)return;act(i,{a:'roll'});}
 /* ================= accueil / réseau ================= */
 function showHome(){
@@ -220,7 +220,7 @@ function joinOnline(name,code){
 function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne peux pas jouer ce domino.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
 
 /* ================= affichage ================= */
-let built=false;const anim={t:null,steps:[],i:-1,shown:{}};
+let busyUntil=0,busyT=null;let built=false;const anim={t:null,steps:[],i:-1,shown:{}};
 const XE=[100,203,306,408,511,614,717,820,923],YE=[100,203,306,409,512,614.5,717.5,820.5,923];
 function cellXY(pos,k,n){
   if(pos>=60){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;return [(511+(cc-(cols-1)/2)*54)/10.24,(510+(rr-(Math.ceil(n/cols)-1)/2)*50+22)/10.24];}
@@ -244,11 +244,14 @@ function placePawns(v,override){
 function onView(v){const prev=V;V=v;if(!built||!prev||prev.pl.length!==v.pl.length)built=false;render(!prev||v.roll!==prev.roll);if(v.over)setTimeout(endDialog,1200+(v.trail?v.trail.steps.length*450:0));}
 function render(newRoll){
   const v=V;if(!v)return;const wasBuilt=built;if(!built)buildBoard(v);
-  const me=v.me,mine=v.turn===me&&!v.over;
-  $('st').textContent=v.over?'Partie terminée':(mine?'À toi de lancer !':'Tour de '+v.pl[v.turn].name);
-  $('ps').innerHTML=v.pl.map((q,i)=>'<div class="pl2'+(v.turn===i?' t':'')+'"><b><img src="img/pw'+q.pw+'.webp" alt="">'+esc(q.name)+(i===me?' (toi)':'')+'</b><span>case '+q.pos+(q.stuck?' ⛓':'')+(q.skip?' ⏸':'')+'</span></div>').join('');
-  clearTimeout(anim.t);
   const t=v.trail;
+  if(newRoll&&wasBuilt&&t){busyUntil=Date.now()+(t.steps.length>1?450+520*(t.steps.length-1):450)+700;clearTimeout(busyT);busyT=setTimeout(()=>{if(V)render(false);},busyUntil-Date.now()+30);}
+  const busy=!v.over&&t&&Date.now()<busyUntil;
+  const me=v.me,mine=!busy&&v.turn===me&&!v.over;
+  const shownTurn=busy?t.i:v.turn;
+  $('st').textContent=v.over?'Partie terminée':busy?(t.i===me?'Tu avances…':v.pl[t.i].name+' avance…'):(mine?'À toi de lancer !':'Tour de '+v.pl[v.turn].name);
+  $('ps').innerHTML=v.pl.map((q,i)=>'<div class="pl2'+(shownTurn===i?' t':'')+'"><b><img src="img/pw'+q.pw+'.webp" alt="">'+esc(q.name)+(i===me?' (toi)':'')+'</b><span>case '+(busy&&i===t.i?t.steps[0]:q.pos)+(q.stuck?' ⛓':'')+(q.skip?' ⏸':'')+'</span></div>').join('');
+  clearTimeout(anim.t);
   if(newRoll&&wasBuilt&&t&&t.steps.length>1){
     const ov={};ov[t.i]=t.steps[0];placePawns(v,ov);let k=0;
     const step=()=>{k++;if(k>=t.steps.length){placePawns(v);return;}const o={};o[t.i]=t.steps[k];placePawns(v,o);anim.t=setTimeout(step,520);};
@@ -256,7 +259,7 @@ function render(newRoll){
   }else placePawns(v);
   if(v.dice&&v.roll){[0,1].forEach(k=>{const e=$('d'+(k+1));e.src='img/d'+v.dice[k]+'.webp';e.style.opacity=1;if(newRoll){e.classList.remove('r');void e.offsetWidth;e.classList.add('r');}});}
   $('rb').disabled=!mine;$('rb').style.opacity=$('rb').disabled?.5:1;
-  $('lg').textContent=v.log||'';
+  $('lg').textContent=busy&&t&&t.steps.length>1&&false?'':(v.log||'');
 }
 function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Action impossible.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
 function endDialog(){
