@@ -1,5 +1,5 @@
 const CACHE='jeux-lune-v1';
-const FILES=['./','./index.html','./peerjs.min.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png'];
+const FILES=['./','./index.html','./peerjs.min.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./img/dos.webp','./img/f_rouge.webp','./img/f_bleu.webp','./img/f_jaune.webp','./img/f_vert.webp','./img/f_violet.webp','./img/f_gris.webp'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('jeux-lune-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',e=>{

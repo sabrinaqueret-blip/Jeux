@@ -66,11 +66,11 @@ body{background-image:radial-gradient(circle at 50% 0,#2a2f6a,#0f1530 70%)}
 .cd{width:34px;height:48px;border-radius:7px;background:linear-gradient(160deg,#fffaf0,#f1e5c8);border:2px solid var(--c,#999);color:var(--c,#333);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:19px;line-height:1;box-shadow:0 2px 4px #0007;position:relative;flex:none}
 .cd i{font-style:normal;font-size:12px;margin-top:2px}
 .cd.sm{width:26px;height:37px;font-size:15px;border-radius:5px;border-width:1.5px}.cd.sm i{font-size:9px}
-.cd.back{background:repeating-linear-gradient(45deg,#2a3a8a,#2a3a8a 5px,#3a4aa8 5px,#3a4aa8 10px);border-color:#9fb4ff;color:#fff}
+
 .cd.bg{width:44px;height:66px;font-size:24px}.cd.bg i{font-size:15px}
 .cd.sel{transform:translateY(-10px);box-shadow:0 0 0 3px var(--gold),0 6px 10px #000a}
 .cd.emp{opacity:.35;background:#0004;border-style:dashed}
-#mid{display:flex;gap:10px;align-items:center;justify-content:center;margin:6px 0}
+.cd.k0{background:url(img/f_rouge.webp) center/100% 100% no-repeat}.cd.k1{background:url(img/f_bleu.webp) center/100% 100% no-repeat}.cd.k2{background:url(img/f_jaune.webp) center/100% 100% no-repeat}.cd.k3{background:url(img/f_vert.webp) center/100% 100% no-repeat}.cd.k4{background:url(img/f_violet.webp) center/100% 100% no-repeat}.cd.k5{background:url(img/f_gris.webp) center/100% 100% no-repeat}.cd.k0,.cd.k1,.cd.k2,.cd.k3,.cd.k4,.cd.k5{border:0}.cd.back{background:url(img/dos.webp) center/100% 100% no-repeat;border:0;color:#fff}.cd b{text-shadow:0 0 4px #fff,0 0 2px #fff}.cd{filter:drop-shadow(0 2px 2px #0008);box-shadow:none!important}.cd.sel{filter:drop-shadow(0 0 3px #f0c060) drop-shadow(0 0 3px #f0c060)}.cd.back b{color:#fff;text-shadow:0 0 5px #000,0 0 3px #000}#mid{display:flex;gap:10px;align-items:center;justify-content:center;margin:6px 0}
 #mid button{background:none;border:0;padding:0;color:var(--ink);font-weight:800;font-size:12px;text-align:center}
 #req{background:#0007;border-radius:14px;padding:6px 10px;font-size:14px;text-align:center;margin:6px 0}#req b{color:var(--gold)}#req em{color:#5ee6a0;font-style:normal;font-weight:800}
 #tb{display:flex;flex-direction:column;gap:5px;max-height:34vh;overflow:auto;margin:6px 0}
@@ -300,7 +300,7 @@ function joinOnline(name,code){
 }
 function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Cette pose n’est pas valable.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
 /* ================= affichage ================= */
-const cardH=(c,cls)=>'<div class="cd '+(cls||'')+'" style="--c:'+COL[c.c]+'" data-id="'+c.id+'"><b>'+c.v+'</b><i>'+SY[c.c]+'</i></div>';
+const cardH=(c,cls)=>'<div class="cd k'+c.c+' '+(cls||'')+'" style="--c:'+COL[c.c]+'" data-id="'+c.id+'"><b>'+c.v+'</b><i>'+SY[c.c]+'</i></div>';
 function onView(v){V=v;if(v.endInfo!==undefined&&!v.endInfo)closeOv();sel=new Set([...sel].filter(id=>v.hand.some(c=>c.id===id)));render();if(v.endInfo)setTimeout(endDialog,600);}
 function render(){
   const v=V;if(!v)return;const me=v.me,mine=v.turn===me,pl=v.pl[me];
@@ -309,7 +309,7 @@ function render(){
   const canLay=v.phase==='play'&&mine&&!pl.laid&&findLay(v.hand,pl.lvl,false);
   const canDraw=mine&&v.phase==='draw';
   let h='<div class="moon">'+Array.from({length:8},(_,i)=>'<span class="'+(pl.lvl>i?'on':'')+(pl.lvl===i?' me':'')+'">'+(i+1)+'</span>').join('')+'<span>🌙</span></div>';
-  h+='<div id="ps">'+v.pl.map((q,i)=>'<div class="pl'+(v.turn===i?' t':'')+'"><b>'+esc(q.name)+(i===me?' (toi)':'')+'</b><span class="lv">Palier '+Math.min(8,q.lvl+1)+(q.laid?' ✓':'')+'</span><br><span>'+q.n+' cartes</span><div class="dc">'+(q.top?'<button class="cd sm'+(canDraw?' sel':'')+'" style="--c:'+COL[q.top.c]+';border-style:solid;padding:0" data-d="'+i+'"><b>'+q.top.v+'</b><i>'+SY[q.top.c]+'</i></button>':'<div class="cd sm emp"></div>')+'</div></div>').join('')+'</div>';
+  h+='<div id="ps">'+v.pl.map((q,i)=>'<div class="pl'+(v.turn===i?' t':'')+'"><b>'+esc(q.name)+(i===me?' (toi)':'')+'</b><span class="lv">Palier '+Math.min(8,q.lvl+1)+(q.laid?' ✓':'')+'</span><br><span>'+q.n+' cartes</span><div class="dc">'+(q.top?'<button class="cd k'+q.top.c+' sm'+(canDraw?' sel':'')+'" style="--c:'+COL[q.top.c]+';padding:0" data-d="'+i+'"><b>'+q.top.v+'</b><i>'+SY[q.top.c]+'</i></button>':'<div class="cd sm emp"></div>')+'</div></div>').join('')+'</div>';
   h+='<div id="mid"><button id="dk"><div class="cd bg back"><b>'+v.deckN+'</b></div>Pioche</button></div>';
   h+='<div id="req">Palier '+Math.min(8,pl.lvl+1)+' : <b>'+reqTxt(Math.min(7,pl.lvl))+'</b>'+(canLay?' <em>· tu peux le poser !</em>':'')+'</div>';
   h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'<p class="muted" style="margin:6px">Aucune combinaison posée pour l’instant.</p>')+'</div>';
