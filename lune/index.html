@@ -133,7 +133,7 @@ function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
 function closeOv(){$('ov').hidden=true;}
 function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
 /* ================= RÈGLES ================= */
-const COL=['#e8453c','#f08a2a','#d4b200','#2f9a4a','#2f7ae0','#a05ad0'],SY=['🚀','☄️','⭐','🌍','🌙','🪐'];
+const COL=['#e8453c','#2f7ae0','#d4b200','#2f9a4a','#a05ad0','#7d8590'],SY=['🚀','☄️','⭐','🌍','🌙','🪐'];
 const REQ=[[['s',3],['r',4]],[['r',4],['c',4]],[['s',3],['s',3],['p',2]],[['s',3],['r',5]],[['s',3],['c',5]],[['r',7]],[['c',7]],[['s',4],['s',3]]];
 const GN={s:n=>n===2?'une paire':n===3?'un brelan':'un carré',r:n=>'une suite de '+n,c:n=>n+' cartes de même couleur',p:()=>'une paire'};
 const reqTxt=l=>REQ[l].map(([t,n])=>GN[t](n)).join(' + ');
