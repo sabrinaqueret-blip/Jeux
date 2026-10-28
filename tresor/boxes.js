@@ -220,7 +220,7 @@ obDefine({id:'horloger',name:'La boîte d’horloger',lab:'Moyen',theme:'clock',
   const gl=R.shuf(SY).slice(0,8),ks=perm(R,8).slice(0,4),seq=Array.from({length:5},()=>R.int(0,3));
   const parts=[
    {t:'tiles',id:'tiles',f:0,x:10,y:6,w:80,h:80,glyphs:gl,init:tileInit(R,90),key:true},
-   {t:'marks',f:3,x:0,y:0,w:100,h:26,items:ks.map((k,i)=>mark(String(k+1),14+i*24,16,11,'gl'))},
+   {t:'marks',f:3,x:14,y:4,w:72,h:15,plate:1,items:ks.map((k,i)=>mark(String(k+1),12.5+i*25,52,9,'gl'))},
    {t:'ring',id:'ring',f:1,x:4,y:26,w:92,h:28,n:4,syms:gl,spr:'c5',code:ks,key:true},
    {t:'hatch',id:'h1',f:1,x:28,y:62,w:44,h:28,open:()=>D('ring'),give:['c9','o4']},
    {t:'socket',id:'gs',f:2,x:30,y:8,w:40,h:34,slots:[{g:'c9'}],key:true},
@@ -306,7 +306,7 @@ obDefine({id:'abime',name:'La chambre d’engrenages',lab:'Extrême',theme:'cloc
   const gl=R.shuf(SY).slice(0,8),ks=perm(R,8).slice(0,4),{ex,code}=mathSet(R);
   const parts=[
    {t:'tiles',id:'tiles',f:0,x:10,y:6,w:80,h:80,glyphs:gl,init:tileInit(R,110),key:true},
-   {t:'marks',f:3,x:0,y:0,w:100,h:26,items:ks.map((k,i)=>mark(String(k+1),14+i*24,16,11,'gl'))},
+   {t:'marks',f:3,x:14,y:4,w:72,h:15,plate:1,items:ks.map((k,i)=>mark(String(k+1),12.5+i*25,52,9,'gl'))},
    {t:'ring',id:'ring',f:1,x:4,y:26,w:92,h:28,n:4,syms:gl,spr:'c5',code:ks,key:true},
    {t:'hatch',id:'h1',f:1,x:28,y:62,w:44,h:28,open:()=>D('ring'),give:['c9','o2']},
    {t:'socket',id:'gs',f:2,x:30,y:8,w:40,h:34,slots:[{g:'c9'}],key:true},
