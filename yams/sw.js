@@ -1,4 +1,4 @@
-const CACHE='jeux-yams-v2';
+const CACHE='jeux-yams-v3';
 const FILES=['./','./index.html','./peerjs.min.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./img/d1.webp','./img/d2.webp','./img/d3.webp','./img/d4.webp','./img/d5.webp','./img/d6.webp','./img/cup.webp','./img/tray.webp','./img/pad.webp','./img/table.webp'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('jeux-yams-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
