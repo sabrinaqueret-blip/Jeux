@@ -51,6 +51,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 <a class="g" href="solitaire/" data-n="Solitaire"><span class="ic"><img src="solitaire/icons/icon-192.png" alt=""></span><b>Solitaire</b></a>
 <a class="g" href="freecell/" data-n="FreeCell"><span class="ic"><img src="freecell/icons/icon-192.png" alt=""></span><b>FreeCell</b></a>
 <a class="g" href="coinche/" data-n="Coinche"><span class="ic"><img src="coinche/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Coinche</b></a>
+<a class="g" href="lune/" data-n="Cap sur la Lune"><span class="ic"><img src="lune/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Cap sur la Lune</b></a>
 </div>
 <h2>Plateau</h2>
 <div class="grid">
@@ -69,17 +70,20 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 <a class="g" href="blocs/" data-n="Blocs"><span class="ic"><img src="blocs/icons/icon-192.png" alt=""></span><b>Blocs</b></a>
 <a class="g" href="maze/" data-n="Croque-labyrinthe"><span class="ic"><img src="maze/icons/icon-192.png" alt=""></span><b>Croque-labyrinthe</b></a>
 </div>
-<h2>Aventure et réflexion</h2>
+<h2>Aventure</h2>
 <div class="grid">
 <a class="g" href="tama/" data-n="Mon petit compagnon"><span class="ic"><img src="tama/icons/icon-192.png" alt=""></span><b>Mon petit compagnon</b></a>
-<a class="g" href="bac/" data-n="Petit bac"><span class="ic"><img src="bac/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Petit bac</b></a>
-<a class="g" href="pendu/" data-n="Pendu"><span class="ic"><img src="pendu/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Pendu</b></a>
-<a class="g" href="lune/" data-n="Cap sur la Lune"><span class="ic"><img src="lune/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Cap sur la Lune</b></a>
 <a class="g" href="rosine/" data-n="Rosine la Lutine"><span class="ic"><img src="rosine/icons/icon-192.png" alt=""></span><b>Rosine la Lutine</b></a>
+<a class="g" href="tresor/" data-n="Chasse au trésor"><span class="ic"><img src="tresor/icons/icon-192.png" alt=""></span><b>Chasse au trésor</b></a>
+</div>
+
+<h2>Réflexion</h2>
+<div class="grid">
+<a class="g" href="sudoku/" data-n="Sudoku Expert"><span class="ic"><img src="sudoku/icons/icon-192.png" alt=""></span><b>Sudoku Expert</b></a>
 <a class="g" href="mots/" data-n="Mots mêlés"><span class="ic"><img src="mots/icons/icon-192.png" alt=""></span><b>Mots mêlés</b></a>
 <a class="g" href="motus/" data-n="Motus"><span class="ic"><img src="motus/icons/icon-192.png" alt=""></span><b>Motus</b></a>
-<a class="g" href="sudoku/" data-n="Sudoku Expert"><span class="ic"><img src="sudoku/icons/icon-192.png" alt=""></span><b>Sudoku Expert</b></a>
-<a class="g" href="tresor/" data-n="Chasse au trésor"><span class="ic"><img src="tresor/icons/icon-192.png" alt=""></span><b>Chasse au trésor</b></a>
+<a class="g" href="bac/" data-n="Petit bac"><span class="ic"><img src="bac/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Petit bac</b></a>
+<a class="g" href="pendu/" data-n="Pendu"><span class="ic"><img src="pendu/icons/icon-192.png" alt=""><span class="tag">🌐</span></span><b>Pendu</b></a>
 </div>
 <div id="ver"></div>
 </main>
@@ -102,7 +106,7 @@ a.g .tag{position:absolute;right:5px;top:5px;font-size:11px;font-weight:800;back
 </script>
 <script>
 (function(){
-  const VERSION='n°166 · 28/10 17:23';
+  const VERSION='n°167 · 28/10 17:49';
   const ver=document.getElementById('ver'),upd=document.getElementById('upd');
   ver.textContent='Version '+VERSION;
   document.querySelectorAll('a.g').forEach(x=>{const h=x.getAttribute('href');if(h&&!h.includes('?'))x.setAttribute('href',h+'?v='+encodeURIComponent(VERSION));const im=x.querySelector('img');if(im)im.src=im.getAttribute('src')+'?v='+encodeURIComponent(VERSION);x.addEventListener('click',()=>{try{localStorage.setItem('hub-last',x.dataset.n+'|'+x.getAttribute('href')+'|'+im.getAttribute('src'));}catch(e){}});});
