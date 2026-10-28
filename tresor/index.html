@@ -432,11 +432,16 @@ function bgSet(a){$('app').style.backgroundImage=a?'linear-gradient(rgba(10,20,3
 /* ====== accueil ====== */
 function home(){RUN=null;TS=0;bgSet(null);$('sc').textContent='La chasse au trésor';const m=$('main');m.innerHTML='';
   if(window.obLeave)obLeave();
-  const tb=el('div','row2');tb.style.marginBottom='10px';[['ob','📦 Openbox'],['adv','🗺 Aventures']].forEach(([k,t])=>{const b=el('button','mb',t);b.style.borderColor=((ST.tab||'ob')===k)?'var(--gold)':'';b.style.background=((ST.tab||'ob')===k)?'#f0c06033':'#0006';b.onclick=()=>{ST.tab=k;save();home();};tb.append(b);});m.append(tb);
-  if((ST.tab||'ob')==='ob'){obList(m);return;}
-  m.append(el('p','muted sm','Choisis une aventure. Plus elle est longue et difficile, plus le trésor est gros. Les épreuves sont différentes à chaque partie.'));
-  ADV.forEach(a=>{const b=el('button','adv','<div class="ic" style="background-image:url(img/ic_'+a.id+'.webp)"></div><div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><br><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
-    b.onclick=()=>intro(a);m.append(b);});}
+  const t=ST.tab;
+  if(t==='ob'||t==='adv'){const bk=el('button','sb','← Menu');bk.onclick=()=>{ST.tab=null;save();home();};m.append(bk);}
+  if(t==='ob'){obList(m);return;}
+  if(t!=='adv'){const g=el('div','mn');
+    const o=el('button','mc','<img src="img/ob/k1.webp" alt=""><div><b>📦 Openbox</b><small>Boîtes mystères à mécanismes · 4 niveaux</small></div>');o.style.backgroundImage='url(img/ob/p_wood.webp)';o.onclick=()=>{ST.tab='ob';save();home();};
+    const s=el('button','mc','<div><b>🗺 Histoires</b><small>Aventures d’énigmes · '+ADV.length+' histoires</small></div>');s.style.backgroundImage='url(img/ile.webp)';s.onclick=()=>{ST.tab='adv';save();home();};
+    g.append(o,s);m.append(g);return;}
+  m.append(el('p','muted sm','Choisis une histoire. Plus elle est longue et difficile, plus le trésor est gros. Les épreuves changent à chaque partie.'));
+  ADV.forEach(a=>{const b=el('button','bn','<div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
+    b.style.backgroundImage='url(img/'+a.id+'.webp)';b.onclick=()=>intro(a);m.append(b);});}
 function intro(a){const has=ST.run&&ST.run.id===a.id;
   openOv('<img src="img/coffre1.webp" alt="" style="width:50%;max-width:180px;border-radius:20px;display:block;margin:0 auto 4px"><h2>'+a.n+'</h2><p class="muted">'+a.lab+' · '+a.len+' épreuves</p><p>Résous toutes les énigmes pour ouvrir le coffre : <span class="gold">'+a.rw+' 💎</span>.<br>Un indice coûte 3 💎, changer d’énigme 5 💎.</p>'
    +(has?'<button class="ob" id="rs">Reprendre ('+(ST.run.step+1)+'/'+a.len+')</button><button class="ob alt" id="nw">Nouvelle aventure</button>':'<button class="ob" id="nw">Commencer</button>')+'<button class="ob alt" id="cn">Retour</button>');

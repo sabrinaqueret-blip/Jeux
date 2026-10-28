@@ -48,6 +48,17 @@ const css=`
 .bx div{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:linear-gradient(transparent,#000d);font-weight:800;font-size:14px}.bx small{display:block;color:#f0c060;font-weight:700;font-size:12px}
 .bx.lock{filter:grayscale(1) brightness(.5)}
 
+.stage{cursor:grab;user-select:none;-webkit-user-select:none}.drh{text-align:center;margin:6px 0 2px;width:var(--st)}
+.lvl{display:grid;gap:12px}.lc{position:relative;display:flex;align-items:center;gap:12px;text-align:left;border:2px solid #c9962a;border-radius:18px;padding:16px 14px;color:#f6e7b8;overflow:hidden;min-height:96px;background:#140c06;box-shadow:0 6px 16px #000a}
+.lc i{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.5}.lc::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0c0704f0 20%,#0c070488)}
+.lc>*{position:relative;z-index:1}.lc b{font-size:20px;display:block}.lc small{display:block;font-size:12.5px;opacity:.9;margin-top:2px}.lc>div{flex:1}.lc>img{width:60px;height:60px;object-fit:contain;filter:drop-shadow(0 4px 5px #000)}
+.lc .st{position:absolute;right:12px;top:8px;color:#ffd24a;font-size:14px;letter-spacing:2px;z-index:2}
+.mn{display:grid;gap:14px}.mc{position:relative;height:150px;border:2px solid #c9962a;border-radius:20px;overflow:hidden;color:#fff;text-align:left;padding:0;background-size:cover;background-position:center;box-shadow:0 8px 18px #000b}
+.mc::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#000d,#0003 70%)}.mc div{position:absolute;left:16px;bottom:12px;z-index:1}.mc b{font-size:24px;display:block}.mc small{opacity:.9}
+.mc img{position:absolute;right:12px;top:10px;height:70px;z-index:1;filter:drop-shadow(0 4px 6px #000)}
+.sb{background:none;border:0;color:var(--gold);font-size:15px;padding:4px 0 10px}
+.bn{position:relative;display:block;width:100%;height:118px;border:2px solid #c9962a;border-radius:18px;margin-bottom:12px;overflow:hidden;color:#fff;text-align:left;background-size:cover;background-position:center;padding:0;box-shadow:0 6px 16px #000a}
+.bn::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#000e,#0002 75%)}.bn div{position:absolute;left:14px;right:14px;bottom:10px;z-index:1}.bn b{font-size:19px;display:block}.bn small{opacity:.92;display:block;font-size:12.5px}.bn .tag{color:#ffe08a;background:#f0c06033;border:1px solid #c9962a;border-radius:8px;padding:1px 7px;margin-right:6px}
 .stage{overflow:visible!important;box-shadow:none!important}
 .scene{position:absolute;inset:0;perspective:1300px;perspective-origin:50% 42%}
 .cube{position:absolute;inset:0;transform-style:preserve-3d}
@@ -61,7 +72,7 @@ const css=`
 @keyframes pf{to{transform:translate(var(--dx),var(--dy)) scale(.15);opacity:0}}
 .rg::before{content:"";position:absolute;inset:-7%;border-radius:50%;background:radial-gradient(circle,#000a 52%,#0000 74%);box-shadow:inset 0 4px 9px #000d,0 1px 0 #ffffff44}
 .rg img{filter:drop-shadow(0 3px 3px #000b)}.rg.sp img{animation:spn .28s ease-out}@keyframes spn{from{transform:rotate(-70deg)}to{transform:rotate(0)}}
-.lv::before{content:"";position:absolute;left:12%;right:12%;top:6%;bottom:6%;border-radius:14px;background:#0007;box-shadow:inset 0 3px 7px #000d,0 1px 0 #ffffff33}
+.lv::before{display:none}
 .lv img{position:relative;filter:drop-shadow(0 3px 3px #000b)}.lv.au img{animation:lau .22s ease-out}.lv.ad img{animation:lad .22s ease-out}
 @keyframes lau{from{transform:scaleY(-1)}to{transform:scaleY(1)}}@keyframes lad{from{transform:scaleY(1)}to{transform:scaleY(-1)}}
 .sl::before{content:"";position:absolute;inset:4%;border-radius:50%;background:radial-gradient(circle,#000c 50%,#0000 75%);box-shadow:inset 0 4px 9px #000d,0 1px 0 #ffffff44}
@@ -90,14 +101,28 @@ const stSize=()=>{const m=$('main');const w=Math.min(m.clientWidth-4,window.inne
 window.addEventListener('resize',()=>{if(OB&&!OB.over)stSize();});
 
 /* ---------- liste des boîtes ---------- */
+const LV=[{n:1,nm:'Facile',ic:'k1',th:'wood',st:'★',tx:'Une boîte, quelques mécanismes.'},{n:2,nm:'Moyen',ic:'k3',th:'egypt',st:'★★',tx:'Plus de mécanismes, des pièges.'},{n:3,nm:'Difficile',ic:'g2',th:'night',st:'★★★',tx:'Des boîtes retorses à fouiller.'},{n:4,nm:'Extrême',ic:'d2',th:'steam',st:'★★★★',tx:'Deux boîtes difficiles d’affilée.'}];
+const lvOf=d=>({'Facile':1,'Moyen':2,'Difficile':3})[d.lab]||3;
 window.obList=function(box){
   box.innerHTML='';
-  box.append(el('p','muted sm','Chaque boîte est un objet à explorer : fais-la tourner, touche, tourne, déplace. Aucune consigne, à toi de comprendre.'));
-  const g=el('div','bgrid');
-  OBX.boxes.forEach(d=>{const o=ST.ob&&ST.ob.done&&ST.ob.done[d.id];
-    const b=el('button','bx','<div>'+d.name+'<small>'+d.lab+' · 💎 '+d.rw+(o?' · ✔ ×'+o:'')+'</small></div>');b.style.backgroundImage='url(img/ob/p_'+d.theme+'.webp)';b.onclick=()=>obIntro(d);g.append(b);});
+  box.append(el('p','muted sm','Choisis un niveau : une boîte tirée au hasard, aucun mode d’emploi. Fais-la tourner du doigt, touche, déplace.'));
+  const g=el('div','lvl');
+  LV.forEach(l=>{const done=(ST.ob&&ST.ob.lv&&ST.ob.lv[l.n])||0;
+    const b=el('button','lc t'+l.n,'<i style="background-image:url(img/ob/p_'+l.th+'.webp)"></i><span class="st">'+l.st+'</span><div><b>'+l.nm+'</b><small>'+l.tx+'</small><small class="gold">💎 '+(l.n<4?OBX.boxes.filter(d=>lvOf(d)===l.n).map(d=>d.rw).reduce((a,x)=>Math.min(a,x),999)+' à '+OBX.boxes.filter(d=>lvOf(d)===l.n).map(d=>d.rw).reduce((a,x)=>Math.max(a,x),0):'≈ 80')+(done?' · ✔ ×'+done:'')+'</small></div><img src="img/ob/'+l.ic+'.webp" alt="">');
+    b.onclick=()=>obLevel(l.n);g.append(b);});
   box.append(g);
 };
+function obLevel(n){
+  let pool=n<4?OBX.boxes.filter(d=>lvOf(d)===n):OBX.boxes.filter(d=>lvOf(d)===3);
+  const last=ST.ob&&ST.ob.last;
+  let ch=[];
+  if(n<4){const p=pool.filter(d=>d.id!==last);ch=[p.length?p[Math.floor(Math.random()*p.length)]:pool[0]];}
+  else{const p=pool.slice().sort(()=>Math.random()-.5);ch=p.slice(0,2);}
+  const tot=ch.reduce((a,d)=>a+d.rw,0)+(n===4?20:0);
+  openOv('<div style="font-size:30px;color:var(--gold)">'+LV[n-1].st+'</div><h2>'+LV[n-1].nm+'</h2><p class="muted">'+(n<4?'Une boîte mystère.':'Deux boîtes mystère à la suite.')+'</p><p class="gold">Récompense : '+tot+' 💎</p><button class="ob" id="go">Ouvrir</button><button class="ob alt" id="cn">Retour</button>');
+  $('cn').onclick=closeOv;$('go').onclick=()=>{closeOv();obRun(n,ch,tot);};
+}
+function obRun(n,ch,tot){const d=ch[0];obStart(d);OB.lv=n;OB.chain=ch.slice(1);OB.tot=tot;OB.num=1;OB.of=ch.length;}
 function obIntro(d){
   openOv('<img src="img/ob/'+(d.icon||'k0')+'.webp" style="height:70px;display:block;margin:0 auto" alt=""><h2>'+d.name+'</h2><p class="muted">'+d.lab+' · '+d.parts+' mécanismes</p><p>'+d.intro+'</p><p class="gold">Récompense : '+d.rw+' 💎</p><button class="ob" id="go">Ouvrir la boîte</button><button class="ob alt" id="cn">Retour</button>');
   $('cn').onclick=closeOv;$('go').onclick=()=>{closeOv();obStart(d);};
@@ -113,14 +138,24 @@ const ORDER=[0,3,2,1],AYS=[0,90,180,-90];
 const faceOfAy=ay=>ORDER[(((-ay/90)%4)+4)%4];
 function setFace(f){OB.ax=f===4?-90:0;if(f!==4)OB.ay=AYS[f];OB.face=f;}
 const cubeT=()=>'translateZ(calc(var(--st)/-2)) rotateX('+OB.ax+'deg) rotateY('+OB.ay+'deg)';
-function nearFace(dir){if(OB.ax){return;}OB.ay-=dir*90;OB.face=faceOfAy(OB.ay);turn();}
-function toTop(){OB.ax=-90;OB.face=4;turn();}
-function fromTop(){OB.ax=0;OB.face=faceOfAy(OB.ay);turn();}
-function turn(){const c=document.querySelector('.cube');if(!c){draw();return;}c.style.transition='transform .65s cubic-bezier(.3,.7,.2,1)';c.style.transform=cubeT();
-  const nm=document.querySelector('.obt span');if(nm)nm.textContent=FACES[OB.face];nav(document.querySelector('.stage'));}
-function nav(stg){stg.querySelectorAll('.nv').forEach(n=>n.remove());
-  if(OB.face!==4){[['l','◀',-1],['r','▶',1]].forEach(([c,t,dd])=>{const b=el('button','nv '+c,t);b.onclick=()=>nearFace(dd);stg.append(b);});const t=el('button','nv t','▲');t.onclick=toTop;stg.append(t);}
-  else{const b=el('button','nv b','▼');b.onclick=fromTop;stg.append(b);}}
+function setT(c,tr){c.style.transition=tr?'transform .5s cubic-bezier(.3,.7,.2,1)':'none';c.style.transform=cubeT();}
+function nav(stg){stg.querySelectorAll('.nv').forEach(n=>n.remove());}
+function setName(){const nm=document.querySelector('.obt span');if(nm)nm.textContent=FACES[OB.face];}
+function bindDrag(stg,cube){let sx,sy,ax0,ay0,drag=false,down=false,pid;
+  stg.style.touchAction='none';
+  stg.addEventListener('pointerdown',e=>{down=true;drag=false;sx=e.clientX;sy=e.clientY;ax0=OB.ax;ay0=OB.ay;pid=e.pointerId;});
+  stg.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag){if(Math.hypot(dx,dy)<14)return;drag=true;try{stg.setPointerCapture(pid);}catch(_){}}
+    const k=90/(stg.clientWidth*.55);
+    if(ax0===0||dy*0===0){}
+    if(ax0===0){OB.ay=ay0+dx*k;}
+    OB.ax=Math.max(-90,Math.min(0,ax0+dy*k));
+    if(ax0===-90&&Math.abs(dx)>Math.abs(dy)){}
+    setT(cube,false);});
+  const end=()=>{if(!down)return;down=false;if(!drag)return;
+    OB.ay=Math.round(OB.ay/90)*90;OB.ax=OB.ax<-45?-90:0;OB.face=OB.ax?4:faceOfAy(OB.ay);setT(cube,true);setName();
+    const sup=ev=>{ev.stopPropagation();ev.preventDefault();};stg.addEventListener('click',sup,{capture:true,once:true});setTimeout(()=>stg.removeEventListener('click',sup,true),60);};
+  stg.addEventListener('pointerup',end);stg.addEventListener('pointercancel',end);}
 function burst(stg){const f=el('div','flash');stg.append(f);setTimeout(()=>f.remove(),800);
   for(let i=0;i<16;i++){const p=el('div','pt2');const a=Math.random()*6.28,d=60+Math.random()*110;p.style.setProperty('--dx',Math.cos(a)*d+'px');p.style.setProperty('--dy',Math.sin(a)*d+'px');p.style.animationDelay=(Math.random()*.15)+'s';stg.append(p);setTimeout(()=>p.remove(),1200);}}
 function draw(){
@@ -129,7 +164,7 @@ function draw(){
   $('app').style.backgroundImage='linear-gradient(rgba(8,8,14,.55),rgba(8,8,14,.9)),url(img/ob/'+th.img+'.webp)';$('app').style.backgroundSize='cover';
   const total=OB.b.parts.filter(p=>p.key).length,dn=OB.b.parts.filter(p=>p.key&&D(p.id)).length;
   const w=el('div','obw');
-  const top=el('div','obt','<span>'+FACES[OB.face]+'</span><span class="muted sm">'+dn+' / '+total+' ✔</span>');
+  const top=el('div','obt','<span>'+FACES[OB.face]+'</span><span class="muted sm">'+(OB.of>1?'Boîte '+OB.num+'/'+OB.of+' · ':'')+dn+' / '+total+' ✔</span>');
   const hb=el('button','mb','💡 Indice (3 💎)');hb.onclick=hint;top.append(hb);w.append(top);
   const stg=el('div','stage'),sc=el('div','scene'),cube=el('div','cube');cube.style.transform=cubeT();
   const FT=['rotateY(0deg)','rotateY(-90deg)','rotateY(180deg)','rotateY(90deg)','rotateX(90deg)'];
@@ -140,10 +175,8 @@ function draw(){
     fc.append(inn,el('div','shade'));cube.append(fc);}
   sc.append(cube);stg.append(sc);
   stg.append(el('div','dimv'+(OB.d.theme==='night'&&!F('lamp')?' on':'')));
-  nav(stg);
-  let x0=null;stg.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
-  stg.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>70)nearFace(dx<0?1:-1);},{passive:true});
-  w.append(stg);
+  bindDrag(stg,cube);
+  w.append(stg);w.append(el('div','muted sm drh','↔↕ Fais glisser le doigt sur la boîte pour la tourner'));
   const inv=el('div','invb');if(!OB.inv.length)inv.append(el('span','em','Inventaire vide'));
   OB.inv.forEach(id=>{const it=OB.b.items[id];const b=el('button','it'+(OB.sel===id?' sel':''),it.kind==='note'?'<div class="note"></div>':im(it.spr));b.onclick=()=>pick(id);inv.append(b);});
   w.append(inv);
@@ -169,9 +202,14 @@ function solve(p,quiet){OB.done[p.id]=true;if(!quiet){toast(p.msg||'Clic ! Quelq
   draw();}
 window.obDraw=draw;
 function take(id){if(!OB.inv.includes(id)){OB.inv.push(id);OB.flags['took:'+id]=true;toast('Tu prends : '+OB.b.items[id].name+'.');}}
-function win(){const t=Date.now()-OB.t0,id=OB.d.id;ST.ob=ST.ob||{done:{},best:{}};ST.ob.done[id]=(ST.ob.done[id]||0)+1;if(!ST.ob.best[id]||t<ST.ob.best[id])ST.ob.best[id]=t;save();addGems(OB.d.rw);
-  openOv('<img src="img/coffre2.webp" alt="" style="width:60%;max-width:220px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+OB.d.rw+' 💎</p><p class="muted">'+OB.d.name+' · '+fmt(t)+(OB.hints?' · '+OB.hints+' indice'+(OB.hints>1?'s':''):'')+'</p><button class="ob" id="rp">Rejouer cette boîte (codes différents)</button><button class="ob alt" id="hm">Autres boîtes</button>');
-  $('rp').onclick=()=>{closeOv();obStart(OB.d);};$('hm').onclick=()=>{closeOv();OB=null;home();};}
+function win(){const t=Date.now()-OB.t0,id=OB.d.id;ST.ob=ST.ob||{done:{},best:{}};ST.ob.lv=ST.ob.lv||{};ST.ob.last=id;ST.ob.done[id]=(ST.ob.done[id]||0)+1;if(!ST.ob.best[id]||t<ST.ob.best[id])ST.ob.best[id]=t;
+  if(OB.chain&&OB.chain.length){const nx=OB.chain[0];addGems(OB.d.rw);save();
+    openOv('<img src="img/coffre1.webp" alt="" style="width:50%;max-width:180px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Première boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+OB.d.rw+' 💎</p><p class="muted">Une deuxième boîte t’attend, plus retorse encore.</p><button class="ob" id="nx">Boîte suivante</button>');
+    $('nx').onclick=()=>{closeOv();const n=OB.lv,ch=OB.chain.slice(1),tot=OB.tot,k=OB.num+1,of=OB.of;obStart(nx);OB.lv=n;OB.chain=ch;OB.tot=tot;OB.num=k;OB.of=of;};return;}
+  const bonus=OB.lv===4?20:0;if(OB.lv)ST.ob.lv[OB.lv]=(ST.ob.lv[OB.lv]||0)+1;addGems(OB.d.rw+bonus);save();
+  const lv=OB.lv;
+  openOv('<img src="img/coffre2.webp" alt="" style="width:60%;max-width:220px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+(OB.d.rw+bonus)+' 💎</p><p class="muted">'+OB.d.name+' · '+fmt(t)+(OB.hints?' · '+OB.hints+' indice'+(OB.hints>1?'s':''):'')+'</p>'+(lv?'<button class="ob" id="rp">Nouvelle boîte ('+LV[lv-1].nm+')</button>':'<button class="ob" id="rp">Rejouer</button>')+'<button class="ob alt" id="hm">Menu Openbox</button>');
+  $('rp').onclick=()=>{closeOv();if(lv)obLevel(lv);else obStart(OB.d);};$('hm').onclick=()=>{closeOv();OB=null;home();};}
 const shake=n=>{if(n){bad(n);}};
 
 /* ---------- composants ---------- */
