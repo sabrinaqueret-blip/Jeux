@@ -237,11 +237,11 @@ function draw(){
   const top=el('div','obt','<span>'+FACES[OB.face]+'</span><span class="muted sm">'+(OB.of>1?'Boîte '+OB.num+'/'+OB.of+' · ':'')+dn+' / '+total+' ✔</span>');
   const hb=el('button','mb','💡 Indice (3 💎)');hb.onclick=hint;top.append(hb);w.append(top);
   const stg=el('div','stage'),sc=el('div','scene'),cube=el('div','cube');cube.style.transform=cubeT();
-  for(let f=0;f<6;f++){const fc=el('div','face');fc.style.transform=FT[f]+' translateZ(calc(var(--st)/2))';
+  for(let f=0;f<6;f++){const fc2=[];const fc=el('div','face');fc.style.transform=FT[f]+' translateZ(calc(var(--st)/2))';
     const bg=el('div','bgf f'+f);bg.style.backgroundImage='url(img/ob/'+th.img+'.webp)';fc.append(bg);
     const inn=el('div','in');inn.style.cssText='left:'+th.safe[0]+'%;top:'+th.safe[1]+'%;width:'+th.safe[2]+'%;height:'+th.safe[3]+'%';inn.style.setProperty('--tn',th.tn||'brightness(1)');
-    OB.b.parts.filter(p=>p.f===f&&(!p.need||p.need())).forEach(p=>{const n=T[p.t](p);if(!n)return;n.classList.add('p');n.style.left=p.x+'%';n.style.top=p.y+'%';n.style.width=p.w+'%';n.style.height=p.h+'%';inn.append(n);});
-    fc.append(inn,el('div','shade'));cube.append(fc);}
+    OB.b.parts.filter(p=>p.f===f&&(!p.need||p.need())).forEach(p=>{const n=T[p.t](p);if(!n)return;n.classList.add('p');if(p.edge){const sf=th.safe,bd=[sf[1],100-sf[1]-sf[3],sf[0],100-sf[0]-sf[2]][p.es],z=Math.max(5,Math.min(bd*.8,10)),c=(bd-z)/2,pos=5+p.ep*(90-z);n.style.width=z+'%';n.style.height=z+'%';if(p.es===0){n.style.top=c+'%';n.style.left=pos+'%';}else if(p.es===1){n.style.top=(100-bd+c)+'%';n.style.left=pos+'%';}else if(p.es===2){n.style.left=c+'%';n.style.top=pos+'%';}else{n.style.left=(100-bd+c)+'%';n.style.top=pos+'%';}n.style.zIndex=6;fc2.push(n);return;}n.style.left=p.x+'%';n.style.top=p.y+'%';n.style.width=p.w+'%';n.style.height=p.h+'%';inn.append(n);});
+    fc.append(inn,el('div','shade'));fc2.forEach(n=>fc.append(n));cube.append(fc);}
   sc.append(cube);stg.append(sc);
   stg.append(el('div','dimv'+(OB.th==='night'&&!F('lamp')?' on':'')));
   rest(cube);bindDrag(stg,cube);
