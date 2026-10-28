@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14202e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pendu">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Pendu</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#fbefd9;--muted:#cdb892;--gold:#f0c060;--ca:#e8453c;--cb:#ffd84a;--bd1:#2a4a8a;--bd2:#1a2f66}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none}
+body{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);background-image:radial-gradient(circle at 50% 0,#2b4468,#14202e 70%)}
+section{max-width:520px;margin:0 auto;padding:10px 0}
+h1{margin:6px 0;text-align:center;font-size:28px}h2{text-align:center;margin:8px 0}
+.muted{color:var(--muted);text-align:center;margin:4px 0 10px}
+button,input{font:inherit}
+.ob{display:block;width:100%;margin:8px 0;padding:14px;border-radius:16px;border:2px solid var(--gold);background:var(--gold);color:#2a1c12;font-weight:800;background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);text-shadow:0 1px 0 #ffffff55;transition:transform .08s}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted);text-shadow:none;background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0))}
+input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);background:var(--panel);color:var(--ink);text-align:center}
+.join{display:flex;gap:8px;margin-top:6px}.join input{letter-spacing:6px;font-weight:800;text-transform:uppercase}.join .ob{width:auto;margin:0;padding:0 18px}
+.code{font-size:56px;font-weight:900;letter-spacing:10px;color:var(--gold);background:var(--panel);border:3px dashed var(--gold);border-radius:16px;padding:6px 18px 6px 28px;text-align:center;margin:12px 0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:8px 0}
+.tabs button{padding:8px 14px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font-weight:700}
+.tabs button.on{background:var(--gold);color:#2a1c12;border-color:var(--gold);box-shadow:0 0 14px #f6c85f99}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0 2px;font-weight:800}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #st{flex:1;text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hero{display:block;width:108px;height:108px;margin:0 auto 4px;border-radius:26px;box-shadow:0 12px 26px #000b,0 0 0 2px #ffffff33 inset}
+#home h1{background:linear-gradient(90deg,#ffe08a,#ff9ad0);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:32px}
+.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:56px;height:44px;border-radius:12px;border:3px solid transparent;padding:0;background:#0006;font-size:20px;color:var(--ink)}.themes button.on{border-color:var(--gold)}
+#bw{width:min(100%,calc(100vh - 230px));margin:14px auto 0}
+#bd{display:grid;gap:__GAP__;aspect-ratio:__COLS__/__ROWS__;padding:__PAD__;border-radius:18px;touch-action:manipulation;background:linear-gradient(160deg,var(--bd1),var(--bd2));box-shadow:0 12px 26px #000a,0 0 0 2px #ffffff22 inset;position:relative;overflow:hidden}
+.c{position:relative;border-radius:__CR__;display:flex;align-items:center;justify-content:center;background:#0006;box-shadow:inset 0 3px 8px #000a;overflow:hidden;cursor:pointer}
+.c.win{box-shadow:0 0 0 3px #fff,0 0 18px 4px #ffe066;z-index:2}
+.d{width:86%;height:86%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:min(11vw,54px);font-weight:900;line-height:1}
+.d.a{background:radial-gradient(circle at 35% 30%,#fff9,var(--ca) 45%,#0005 130%);box-shadow:0 2px 4px #000a,inset 0 -4px 6px #0005}
+.d.b{background:radial-gradient(circle at 35% 30%,#fff9,var(--cb) 45%,#0005 130%);box-shadow:0 2px 4px #000a,inset 0 -4px 6px #0005}
+.d .sy{font-size:60%;filter:drop-shadow(0 1px 1px #0008)}
+.d.n{background:none!important;box-shadow:none!important;border-radius:0}
+.d.n .sy{font-size:min(14vw,72px)}
+.d.drop{animation:dr .38s cubic-bezier(.5,0,.8,.6)}
+@keyframes dr{from{transform:translateY(calc(var(--dy)*-110%))}to{transform:none}}
+.d.pop{animation:pp .25s}@keyframes pp{from{transform:scale(.3)}to{transform:none}}
+.hov{background:#ffffff14}
+#bar{display:flex;gap:8px;margin-top:14px}#bar .ob{margin:0;padding:10px}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9;backdrop-filter:blur(6px)}
+#ov[hidden]{display:none}#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:26px;padding:18px;max-width:380px;width:100%;max-height:92vh;overflow:auto;text-align:center;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;z-index:10;max-width:90%;text-align:center}
+#toast[hidden]{display:none}[hidden]{display:none!important}.gold{color:var(--gold);font-weight:800}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+.sc{display:flex;gap:8px;justify-content:center;margin:6px 0}.sc span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.chips button{padding:6px 12px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font-weight:700;font-size:14px}.chips button.on{background:var(--gold);color:#2a1c12;border-color:var(--gold)}
+#fig{width:min(70vw,260px);margin:4px auto;display:block;filter:drop-shadow(0 6px 10px #0008)}
+#fig .g{stroke:#c9a867;stroke-width:6;stroke-linecap:round;fill:none}#fig .b{stroke:#fbefd9;stroke-width:5;stroke-linecap:round;fill:none}#fig .h{fill:#fbefd9;stroke:#fbefd9;stroke-width:4}#fig .f{fill:#14202e;stroke:none}
+#wd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0;min-height:48px}
+#wd span{width:30px;height:44px;border-bottom:4px solid var(--gold);text-align:center;font-size:30px;font-weight:900;line-height:42px}#wd span.sep{border:0;width:14px}#wd span.lost{color:#ff8a7a}
+#kb{display:flex;flex-direction:column;gap:6px;margin-top:10px}#kb div{display:flex;gap:4px;justify-content:center}
+#kb button{flex:1;max-width:38px;height:46px;border-radius:10px;border:0;background:#2a456a;color:var(--ink);font:inherit;font-weight:800;font-size:18px;box-shadow:0 3px 0 #0006}
+#kb button.ok{background:#2f8f5a}#kb button.ko{background:#6a2a2a;opacity:.6}#kb button:disabled{pointer-events:none}
+.pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:4px 0}.pills span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px}
+.sc{display:flex;gap:8px;justify-content:center;margin:6px 0}.sc span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px}
+</style>
+</head>
+<body>
+<section id="home"></section>
+<section id="game" hidden>
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="st"></span><span class="gm" id="gm">0 💎</span></div>
+  <div id="main"></div>
+</section>
+<div id="ov" hidden></div><div id="toast" hidden></div>
+<script src="peerjs.min.js"></script>
+<script src="data.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+class FakeConn{
+  constructor(ch,me,other){this.ch=ch;this.me=me;this.other=other;this.h={};this.open=false;
+    ch.addEventListener('message',e=>{const m=e.data;if(m.to!==me||m.from!==other)return;
+      if(m.k==='data')this.h.data&&this.h.data(JSON.parse(JSON.stringify(m.d)));
+      if(m.k==='close')this.h.close&&this.h.close();
+      if(m.k==='open'&&!this.open){this.open=true;this.ch.postMessage({k:'ack',from:me,to:other});this.h.open&&this.h.open();}
+      if(m.k==='ack'&&!this.open){this.open=true;this.h.open&&this.h.open();}});}
+  on(n,f){this.h[n]=f;}
+  send(d){this.ch.postMessage({k:'data',from:this.me,to:this.other,d:JSON.parse(JSON.stringify(d))});}
+  close(){this.ch.postMessage({k:'close',from:this.me,to:this.other});}
+}
+class FakePeer{
+  constructor(id){this.id=id||('c'+Math.random().toString(36).slice(2,8));this.ch=new BroadcastChannel('pendu'+'-fake');this.h={};
+    this.ch.addEventListener('message',e=>{const m=e.data;if(m.to===this.id&&m.k==='hello'){const c=new FakeConn(this.ch,this.id,m.from);this.h.connection&&this.h.connection(c);c.ch.postMessage({k:'open',from:this.id,to:m.from});}});
+    setTimeout(()=>this.h.open&&this.h.open(this.id),20);}
+  on(n,f){this.h[n]=f;}
+  connect(id){const c=new FakeConn(this.ch,this.id,id);setTimeout(()=>this.ch.postMessage({k:'hello',from:this.id,to:id}),30);return c;}
+  destroy(){}
+}
+function mkPeer(id){
+  if(/net=bc/.test(location.search))return new FakePeer(id);
+  if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  return id?new Peer(id,cfg):new Peer(cfg);
+}
+
+const CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const genCode=()=>Array.from({length:4},()=>CHARS[(Math.random()*CHARS.length)|0]).join('');
+const KEY='pendu-v1',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(typeof j.gems!=='number')j.gems=20;return j;}
+function addGems(n){const j=wal();j.gems+=n;try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}gmUpdate();return j.gems;}
+function gmUpdate(){$('gm').textContent=wal().gems+' 💎';}
+const CATS=Object.keys(WORDS);
+let P={name:'',code:'',cat:-1,lvl:0,w:0,l:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
+function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
+const base=c=>c.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const isL=c=>/^[a-z]$/.test(base(c));
+const MAXE=8;
+const FIG=['<path class="g" d="M20 180 H110 M40 180 V20 H120"/>','<path class="g" d="M40 50 L70 20"/>','<path class="g" d="M120 20 V45"/>','<circle class="h" cx="120" cy="62" r="17"/>','<path class="b" d="M120 80 V135"/>','<path class="b" d="M120 92 L98 118 M120 92 L142 118"/>','<path class="b" d="M120 135 L102 168"/>','<path class="b" d="M120 135 L138 168"/><circle class="f" cx="114" cy="58" r="2.5"/><circle class="f" cx="126" cy="58" r="2.5"/><path d="M113 68 Q120 63 127 68" stroke="#14202e" stroke-width="2.5" fill="none"/>'];
+const ROWS=['AZERTYUIOP','QSDFGHJKLM','WXCVBN'];
+let G=null,mode='solo',peer=null,conn=null,isHost=false,roomCode='',net={names:['',''],scores:[0,0],me:0,setter:0,round:0};
+/* ================= accueil ================= */
+function showHome(){
+  leave();show('home');
+  $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Pendu</h1><p class="muted">Trouve le mot avant que le bonhomme soit dessiné. Seul, ou à deux avec un code.</p>'+
+   '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'">'+
+   '<p class="muted" style="margin-bottom:0">Thème</p><div class="chips"><button data-c="-1" class="'+(P.cat<0?'on':'')+'">Tous</button>'+CATS.map((c,i)=>'<button data-c="'+i+'" class="'+(P.cat===i?'on':'')+'">'+c+'</button>').join('')+'</div>'+
+   '<div class="tabs"><span>Mots :</span>'+['Courts','Moyens','Longs'].map((n,i)=>'<button data-l="'+i+'" class="'+(P.lvl===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
+   '<button class="ob" id="solo">Jouer seul</button>'+
+   '<button class="ob alt" id="host">Duel : créer une partie en ligne</button>'+
+   '<div class="join"><input id="cd" maxlength="4" placeholder="CODE" value="'+esc(P.code)+'" aria-label="Code de la partie" autocapitalize="characters"><button class="ob alt" id="joinB">Rejoindre</button></div>'+
+   '<p class="muted sm">Victoires '+P.w+' · Défaites '+P.l+'</p>';
+  const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
+  $('home').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{P.cat=+b.dataset.c;nm();saveP();showHome();});
+  $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;nm();saveP();showHome();});
+  $('solo').onclick=()=>{nm();startSolo();};
+  $('host').onclick=()=>hostOnline(nm());
+  $('joinB').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');P.code=c;nm();joinOnline(nm(),c);};
+}
+function leave(){try{if(conn)conn.close();}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conn=null;G=null;isHost=false;closeOv();}
+/* ================= jeu ================= */
+function pickWord(){
+  const rg=[[3,6],[7,9],[10,20]][P.lvl];let pool=[];
+  const cats=P.cat<0?CATS:[CATS[P.cat]];
+  cats.forEach(c=>WORDS[c].split(' ').forEach(w=>{const n=[...w].filter(isL).length;if(n>=rg[0]&&n<=rg[1])pool.push([w,c]);}));
+  if(!pool.length)cats.forEach(c=>WORDS[c].split(' ').forEach(w=>pool.push([w,c])));
+  let r;for(let i=0;i<8;i++){r=pool[(Math.random()*pool.length)|0];if(!startSolo.last||r[0]!==startSolo.last)break;}startSolo.last=r[0];return r;
+}
+function newG(word,hint){return {word,hint,got:new Set(),bad:new Set(),errs:0,over:false,win:false,hintUsed:false};}
+function startSolo(){mode='solo';const [w,c]=pickWord();G=newG(w,c);show('game');render();}
+const blanks=g=>[...g.word].filter(c=>isL(c)&&!g.got.has(base(c)));
+function guessLocal(l){
+  if(!G||G.over||G.got.has(l)||G.bad.has(l))return;
+  const has=[...G.word].some(c=>base(c)===l);
+  if(has)G.got.add(l);else{G.bad.add(l);G.errs++;}
+  if(!blanks(G).length){G.over=true;G.win=true;}else if(G.errs>=MAXE){G.over=true;G.win=false;}
+  render();if(G.over)setTimeout(endSolo,700);
+}
+function endSolo(){
+  if(!G||!G.over||mode!=='solo')return;
+  let gain=0;if(G.win){gain=Math.min(12,Math.round(2+[...G.word].filter(isL).length*.5+(MAXE-G.errs)*.5));addGems(gain);P.w++;}else P.l++;saveP();
+  openOv('<h2>'+(G.win?'🎉 Bien joué !':'Perdu…')+'</h2><p class="muted">Le mot était : <b class="gold">'+esc(G.word.toUpperCase())+'</b></p>'+(gain?'<p class="gold">+'+gain+' 💎</p>':'')+'<button class="ob" id="ag">Mot suivant</button><button class="ob alt" id="q">Menu</button>');
+  $('ag').onclick=()=>{closeOv();startSolo();};$('q').onclick=showHome;
+}
+function useHint(){
+  if(!G||G.over||G.hintUsed)return;if(wal().gems<3)return toast('Il te faut 3 💎.');
+  const miss=[...new Set(blanks(G).map(c=>base(c)))];if(miss.length<2)return toast('Plus d’aide possible.');
+  addGems(-3);G.hintUsed=true;const l=miss[(Math.random()*miss.length)|0];G.got.add(l);if(!blanks(G).length){G.over=true;G.win=true;}render();if(G.over)setTimeout(endSolo,700);
+}
+/* ================= affichage ================= */
+function wordHtml(g,reveal){return '<div id="wd">'+[...g.word].map(c=>{if(!isL(c))return '<span class="sep">'+esc(c)+'</span>';const k=base(c);return g.got.has(k)?'<span>'+esc(c.toUpperCase())+'</span>':reveal?'<span class="lost">'+esc(c.toUpperCase())+'</span>':'<span></span>';}).join('')+'</div>';}
+function figHtml(e){return '<svg id="fig" viewBox="0 0 160 190">'+FIG.slice(0,e).join('')+'</svg>';}
+function kbHtml(g,off){return '<div id="kb">'+ROWS.map(r=>'<div>'+[...r].map(L=>{const l=L.toLowerCase();const c=g.got.has(l)?'ok':g.bad.has(l)?'ko':'';return '<button data-l="'+l+'" class="'+c+'"'+(c||off?' disabled':'')+'>'+L+'</button>';}).join('')+'</div>').join('')+'</div>';}
+function render(){
+  if(!G)return;const mn=$('main');
+  if(mode==='solo'){
+    $('st').textContent=G.hint;
+    mn.innerHTML='<div class="pills"><span>Erreurs '+G.errs+' / '+MAXE+'</span><span>'+[...G.word].filter(isL).length+' lettres</span></div>'+figHtml(G.errs)+wordHtml(G,G.over&&!G.win)+kbHtml(G,G.over)+'<button class="ob alt" id="hn" style="margin-top:12px"'+(G.hintUsed?' disabled style="opacity:.5;margin-top:12px"':'')+'>💡 Révéler une lettre (3 💎)</button>';
+    mn.querySelectorAll('#kb button').forEach(b=>b.onclick=()=>guessLocal(b.dataset.l));$('hn').onclick=useHint;
+  }else renderDuel();
+}
+/* ================= duel en ligne ================= */
+function send(m){try{conn.send(m);}catch(e){toast('Connexion perdue.');}}
+function hostOnline(name){
+  leave();isHost=true;mode='duel';net={names:[name,'…'],scores:[0,0],me:0,setter:0,round:1};roomCode=genCode();
+  show('home');$('home').innerHTML='<h2>Création de la partie…</h2>';
+  const open=tries=>{
+    try{peer=mkPeer('pendu-'+roomCode);}catch(e){toast(e.message,5000);return showHome();}
+    peer.on('open',()=>{$('home').innerHTML='<h2>Ta partie</h2><p class="muted">Donne ce code à ton ami (il le saisit dans « Rejoindre ») :</p><div class="code">'+roomCode+'</div><p class="muted">En attente de ton adversaire…</p><button class="ob alt" id="back">Annuler</button>';$('back').onclick=showHome;});
+    peer.on('error',e=>{if(e.type==='unavailable-id'&&tries<5){roomCode=genCode();open(tries+1);}else{toast('Connexion impossible ('+(e.type||'erreur')+').',5000);showHome();}});
+    peer.on('connection',c=>{if(conn&&conn.open){c.on('open',()=>{try{c.send({t:'full'});}catch(e){}});return;}conn=c;c.on('data',duelMsg);c.on('close',()=>{if(mode==='duel'&&G!==null)toast(net.names[1]+' a quitté la partie.',4000);});});
+  };
+  open(0);
+}
+function joinOnline(name,code){
+  leave();mode='duel';net={names:['…',name],scores:[0,0],me:1,setter:0,round:1};show('home');$('home').innerHTML='<h2>Connexion…</h2><p class="muted">Recherche de la partie '+code+'</p><button class="ob alt" id="back">Annuler</button>';$('back').onclick=showHome;
+  let opened=false;try{peer=mkPeer();}catch(e){toast(e.message,5000);return showHome();}
+  const fail=m=>{toast(m,5000);showHome();};
+  peer.on('error',e=>fail(e.type==='peer-unavailable'?'Aucune partie avec ce code.':'Connexion impossible ('+(e.type||'erreur')+').'));
+  peer.on('open',()=>{conn=peer.connect('pendu-'+code,{reliable:true});conn.on('open',()=>{opened=true;conn.send({t:'hello',name});});conn.on('data',duelMsg);conn.on('close',()=>{if(mode==='duel')openOv('<h2>Connexion perdue</h2><button class="ob" id="q">Quitter</button>'),$('q').onclick=showHome;});});
+  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},15000);
+}
+function duelStartRound(){ // net.setter = indice de celui qui choisit le mot
+  G={phase:net.setter===net.me?'set':'wait',word:'',hint:'',got:new Set(),bad:new Set(),errs:0,over:false,win:false,mask:null};show('game');render();
+}
+function duelMsg(m){
+  if(m.t==='hello'){net.names[1]=String(m.name||'Invité').slice(0,12);send({t:'welcome',name:net.names[0]});duelStartRound();}
+  else if(m.t==='welcome'){net.names[0]=String(m.name||'Hôte').slice(0,12);duelStartRound();}
+  else if(m.t==='full'){toast('La partie est déjà complète.',4000);showHome();}
+  else if(m.t==='word'&&G&&G.phase==='wait'){G.phase='guess';G.mask=m.mask;G.hint=m.hint;G.got=new Set();render();}
+  else if(m.t==='g'&&G&&G.phase==='watch'&&!G.over){ // le setter répond à une lettre
+    const l=m.l;if(G.got.has(l)||G.bad.has(l))return;const has=[...G.word].some(c=>base(c)===l);
+    if(has)G.got.add(l);else{G.bad.add(l);G.errs++;}
+    if(!blanks(G).length){G.over=true;G.win=true;}else if(G.errs>=MAXE){G.over=true;G.win=false;}
+    send({t:'r',l,has,errs:G.errs,over:G.over,win:G.win,word:G.over?G.word:undefined,pos:[...G.word].map((c,i)=>base(c)===l?c:null)});
+    render();if(G.over)duelEnd();
+  }
+  else if(m.t==='r'&&G&&G.phase==='guess'){
+    if(m.has){G.got.add(m.l);G.letters=G.letters||{};m.pos.forEach((c,i)=>{if(c)G.mask[i]=c;});}else G.bad.add(m.l);
+    G.errs=m.errs;if(m.over){G.over=true;G.win=m.win;if(m.word)G.word=m.word;}render();if(G.over)duelEnd();
+  }
+  else if(m.t==='next'){if(net.round>=m.r)return;net.setter=1-net.setter;net.round=m.r;closeOv();duelStartRound();}
+}
+function duelEnd(){
+  const guesser=1-net.setter;const winner=G.win?guesser:net.setter;net.scores[winner]++;
+  const iWon=winner===net.me;if(!duelEnd.paid||duelEnd.paid!==net.round){duelEnd.paid=net.round;if(iWon){addGems(4);P.w++;}else P.l++;saveP();}
+  setTimeout(()=>{if(!G||!G.over)return;
+    openOv('<h2>'+(iWon?'🎉 Point pour toi !':'Point pour '+esc(net.names[winner]))+'</h2><p class="muted">Le mot était : <b class="gold">'+esc(G.word.toUpperCase())+'</b></p>'+(iWon?'<p class="gold">+4 💎</p>':'')+'<p class="muted">'+esc(net.names[0])+' '+net.scores[0]+' – '+net.scores[1]+' '+esc(net.names[1])+'</p><button class="ob" id="nx">Manche suivante (on échange les rôles)</button><button class="ob alt" id="q">Quitter</button>');
+    $('nx').onclick=()=>{if(net.round>=0){send({t:'next',r:net.round+1});net.setter=1-net.setter;net.round++;closeOv();duelStartRound();}};$('q').onclick=showHome;},900);
+}
+function renderDuel(){
+  const mn=$('main');const sc='<div class="sc"><span>'+esc(net.names[0])+' '+net.scores[0]+'</span><span>'+esc(net.names[1])+' '+net.scores[1]+'</span></div>';
+  $('st').textContent='Manche '+net.round;
+  if(G.phase==='set'){
+    mn.innerHTML=sc+'<h2>Choisis un mot</h2><p class="muted">'+esc(net.names[1-net.me])+' va devoir le deviner (8 erreurs maximum). Lettres uniquement, 3 à 14.</p><input id="sw" maxlength="14" autocomplete="off" autocapitalize="off" placeholder="Ton mot secret" style="text-align:center;font-size:22px"><input id="sh" maxlength="24" placeholder="Indice (facultatif) : ex. un animal" style="margin-top:8px"><button class="ob" id="go">Envoyer le mot</button>';
+    $('go').onclick=()=>{const w=$('sw').value.trim().toLowerCase().replace(/\s+/g,'');const n=[...w].filter(isL).length;if(n<3||[...w].some(c=>!isL(c)&&c!=='-'))return toast('Lettres uniquement (et tirets), 3 minimum.');
+      G.word=w;G.hint=$('sh').value.trim().slice(0,24);G.phase='watch';send({t:'word',mask:[...w].map(c=>isL(c)?'':c),hint:G.hint});render();};
+  }else if(G.phase==='wait'){
+    mn.innerHTML=sc+'<p class="muted" style="margin-top:30px">'+esc(net.names[1-net.me])+' choisit un mot…</p>';
+  }else if(G.phase==='watch'){
+    mn.innerHTML=sc+'<p class="muted">Ton mot : <b class="gold">'+esc(G.word.toUpperCase())+'</b>'+(G.hint?' · indice : '+esc(G.hint):'')+'</p><div class="pills"><span>Erreurs '+G.errs+' / '+MAXE+'</span></div>'+figHtml(G.errs)+wordHtml(G,G.over&&!G.win)+kbHtml(G,true);
+  }else{ // guess
+    const g={word:(G.mask||[]).map(c=>c).join(''),got:new Set(),bad:G.bad};
+    const wd='<div id="wd">'+G.mask.map((c,i)=>c&&c!=='-'&&isL(c)?'<span>'+esc(c.toUpperCase())+'</span>':c==='-'?'<span class="sep">-</span>':'<span></span>').join('')+'</div>';
+    const kb='<div id="kb">'+ROWS.map(r=>'<div>'+[...r].map(L=>{const l=L.toLowerCase();const ok=G.got.has(l),ko=G.bad.has(l);return '<button data-l="'+l+'" class="'+(ok?'ok':ko?'ko':'')+'"'+(ok||ko||G.over?' disabled':'')+'>'+L+'</button>';}).join('')+'</div>').join('')+'</div>';
+    mn.innerHTML=sc+(G.hint?'<p class="muted">Indice : '+esc(G.hint)+'</p>':'')+'<div class="pills"><span>Erreurs '+G.errs+' / '+MAXE+'</span><span>'+G.mask.filter(c=>c!=='-').length+' lettres</span></div>'+figHtml(G.errs)+wd+kb;
+    mn.querySelectorAll('#kb button').forEach(b=>b.onclick=()=>{if(G.over)return;send({t:'g',l:b.dataset.l});b.disabled=true;});
+  }
+}
+$('bmenu').onclick=()=>{if(G&&!G.over&&mode==='duel'){openOv('<h2>Quitter la partie ?</h2><button class="ob" id="y">Quitter</button><button class="ob alt" id="n">Rester</button>');$('n').onclick=closeOv;$('y').onclick=showHome;}else showHome();};
+gmUpdate();showHome();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+window.__p={get G(){return G;},guessLocal,get net(){return net;}};
+</script>
+</body>
+</html>
