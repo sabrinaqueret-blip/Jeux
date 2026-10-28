@@ -212,7 +212,7 @@ function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid,ax=null,to
   stg.addEventListener('pointerdown',e=>{down=true;drag=false;ign=false;ax=null;tot=0;sx=lx=e.clientX;sy=ly=e.clientY;pid=e.pointerId;});
   stg.addEventListener('pointermove',e=>{if(!down||ign)return;
     if(!drag){const ddx=e.clientX-sx,ddy=e.clientY-sy;if(Math.hypot(ddx,ddy)<20)return;
-      const horiz=Math.abs(ddx)>=Math.abs(ddy);if(horiz&&OB.face>=4){ign=true;return;}
+      const horiz=Math.abs(ddx)>=Math.abs(ddy);
       drag=true;ax=horiz?'y':'x';M0=OB.M.map(r=>r.slice());unrest(cube);try{stg.setPointerCapture(pid);}catch(_){}lx=sx;ly=sy;}
     const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;const k=0.3;
     if(ax==='y'){tot+=dx;OB.M=mm(Ry(dx*k),OB.M);}else{tot+=dy;OB.M=mm(Rx(-dy*k),OB.M);}
@@ -220,7 +220,7 @@ function bindDrag(stg,cube){let lx,ly,sx,sy,drag=false,down=false,pid,ax=null,to
   let tm=null;const later=()=>{clearTimeout(tm);const ob=OB;tm=setTimeout(()=>{if(OB===ob&&cube.isConnected&&!down&&!cube.classList.contains('rest')){setFace(OB.face);draw();}},430);};
   const end=()=>{if(!down)return;down=false;if(!drag){if(!cube.classList.contains('rest'))later();return;}
     let T=M0;
-    if(Math.abs(tot)>40){T=ax==='y'?mm(Ry(tot>0?90:-90),M0):mm(Rx(tot>0?-90:90),M0);T=snapM(T);OB.M=T;const nf=curF();if(OB.face>=4&&nf!==0){OB.M=M0;}else OB.face=nf;}
+    if(Math.abs(tot)>40){T=ax==='y'?mm(Ry(tot>0?90:-90),M0):mm(Rx(tot>0?-90:90),M0);T=snapM(T);OB.M=T;const nf=curF();if(OB.face>=4&&nf>=4){OB.M=M0;}else OB.face=nf;}
     else OB.M=M0;
     later();setT(cube,true);setName();
     const sup=ev=>{ev.stopPropagation();ev.preventDefault();};stg.addEventListener('click',sup,{capture:true,once:true});setTimeout(()=>stg.removeEventListener('click',sup,true),60);};
