@@ -162,7 +162,7 @@ obDefine({id:'obsidienne',name:'La forge obsidienne',lab:'Extrême',theme:'obsid
    {t:'socket',id:'sock',f:4,x:6,y:58,w:88,h:34,slots:[{g:'g0'},{g:'g1'},{g:'g2'},{g:'g4'}],key:true}];
   parts.find(p=>p.id==='kh').key='k8';
   return{parts,items:{kob:K('Clé d’obsidienne','k8'),g0:G('g0'),g1:G('g1'),g2:G('g2'),g4:G('g4'),
-    grim:NT('Grimoire',ex.map((e,i)=>mark(e,50,16+i*22,8,'dk')),'Quatre calculs.'),
+    grim:NT('Grimoire',ex.map((e,i)=>mark(e,50,14+i*19,8,'dk')),'Quatre calculs.'),
     rune:NT('Rune rouge',seq.map((c,i)=>mark('●',9+i*16.5,45,14,'dk',cols[c])),'')},
    hints:['Remets les huit tuiles de la face avant dans l’ordre. Elles montrent huit signes.','Les nombres de la face arrière sont des positions dans la grille résolue (gauche à droite, ligne par ligne).','Les quatre signes trouvés se règlent sur les anneaux d’un côté.','La clé d’obsidienne va dans la serrure de la face droite.','Le grimoire contient quatre calculs : leurs résultats sont les chiffres des anneaux de la face arrière.','La rune rouge donne l’ordre des pastilles du dessus. Les gemmes se logent aussi sur le dessus.']};
  }});
@@ -317,7 +317,7 @@ obDefine({id:'abime',name:'La chambre d’engrenages',lab:'Extrême',theme:'cloc
    {t:'hatch',id:'h4',f:4,x:30,y:29,w:40,h:20,open:()=>D('ring2'),give:['o6']},
    {t:'socket',id:'sock',f:4,x:6,y:58,w:88,h:34,slots:[{g:'o2'},{g:'o4'},{g:'o5'},{g:'o6'}],key:true}];
   return{parts,items:{c9:O('Engrenage','c9'),c0:K('Clé ouvragée','c0'),o2:O('Loupe','o2'),o4:O('Boussole','o4'),o5:O('Sablier','o5'),o6:O('Miroir','o6'),
-    nE:NT('Carnet d’équations',ex.map((e,i)=>mark(e,50,16+i*22,8,'dk')),'Quatre calculs.')},
+    nE:NT('Carnet d’équations',ex.map((e,i)=>mark(e,50,14+i*19,8,'dk')),'Quatre calculs.')},
    hints:['Remets les tuiles de la face avant dans l’ordre.','Les nombres du côté droit sont des positions dans la grille résolue.','Les quatre signes se règlent sur les anneaux de la face gauche.','L’engrenage se pose dans le logement de la face arrière.','La clé ouvragée va dans la serrure du côté droit.','Les résultats des quatre calculs du carnet sont les chiffres des anneaux du dessus (de gauche à droite).']};
  }});
 
