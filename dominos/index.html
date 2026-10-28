@@ -67,9 +67,9 @@ body{background-image:radial-gradient(circle at 50% 0,#4a2f1c,#1a1008 70%);--gol
 .dt.h:not(.d) .im{width:36px;height:72px;left:18px;top:-18px}
 .dt.pl{transform:translateY(-8px);filter:drop-shadow(0 0 4px var(--gold)) drop-shadow(0 0 4px var(--gold))}
 .dt.no{filter:brightness(.55) drop-shadow(0 2px 3px #000b)}
-#chain{background:url(img/table.webp) center/100% 100% no-repeat;border-radius:6px;box-shadow:0 4px 12px #000a;padding:30px 26px;min-height:230px;margin:8px 0;display:flex;flex-direction:column;gap:14px;justify-content:center}
-.cr{display:flex;gap:3px;align-items:center}.tn{color:var(--gold);font-size:26px;font-weight:900;line-height:1;width:22px;text-align:center;text-shadow:0 1px 3px #000}
-#chain .dt.h{width:58px;height:29px}#chain .dt.d.h{width:29px;height:58px}#chain .dt.h:not(.d) .im{width:29px;height:58px;left:14.5px;top:-14.5px}
+#chain{background:url(img/table.webp) center/100% 100% no-repeat;border-radius:6px;box-shadow:0 4px 12px #000a;margin:8px 0;min-height:200px}
+.cw{position:relative}.cw .dt,.cw .en{position:absolute}.cw .en{padding:2px 6px;font-size:12px}
+#chain .dt.h{width:58px;height:29px}#chain .dt.v{width:29px;height:58px}#chain .dt.h .im{width:29px;height:58px;left:14.5px;top:-14.5px}
 .en{font-weight:900;color:var(--gold);font-size:13px;background:#0008;border-radius:10px;padding:2px 7px}
 #hd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:14px 0 6px;min-height:92px}
 #ps{display:flex;gap:6px;overflow-x:auto;padding:4px 0}
@@ -258,15 +258,19 @@ const domH=(t,cls)=>{const sw=t.a>t.b,x=sw?t.b:t.a,y=sw?t.a:t.b,hor=cls.indexOf(
   const fl=cls.indexOf(' f')>0,rot=hor?(sw?90:-90)+(fl?180:0):(sw?180:0);
   return '<div class="dt '+cls+'" data-id="'+t.id+'"><div class="im" style="background-image:url(img/d_'+x+'_'+y+'.webp);'+(rot?'transform:rotate('+rot+'deg)':'')+'"></div></div>';};
 function chainHtml(ch,e){
-  if(!ch.length)return '<span class="muted" style="text-align:center">Aucun domino posé.</span>';
-  const W=Math.max(200,($('main').clientWidth||360)-52-4-24);
-  const items=[{k:'en',v:e[0],w:28}].concat(ch.map(t=>({k:'t',t,w:t.a===t.b?29:58}))).concat([{k:'en',v:e[1],w:28}]);
-  const rows=[];let cur=[],used=0;
-  items.forEach(it=>{if(cur.length&&used+it.w+3>W){rows.push(cur);cur=[];used=0;}cur.push(it);used+=it.w+3;});
-  if(cur.length)rows.push(cur);
-  return rows.map((r,i)=>{const rev=i%2===1,L=rev?r.slice().reverse():r;
-    const more=i<rows.length-1,ar=more?'<span class="tn">'+(rev?'↲':'↴')+'</span>':'';
-    return '<div class="cr" style="justify-content:'+(rev?'flex-end':'flex-start')+'">'+(rev?ar:'')+L.map(it=>it.k==='en'?'<span class="en">'+it.v+'</span>':domH(it.t,'h'+(it.t.a===it.t.b?' d':'')+(rev?' f':''))).join('')+(rev?'':ar)+'</div>';}).join('');
+  if(!ch.length)return '<span class="muted" style="display:block;text-align:center;padding-top:90px">Aucun domino posé.</span>';
+  const Wc=$('main').clientWidth||360,cap=Math.max(2,Math.floor((Wc-98)/58)),off=Math.round((Wc-(98+cap*58))/2);
+  const xL=off+20,x0=xL+29,xR=x0+cap*58,per=cap+1,yc=r=>30+r*31+14.5;
+  let h='',last=null;
+  ch.forEach((t,j)=>{const r=Math.floor(j/per),m=j%per,odd=r%2===1;let x,y,cls;
+    if(m<cap){x=odd?x0+(cap-1-m)*58:x0+m*58;y=yc(r)-14.5;cls='h'+(odd?' f':'');last={x,y,h:1,odd,c:yc(r)};}
+    else{x=odd?xL:xR;y=yc(r)-14.5;cls='v';last={x,y,h:0,odd,c:yc(r)+15,tx:odd};}
+    h+=domH(t,cls).replace('<div class="dt','<div style="left:'+x+'px;top:'+y+'px" class="dt');});
+  const f=ch[0],rows=Math.floor((ch.length-1)/per)+1,H=30+rows*31+34;
+  h+='<span class="en" style="left:'+(x0-26)+'px;top:'+(yc(0)-10)+'px">'+e[0]+'</span>';
+  const ex=last.h?(last.odd?last.x-26:last.x+62):(last.tx?last.x-26:last.x+33);
+  h+='<span class="en" style="left:'+ex+'px;top:'+((last.h?last.c:last.c)-10)+'px">'+e[1]+'</span>';
+  return '<div class="cw" style="height:'+H+'px">'+h+'</div>';
 }
 function onView(v){V=v;if(!v.endInfo)closeOv();render();if(v.endInfo)setTimeout(endDialog,800);}
 function render(){
