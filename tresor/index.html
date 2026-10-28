@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14202e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trésors">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>La chasse au trésor</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#f6f3e6;--muted:#b6c4d6;--gold:#f0c060;--ok:#5ee6a0;--bad:#ff6b6b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none;overflow:hidden;touch-action:manipulation}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom);background:var(--bg) center/cover no-repeat}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0;font-weight:800;text-shadow:0 1px 3px #000a}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #sc{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis}
+#main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:10px;-webkit-overflow-scrolling:touch}
+.card{background:#0a1420d9;border-radius:18px;padding:12px;margin:0 0 10px;box-shadow:0 10px 24px #0008,0 0 0 1px #ffffff22 inset}
+.adv{display:flex;gap:12px;align-items:center;width:100%;text-align:left;color:var(--ink);font:inherit;border:0;background:#0a1420d9;border-radius:18px;padding:12px;margin:0 0 10px;box-shadow:0 10px 24px #0008,0 0 0 1px #ffffff22 inset}
+.adv .ic{width:64px;height:64px;border-radius:16px;background:#0006 center/cover;display:flex;align-items:center;justify-content:center;font-size:34px;flex:none;box-shadow:0 0 0 2px var(--gold) inset}
+.adv b{display:block;font-size:17px}.adv small{color:var(--muted)}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--gold);color:#12202e;font-weight:800;font-size:12px;margin-right:4px}
+.pips{display:flex;gap:5px;justify-content:center;margin:2px 0 8px;flex-wrap:wrap}
+.pips i{width:26px;height:26px;border-radius:8px;background:#ffffff1a;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:14px}
+.pips i.on{background:var(--gold);color:#12202e;font-weight:900}.pips i.dn{background:#5ee6a033}
+.pt{font-size:19px;font-weight:900;margin:0 0 4px}.story{color:var(--muted);margin:0 0 8px;font-size:15px}.sm{font-size:13px}
+.muted{color:var(--muted)}.gold{color:var(--gold);font-weight:800}
+.ob{display:block;width:100%;margin:8px 0;padding:13px;border-radius:16px;border:2px solid var(--gold);background:var(--gold);color:#12202e;font:inherit;font-weight:800;background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);touch-action:manipulation}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted);background-image:none}
+.ob:active{transform:translateY(3px)}.ob:disabled{opacity:.4}
+.row2{display:flex;gap:8px}.row2>*{flex:1}
+.mb{padding:10px 6px;border-radius:12px;border:2px solid var(--muted);background:#0006;color:var(--ink);font:inherit;font-weight:800;font-size:14px}
+.mb:disabled{opacity:.4}
+#fb{min-height:22px;text-align:center;font-weight:800;margin:4px 0}#fb.ok{color:var(--ok)}#fb.no{color:var(--bad)}
+#hints .h{background:#f0c06026;border-left:4px solid var(--gold);padding:6px 10px;border-radius:8px;margin:6px 0;font-size:14px}
+.shake{animation:sh .35s}@keyframes sh{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.clue{display:flex;justify-content:space-between;align-items:center;background:#ffffff12;border-radius:10px;padding:7px 10px;margin:5px 0;font-weight:800}
+.clue .dg{letter-spacing:6px;font-size:20px}
+.wheels{display:flex;gap:8px;justify-content:center;margin:10px 0}.wcol{display:flex;flex-direction:column;align-items:center;gap:4px}
+.wb{width:52px;height:38px;border-radius:10px;border:2px solid var(--gold);background:#0008;color:var(--gold);font-size:18px;font-weight:900}
+.wd{width:52px;height:56px;border-radius:12px;background:#f6f3e6;color:#14202e;font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px #0008 inset}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.chip{min-width:42px;padding:8px 10px;border-radius:10px;background:#f6f3e6;color:#14202e;font-weight:900;font-size:20px;text-align:center}
+.chip.q{background:var(--gold)}
+.nd{background:#f6f3e6;color:#14202e;border-radius:12px;font-size:28px;font-weight:900;text-align:center;padding:6px;min-height:50px;margin:6px 0}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+.kp button{padding:12px 0;border-radius:12px;border:2px solid var(--muted);background:#0008;color:var(--ink);font:inherit;font-weight:900;font-size:20px}
+.kp button.k{background:var(--gold);color:#12202e;border-color:var(--gold)}
+.eq{font-size:22px;font-weight:800;text-align:center;margin:6px 0;white-space:nowrap;overflow:hidden}
+.eq.q{color:var(--gold);font-size:24px}
+.grid{display:grid;gap:5px;margin:8px auto;max-width:340px}
+.cell{aspect-ratio:1;border-radius:10px;background:#f6f3e6;color:#14202e;font-weight:900;font-size:22px;display:flex;align-items:center;justify-content:center;border:3px solid transparent}
+.cell.blank{background:#ffffff26;color:var(--gold);border-color:var(--gold)}.cell.sel{background:var(--gold);color:#12202e}
+.tl{aspect-ratio:1;border-radius:10px;background:#444 center;color:#fff;font-weight:900;font-size:20px;display:flex;align-items:flex-end;justify-content:flex-start;padding:3px 6px;text-shadow:0 1px 3px #000,0 0 6px #000;border:2px solid #ffffff55;transition:transform .08s}
+.tl.e{visibility:hidden}
+.lamp{aspect-ratio:1;border-radius:50%;border:3px solid #ffffff33;background:#1a2433;transition:.12s}
+.lamp.on{background:radial-gradient(circle,#fff6c0,#f0c060 55%,#b7791f);box-shadow:0 0 18px 4px #f0c060aa;border-color:#fff3}
+.pegs{display:flex;gap:6px;justify-content:center;margin:8px 0}
+.peg{flex:1;height:200px;background:#ffffff10;border-radius:12px;display:flex;flex-direction:column-reverse;align-items:center;padding:6px 3px;gap:3px;border:3px solid transparent;position:relative;overflow:hidden}
+.peg::before{content:"";position:absolute;bottom:0;width:8px;height:92%;background:#ffffff30;border-radius:4px}
+.peg.sel{border-color:var(--gold)}
+.dk{height:22px;border-radius:8px;z-index:1;box-shadow:0 2px 4px #0008,0 0 0 1px #ffffff40 inset}
+.jugs{display:flex;gap:10px;justify-content:center;align-items:flex-end;margin:8px 0}
+.jug{width:84px;text-align:center}.jug .gl{height:150px;border:3px solid #ffffff88;border-top:0;border-radius:0 0 16px 16px;position:relative;overflow:hidden;background:#ffffff12;margin:0 auto}
+.jug .gl i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#58b6ff,#2b6fd8);transition:height .25s}
+.jug.sel .gl{border-color:var(--gold);box-shadow:0 0 12px var(--gold)}
+.jug b{display:block;margin-top:3px}
+.scale{display:flex;justify-content:center;gap:8px;margin:8px 0;align-items:flex-start}
+.pan{flex:1;min-height:70px;background:#ffffff14;border-radius:12px;padding:6px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-content:flex-start;transition:margin .3s}
+.coins{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:8px 0}
+.coin{aspect-ratio:1;border-radius:50%;border:3px solid #ffffff44;background:radial-gradient(circle,#ffe58a,#c9962a);color:#4a3200;font-weight:900;font-size:18px}
+.coin.l{border-color:#58b6ff;box-shadow:0 0 0 3px #58b6ff66}.coin.r{border-color:#ff9bd2;box-shadow:0 0 0 3px #ff9bd266}.coin.tg{outline:4px solid var(--ok)}
+.slots{display:flex;gap:6px;justify-content:center;margin:8px 0}.slots b{width:42px;height:42px;border-radius:10px;background:#ffffff18;display:flex;align-items:center;justify-content:center;font-size:24px}
+.ordr{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0}.ordr button{font-size:34px;padding:6px 12px;border-radius:14px;border:2px solid var(--muted);background:#0008}
+.ordr button:disabled{opacity:.25}
+.rule{background:#ffffff12;border-radius:10px;padding:6px 10px;margin:5px 0;font-size:16px;font-weight:700}
+.sus{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.sus button{padding:10px 12px;border-radius:12px;border:2px solid var(--muted);background:#0008;color:var(--ink);font:inherit;font-weight:800;font-size:16px}
+.sus button.on{background:var(--gold);color:#12202e;border-color:var(--gold)}
+.bub{background:#f6f3e6;color:#14202e;border-radius:14px;padding:7px 12px;margin:6px 0;font-weight:700}
+.room{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.hs{position:relative;border-radius:14px;border:2px solid var(--gold);background:#0008;color:var(--ink);font:inherit;font-weight:800;padding:10px 4px;font-size:13px}
+.hs span{display:block;font-size:34px}.hs em{position:absolute;right:6px;top:4px;font-style:normal;background:var(--gold);color:#12202e;border-radius:999px;min-width:22px;padding:0 6px;font-size:14px}
+.insp{text-align:center}.big{font-size:26px;line-height:1.5;word-break:break-all}
+.mt{display:grid;grid-template-columns:repeat(4,1fr);gap:2px 8px;font-size:12px;margin:6px 0;font-weight:700}
+.inp{width:100%;font:inherit;font-weight:900;font-size:22px;letter-spacing:3px;text-align:center;text-transform:uppercase;padding:10px;border-radius:12px;border:2px solid var(--gold);background:#f6f3e6;color:#14202e;user-select:text;-webkit-user-select:text}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;backdrop-filter:blur(6px)}
+#ov>div{background:var(--panel);border:3px solid var(--gold);border-radius:26px;padding:16px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center;box-shadow:0 24px 60px #000d,0 0 0 1px #ffffff2e inset;background-image:linear-gradient(165deg,#ffffff12,#ffffff00 40%)}
+#ov h2{margin:4px 0 8px}
+.mi{display:block;width:76px;height:76px;margin:0 auto 6px;border-radius:22px;box-shadow:0 8px 18px #000a,0 0 0 2px #ffffff30 inset}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#000d;padding:10px 16px;border-radius:12px;z-index:60;max-width:90%;text-align:center}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="sc">La chasse au trésor</span><span class="gm" id="gm">0 💎</span></div>
+  <div id="main"></div>
+</div>
+<div id="ov" hidden></div>
+<div id="toast" hidden></div>
+<script>
+const $=id=>document.getElementById(id);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+/* ====== portefeuille 💎 partagé ====== */
+const GAME='tresor',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}
+  if(!j)j={v:1,gems:20,own:{}};if(!j.own)j.own={};if(!j.own[GAME])j.own[GAME]={};if(typeof j.gems!=='number')j.gems=20;return j;}
+function walSave(j){try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}}
+const gems=()=>wal().gems;
+function gmUpdate(){$('gm').textContent=gems()+' 💎';}
+function addGems(n){const j=wal();j.gems+=n;walSave(j);gmUpdate();return j.gems;}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2200);}
+/* ====== état ====== */
+const SK='tresor-v1';
+let ST={done:{},best:{},run:null};
+try{const s=JSON.parse(localStorage.getItem(SK)||'null');if(s)ST=Object.assign(ST,s);}catch(e){}
+const save=()=>{try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}};
+/* ====== hasard avec graine ====== */
+function mkR(seed){let a=seed>>>0;const f=()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};
+  return{f,int:(a,b)=>a+Math.floor(f()*(b-a+1)),pick:a=>a[Math.floor(f()*a.length)],shuf:a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(f()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}};}
+const bad=n=>{n.classList.remove('shake');void n.offsetWidth;n.classList.add('shake');};
+const say=(t,ok)=>{const f=$('fb');if(f){f.textContent=t||'';f.className=ok?'ok':(t?'no':'');}};
+/* ====== composants ====== */
+function pad(root,fn){const k=el('div','kp');[1,2,3,4,5,6,7,8,9].forEach(n=>{const b=el('button','',n);b.onclick=()=>fn(String(n));k.append(b);});
+  const d=el('button','','⌫');d.onclick=()=>fn('D');const z=el('button','','0');z.onclick=()=>fn('0');const o=el('button','k','OK');o.onclick=()=>fn('OK');k.append(d,z,o);root.append(k);}
+function numpad(root,max,ok){let v='';const nd=el('div','nd','&nbsp;');root.append(nd);
+  pad(root,k=>{if(k==='OK'){if(v!=='')ok(+v,nd);return;}if(k==='D')v=v.slice(0,-1);else if(v.length<max)v+=k;nd.innerHTML=v||'&nbsp;';});return{clear(){v='';nd.innerHTML='&nbsp;';}};}
+function wheels(root,n){const vals=Array(n).fill(0),w=el('div','wheels');
+  for(let i=0;i<n;i++){const c=el('div','wcol'),u=el('button','wb','▲'),d=el('button','wb','▼'),ds=el('div','wd','0');
+    u.onclick=()=>{vals[i]=(vals[i]+1)%10;ds.textContent=vals[i];};d.onclick=()=>{vals[i]=(vals[i]+9)%10;ds.textContent=vals[i];};c.append(u,ds,d);w.append(c);}
+  root.append(w);return{vals,node:w};}
+const WORDS={mer:'BATEAU VOILIER CAPITAINE NAUFRAGE HARPON ANCRE TEMPETE BOUSSOLE PIRATE MATELOT HAMAC CORSAIRE',
+ desert:'PYRAMIDE SARCOPHAGE PHARAON MOMIE SPHINX DESERT CHAMEAU SCARABEE PAPYRUS OASIS TOMBEAU CARAVANE',
+ manoir:'LANTERNE CHANDELIER FANTOME SOUTERRAIN ESCALIER GRENIER CHEMINEE SERRURE MIROIR PORTRAIT CORRIDOR GALERIE',
+ machine:'ENGRENAGE POULIE LEVIER MANIVELLE VAPEUR CHAUDIERE BOULON TURBINE PISTON ECROU MARTEAU RESSORT',
+ ciel:'PLANETE COMETE GALAXIE ECLIPSE TELESCOPE NEBULEUSE METEORITE ASTEROIDE ORBITE SATELLITE SOLEIL FUSEE',
+ tresor:'DIAMANT EMERAUDE SAPHIR COURONNE RUBIS COFFRE PIECES LINGOT BIJOU COLLIER MEDAILLON TOPAZE'};
+const THEME={mer:'la mer',desert:'l’Égypte',manoir:'un vieux manoir',machine:'les machines',ciel:'le ciel',tresor:'les trésors'};
+const ALLW=[];Object.keys(WORDS).forEach(k=>WORDS[k].split(' ').forEach(w=>ALLW.push({w,k})));
+const sortL=w=>w.split('').sort().join('');
+const PZ={};
+/* ============ 1. Cadenas à indices ============ */
+PZ.cadenas=(d,R)=>{
+  const n=[3,3,4,4,5][d-1],all=[];
+  (function rec(p){if(p.length===n){all.push(p.slice());return;}for(let x=0;x<10;x++)if(!p.includes(x)){p.push(x);rec(p);p.pop();}})([]);
+  const sec=R.pick(all),fbk=(g,c)=>{let w=0,m=0;for(let i=0;i<n;i++){if(g[i]===c[i])w++;else if(c.includes(g[i]))m++;}return[w,m];};
+  let cand=all,clues=[];
+  for(let t=0;t<14&&cand.length>1;t++){
+    let best=null;
+    for(let s=0;s<8;s++){const g=R.pick(all);if(g.join()===sec.join())continue;const f=fbk(g,sec);
+      const nc=cand.filter(c=>{const q=fbk(g,c);return q[0]===f[0]&&q[1]===f[1];});
+      if(nc.length<cand.length&&(!best||nc.length<best.nc.length))best={g,f,nc};}
+    if(best){clues.push({g:best.g,f:best.f});cand=best.nc;}
+  }
+  const zero=clues.find(c=>c.f[0]+c.f[1]===0);
+  return{_n:cand.length,_sec:sec,title:'🔐 Le cadenas à indices',story:'Un cadenas à '+n+' chiffres, tous différents. Des essais précédents sont gravés à côté : déduis le code.',
+    hints:[zero?'Un essai ne contient aucun chiffre juste : élimine ses chiffres.':'Compare les essais entre eux : un chiffre 🟢 dans un essai doit être à cette place.','Le code contient le chiffre '+R.pick(sec)+'.','Le premier chiffre est '+sec[0]+'.'],
+    mount(root,win){
+      root.append(el('div','muted sm','🟢 bon chiffre, bonne place · 🟡 bon chiffre, mauvaise place'));
+      clues.forEach(c=>root.append(el('div','clue','<span class="dg">'+c.g.join(' ')+'</span><span>'+(c.f[0]+c.f[1]===0?'⚪ aucun':'🟢'.repeat(c.f[0])+'🟡'.repeat(c.f[1]))+'</span>')));
+      const W=wheels(root,n),b=el('button','ob','🔓 Essayer');
+      b.onclick=()=>{if(W.vals.join()===sec.join())win();else{bad(W.node);say('Le cadenas reste fermé.');}};root.append(b);}};
+};
+/* ============ 2. Suite gravée ============ */
+PZ.suite=(d,R)=>{
+  const fib=(a,b,n)=>{const s=[a,b];while(s.length<n)s.push(s[s.length-1]+s[s.length-2]);return s;};
+  const A1=()=>{const a=R.int(1,20),k=R.int(2,9),s=[];for(let i=0;i<7;i++)s.push(a+i*k);return s;};
+  const A2=()=>{const a=R.int(1,4),r=R.pick([2,3]),s=[];for(let i=0;i<6;i++)s.push(a*r**i);return s;};
+  const B1=()=>{let a=R.int(1,9),c=R.int(1,3),s=[a];for(let i=0;i<6;i++){a+=i+c;s.push(a);}return s;};
+  const B2=()=>fib(R.int(1,5),R.int(2,6),8);
+  const B3=()=>{let a=R.int(10,30),x=R.int(3,8),y=R.int(1,x-1),s=[a];for(let i=0;i<7;i++){a+=i%2?-y:x;s.push(a);}return s;};
+  const C1=()=>{const a=R.int(1,9),k=R.int(2,5),b=R.int(40,60),m=R.int(2,6),s=[];for(let i=0;i<9;i++)s.push(i%2?b-m*((i-1)/2):a+k*(i/2));return s;};
+  const C2=()=>{const k=R.int(-3,9),s=[];for(let i=1;i<=7;i++)s.push(i*i+k);return s;};
+  const C3=()=>{let a=R.int(1,4),c=R.pick([-1,1,2,3]),s=[a];for(let i=0;i<6;i++){a=2*a+c;s.push(a);}return s;};
+  const C4=()=>{const k=R.int(0,5),s=[];for(let i=1;i<=8;i++)s.push(i*(i+1)/2+k);return s;};
+  const D1=()=>{const P=[2,3,5,7,11,13,17,19,23,29,31,37,41,43,47],i=R.int(0,5);return P.slice(i,i+7);};
+  const D2=()=>{const k=R.pick([0,0,1,-1,2]),s=[];for(let i=1;i<=7;i++)s.push(i**3+k);return s;};
+  const D3=()=>{let a=R.int(2,5),s=[a];for(let i=1;i<7;i++){a=2*a-i;s.push(a);}return s;};
+  const D4=()=>{const s=[];for(let i=2;i<=9;i++)s.push(i**3-i);return s;};
+  const E1=()=>{let a=R.int(1,5),x=R.int(2,6),m=R.pick([2,3]),s=[a];for(let i=0;i<7;i++){a=i%2?a*m:a+x;s.push(a);}return s;};
+  const E2=()=>{const s=[R.int(0,2),R.int(1,3),R.int(2,4)];while(s.length<9)s.push(s[s.length-1]+s[s.length-2]+s[s.length-3]);return s;};
+  const E3=()=>{let a=R.int(1,9),s=[a];for(let i=0;i<8;i++){a+=String(a).split('').reduce((x,y)=>x+ +y,0);s.push(a);}return s;};
+  const E4=()=>{const P=[2,3,5,7,11,13,17,19],a=R.int(1,10),s=[a];P.forEach(p=>s.push(s[s.length-1]+p));return s;};
+  const pools=[[A1,A2],[A2,B1,B2,B3],[B1,B2,C1,C2,C3],[C1,C3,C4,D1,D2,D3],[D3,D4,E1,E2,E3,E4]];
+  const s=R.pick(pools[d-1])(),ans=s.pop();
+  return{title:'🗿 La suite gravée',story:'Des nombres sont gravés sur la dalle. Quel est le suivant ?',
+    hints:['Regarde la différence entre deux nombres qui se suivent.','Regarde si la différence change, ou si on multiplie.','Essaie de regarder un nombre sur deux.'],
+    mount(root,win){root.append(el('div','chips',s.map(x=>'<div class="chip">'+x+'</div>').join('')+'<div class="chip q">?</div>'));
+      numpad(root,6,(v,nd)=>{if(v===ans)win();else{bad(nd);say('Ce n’est pas ça…');}});}};
+};
+/* ============ 3. Tablette de symboles ============ */
+PZ.symboles=(d,R)=>{
+  const m=d<=3?3:4,em=R.shuf(['🍎','🍌','🍇','🍒','🍋','🥝','🍑','🍓','🥥','🍍']).slice(0,m),hi=[9,10,12,12,15][d-1],lo=d<=2?1:2,v=[],lines=[];
+  v[0]=R.int(lo+1,hi);const k0=R.int(2,4);lines.push(Array(k0).fill(em[0]).join(' + ')+' = '+k0*v[0]);
+  for(let i=1;i<m;i++){
+    for(let t=0;t<60;t++){
+      const x=R.int(lo,hi),p=v[i-1],T=R.pick(d<=1?['a']:d===2?['a','b']:['a','b','c','c']);let val,txt;
+      if(T==='a'){val=p+2*x;txt=em[i-1]+' + '+em[i]+' + '+em[i];}
+      else if(T==='b'){val=2*x-p;txt=em[i]+' + '+em[i]+' − '+em[i-1];}
+      else{val=p*x;txt=em[i-1]+' × '+em[i];}
+      if(val>0&&val<200){v[i]=x;lines.push(txt+' = '+val);break;}}
+    if(v[i]==null){v[i]=lo+1;lines.push(em[i-1]+' + '+em[i]+' = '+(v[i-1]+v[i]));}
+  }
+  let q,ans;
+  if(d<=2){const c=[R.int(1,2),R.int(1,2),R.int(1,2)];q=c.map((k,i)=>Array(k).fill(em[i]).join(' + ')).join(' + ');ans=c.reduce((a,k,i)=>a+k*v[i],0);}
+  else if(d===3){q='('+em[0]+' + '+em[1]+') × '+em[2];ans=(v[0]+v[1])*v[2];}
+  else{q='('+em[0]+' + '+em[1]+') × '+em[2]+' − '+em[3];ans=(v[0]+v[1])*v[2]-v[3];if(ans<0){q='('+em[0]+' + '+em[1]+') × '+em[2]+' + '+em[3];ans=(v[0]+v[1])*v[2]+v[3];}}
+  return{title:'🍎 La tablette des fruits',story:'Chaque fruit cache un nombre. Trouve la valeur de la dernière ligne.',
+    hints:['Commence par la ligne où il n’y a qu’un seul fruit.','Une fois le premier fruit connu, passe à la ligne suivante.','Remplace chaque fruit par son nombre, puis calcule dans l’ordre.'],
+    mount(root,win){lines.forEach(l=>root.append(el('div','eq',l)));root.append(el('div','eq q',q+' = ?'));
+      numpad(root,4,(x,nd)=>{if(x===ans)win();else{bad(nd);say('Ce n’est pas ça…');}});}};
+};
+/* ============ 4. Carré magique ============ */
+PZ.magique=(d,R)=>{
+  let g=[2,7,6,9,5,1,4,3,8];
+  for(let r=R.int(0,3);r>0;r--){const o=[];for(let y=0;y<3;y++)for(let x=0;x<3;x++)o[x*3+(2-y)]=g[y*3+x];g=o;}
+  if(R.int(0,1)){const o=[];for(let y=0;y<3;y++)for(let x=0;x<3;x++)o[y*3+(2-x)]=g[y*3+x];g=o;}
+  const mm=d>=4?R.pick([2,3]):1,kk=d>=2?R.int(0,6)*mm:R.int(0,4);const sol=g.map(x=>x*mm+kk),S=15*mm+3*kk,nb=[3,4,5,6,6][d-1];
+  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];let blanks,fin=false;
+  for(let t=0;t<500;t++){
+    blanks=R.shuf([0,1,2,3,4,5,6,7,8]).slice(0,nb);const kn=sol.map((x,i)=>blanks.includes(i)?null:x);let pr=true;
+    while(pr){pr=false;L.forEach(l=>{const u=l.filter(i=>kn[i]==null);if(u.length===1){kn[u[0]]=S-l.reduce((a,i)=>a+(i===u[0]?0:kn[i]),0);pr=true;}});}
+    fin=kn.every(x=>x!=null);if(fin)break;
+  }
+  return{_ok:fin,_sol:sol,_bl:blanks,title:'🔢 Le carré magique',story:'Chaque ligne, chaque colonne et chaque diagonale de ce carré vaut '+S+'. Complète les cases vides.',
+    hints:['Cherche une ligne où il ne manque qu’un nombre : '+S+' moins les autres.','Le nombre du centre vaut un tiers de '+S+'.','Les diagonales comptent aussi !'],
+    mount(root,win){
+      const gr=el('div','grid');gr.style.gridTemplateColumns='repeat(3,1fr)';const cells=[],val=sol.map((x,i)=>blanks.includes(i)?'':String(x));let sel=-1;
+      sol.forEach((x,i)=>{const c=el('div','cell'+(blanks.includes(i)?' blank':''),blanks.includes(i)?'':x);if(blanks.includes(i))c.onclick=()=>{sel=i;cells.forEach((q,j)=>q.classList.toggle('sel',j===i));};cells.push(c);gr.append(c);});root.append(gr);
+      pad(root,k=>{if(k==='OK'){if(blanks.every(i=>+val[i]===sol[i]))win();else{bad(gr);say('Il y a encore une erreur…');}return;}if(sel<0)return;
+        val[sel]=k==='D'?val[sel].slice(0,-1):(val[sel]+k).slice(0,3);cells[sel].textContent=val[sel];});}};
+};
+/* ============ 5. Anagramme ============ */
+PZ.anagramme=(d,R)=>{
+  const rg=[[5,6],[6,7],[7,8],[8,9],[9,12]][d-1];let pool=ALLW.filter(o=>o.w.length>=rg[0]&&o.w.length<=rg[1]);if(!pool.length)pool=ALLW;
+  const o=R.pick(pool),w=o.w;let L;do{L=R.shuf(w.split(''));}while(L.join('')===w);
+  const okw=ALLW.filter(x=>sortL(x.w)===sortL(w)).map(x=>x.w);
+  return{title:'🔤 Le mot brouillé',story:'Les lettres de la formule magique sont mélangées. Thème : '+THEME[o.k]+'.',
+    hints:['Le mot commence par la lettre '+w[0]+'.','Le mot a '+w.length+' lettres et finit par '+w[w.length-1]+'.','Les trois premières lettres sont '+w.slice(0,3)+'.'],
+    mount(root,win){const ans=[],used=Array(L.length).fill(false),ar=el('div','chips'),tr=el('div','chips');root.append(ar,tr);
+      const draw=()=>{ar.innerHTML=ans.map(i=>'<div class="chip">'+L[i]+'</div>').join('')||'<div class="muted">Touche les lettres dans l’ordre</div>';tr.innerHTML='';
+        L.forEach((c,i)=>{const b=el('button','chip',c);b.style.border=0;b.disabled=used[i];b.style.opacity=used[i]?.25:1;b.onclick=()=>{ans.push(i);used[i]=true;draw();if(ans.length===L.length){const s=ans.map(j=>L[j]).join('');if(okw.includes(s))win();else{bad(ar);say('Ce n’est pas un mot du thème.');setTimeout(()=>{ans.length=0;used.fill(false);draw();},500);}}};tr.append(b);});};
+      draw();const r=el('button','ob alt','⌫ Effacer la dernière lettre');r.onclick=()=>{const i=ans.pop();if(i!=null)used[i]=false;draw();};root.append(r);}};
+};
+/* ============ 6. Message codé ============ */
+PZ.cipher=(d,R)=>{
+  const o=R.pick(ALLW.filter(x=>x.w.length>=5&&x.w.length<=8)),w=o.w,A='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const cs=(s,k)=>s.split('').map(c=>A[(A.indexOf(c)+k+26)%26]).join(''),atb=s=>s.split('').map(c=>A[25-A.indexOf(c)]).join('');
+  const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'};
+  let code,story,tool=null,hints;
+  if(d===1){code=cs(w,3);story='Ce message a été écrit en décalant chaque lettre de 3 rangs : A devient D, B devient E…';tool=3;hints=['Pour lire, recule de 3 lettres : D devient A.','Utilise le disque ci-dessous.','Le mot parle de '+THEME[o.k]+'.'];}
+  else if(d===2){const k=R.int(4,22);code=cs(w,k);story='Chaque lettre a été décalée du même nombre de rangs dans l’alphabet. Thème : '+THEME[o.k]+'. Un indice : la 1ʳᵉ lettre codée '+code[0]+' vient de '+w[0]+'.';tool=k;hints=['Compte combien de lettres séparent '+w[0]+' et '+code[0]+'.','Utilise le disque ci-dessous.','Le mot commence par '+w[0]+'.'];}
+  else if(d===3){code=w.split('').map(c=>MORSE[c]).join(' / ');story='Un message en morse ! Les lettres sont séparées par « / ». Thème : '+THEME[o.k]+'.';tool='morse';hints=['La table de morse est affichée en dessous.','Le mot commence par '+w[0]+'.','Le mot a '+w.length+' lettres.'];}
+  else if(d===4){code=atb(w).split('').reverse().join('');story='Chaque lettre a été remplacée par sa symétrique dans l’alphabet (A↔Z, B↔Y, C↔X…), puis le mot a été écrit à l’envers.';hints=['Commence par remettre le mot à l’endroit.','A↔Z, B↔Y… la lettre miroir de N est M.','Le mot commence par '+w[0]+'.'];}
+  else{const a=R.int(2,5),b=R.int(2,6),c=R.int(1,9),k=a*b-c;code=atb(cs(w,k));story='Chaque lettre a d’abord été décalée de ('+a+' × '+b+' − '+c+') rangs, puis remplacée par sa symétrique (A↔Z, B↔Y…).';hints=['Le décalage vaut '+k+'.','Défais d’abord le miroir, puis recule de '+k+' rangs.','Le mot commence par '+w[0]+'.'];}
+  return{title:'📜 Le message codé',story,hints,
+    mount(root,win){root.append(el('div','chips','<div class="chip big" style="font-size:26px;letter-spacing:4px">'+code+'</div>'));
+      if(typeof tool==='number'){let sh=0;const rd=el('div','chip','&nbsp;'),ct=el('div','row2'),m=el('button','mb','◀ −1'),p=el('button','mb','+1 ▶'),lab=el('div','eq','Décalage : 0');
+        const up=()=>{lab.textContent='Décalage : '+sh;rd.textContent=cs(code,-sh);};m.onclick=()=>{sh=(sh+25)%26;up();};p.onclick=()=>{sh=(sh+1)%26;up();};ct.append(m,p);root.append(lab,ct,el('div','muted sm','Lecture avec ce décalage :'),el('div','chips'));root.lastChild.append(rd);up();}
+      if(tool==='morse'){root.append(el('div','mt',Object.keys(MORSE).map(k=>'<span>'+k+' '+MORSE[k]+'</span>').join('')));}
+      const inp=el('input','inp');inp.type='text';inp.autocapitalize='characters';inp.autocomplete='off';inp.spellcheck=false;inp.placeholder='Le mot';root.append(inp);
+      const b=el('button','ob','🔓 Valider');b.onclick=()=>{if(inp.value.trim().toUpperCase().replace(/[^A-Z]/g,'')===w)win();else{bad(inp);say('Ce n’est pas le bon mot.');}};root.append(b);}};
+};
+/* ============ 7. Qui ment ? ============ */
+PZ.menteurs=(d,R)=>{
+  const n=[4,5,5,6,6][d-1],names=R.shuf(['Léo','Maya','Noé','Inès','Zoé','Hugo','Lina']).slice(0,n);let best=null;
+  const ev=(s,c)=>s.t===0?c===s.x:s.t===1?c!==s.x:s.t===2?c!==s.w:(c===s.x||c===s.y);
+  for(let a=0;a<4000&&!best;a++){
+    const st=names.map((_,w)=>{let t=R.pick(d<3?[0,1,2]:[0,1,2,3]),x=R.int(0,n-1),y=R.int(0,n-1);while(x===w&&t<2)x=R.int(0,n-1);while(y===x||y===w)y=R.int(0,n-1);return{w,t,x,y};});
+    const cnt=names.map((_,c)=>st.filter(s=>ev(s,c)).length);
+    for(const T of R.shuf([1,2,3,n-1,n-2].filter(t=>t>=1&&t<n)))if(cnt.filter(x=>x===T).length===1){best={st,T,cul:cnt.indexOf(T)};break;}
+  }
+  const found=!!best;
+  if(!best){best={st:names.map((_,w)=>({w,t:2,x:0,y:1})),T:n-1,cul:0};}
+  const txt=s=>s.t===0?'C’est '+names[s.x]+'.':s.t===1?'Ce n’est pas '+names[s.x]+'.':s.t===2?'Ce n’est pas moi.':'C’est '+names[s.x]+' ou '+names[s.y]+'.';
+  return{_ok:!!found,_cul:best.cul,title:'🕵️ Qui a volé le trésor ?',story:'Un seul est coupable. Exactement '+best.T+' affirmation'+(best.T>1?'s sont vraies':' est vraie')+', toutes les autres sont des mensonges.',
+    hints:['Teste chaque suspect : si c’est lui, combien d’affirmations seraient vraies ?','Il faut que le nombre de vraies affirmations soit exactement '+best.T+'.','Ce n’est pas '+names[(best.cul+1)%n]+'.'],
+    mount(root,win){best.st.forEach(s=>root.append(el('div','bub','<b>'+names[s.w]+'</b> : « '+txt(s)+' »')));
+      root.append(el('div','muted sm','Qui est le coupable ?'));const sus=el('div','sus');names.forEach((nm,i)=>{const b=el('button','',nm);b.onclick=()=>{if(i===best.cul){b.classList.add('on');win();}else{bad(sus);say('Ce n’est pas lui/elle… réfléchis encore.');}};sus.append(b);});root.append(sus);}};
+};
+/* ============ 8. Taquin ============ */
+PZ.taquin=(d,R)=>{
+  const N=d<=2?3:4,mv=[18,70,40,120,220][d-1];
+  const g=[];for(let i=1;i<N*N;i++)g.push(i);g.push(0);let z=N*N-1,last=-1;
+  for(let t=0;t<mv;t++){const x=z%N,y=(z/N)|0,c=[];if(x>0)c.push(z-1);if(x<N-1)c.push(z+1);if(y>0)c.push(z-N);if(y<N-1)c.push(z+N);const o=c.filter(q=>q!==last),q=R.pick(o.length?o:c);g[z]=g[q];g[q]=0;last=z;z=q;}
+  if(g.every((v,i)=>v===(i+1)%(N*N))){const q=z-1;g[z]=g[q];g[q]=0;z=q;}
+  return{title:'🧩 La mosaïque brisée',story:'Remets les morceaux dans l’ordre (1, 2, 3…, la case vide en bas à droite). Touche un morceau pour le faire glisser vers le vide.',
+    hints:['Termine d’abord la ligne du haut, puis la suivante.','Les deux dernières lignes se finissent ensemble.','L’image du fond t’aide à retrouver la place de chaque morceau.'],
+    mount(root,win){const gr=el('div','grid');gr.style.gridTemplateColumns='repeat(' + N + ',1fr)';root.append(gr);let mc=0;const cnt=el('div','muted sm','Coups : 0');root.append(cnt);
+      const draw=()=>{gr.innerHTML='';g.forEach((v,i)=>{const t=el('div','tl'+(v?'':' e'),v||'');if(v){const s=v-1;t.style.backgroundImage='url(../cartes-img/'+CUR.bg+'/bg1.webp)';t.style.backgroundSize=(N*100)+'% '+(N*100)+'%';t.style.backgroundPosition=((s%N)*100/(N-1))+'% '+(((s/N)|0)*100/(N-1))+'%';}
+        t.onclick=()=>{const zi=g.indexOf(0),x=i%N,y=(i/N)|0,zx=zi%N,zy=(zi/N)|0;if(!v||(x!==zx&&y!==zy))return;
+          const st=x===zx?N*Math.sign(zy-y):Math.sign(zx-x),dist=x===zx?Math.abs(zy-y):Math.abs(zx-x);let p=zi;for(let k=0;k<dist;k++){g[p]=g[p-st];p-=st;}g[i]=0;mc++;cnt.textContent='Coups : '+mc;draw();
+          if(g.every((q,j)=>q===(j+1)%(N*N)))setTimeout(win,300);};gr.append(t);});};draw();}};
+};
+/* ============ 9. Tour de Hanoï ============ */
+PZ.hanoi=(d,R)=>{
+  const n=[3,4,4,5,6][d-1];
+  return{title:'🗼 Les disques sacrés',story:'Déplace tous les disques sur la colonne de droite. Un seul disque à la fois, et jamais un grand sur un plus petit.',
+    hints:['Pour déplacer la pile, il faut d’abord libérer le plus gros disque.','Le plus petit disque se déplace toujours dans le même sens : un coup sur deux.','Avec '+n+' disques, il faut '+(2**n-1)+' coups au minimum.'],
+    mount(root,win){const P=[[],[],[]];for(let i=n;i>=1;i--)P[0].push(i);let sel=-1,mc=0;const pg=el('div','pegs'),cnt=el('div','muted sm','Coups : 0');root.append(pg,cnt);
+      const col=['#e45858','#e8a23a','#e8d84a','#6fd36f','#4aa8e8','#a87be8'];
+      const draw=()=>{pg.innerHTML='';P.forEach((p,i)=>{const e=el('div','peg'+(sel===i?' sel':''));p.forEach(s=>{const k=el('div','dk');k.style.width=(24+s*(70/n))+'%';k.style.background=col[s-1];e.append(k);});
+        e.onclick=()=>{if(sel<0){if(P[i].length){sel=i;draw();}return;}if(sel===i){sel=-1;draw();return;}const f=P[sel],tp=P[i];
+          if(tp.length&&tp[tp.length-1]<f[f.length-1]){bad(e);say('Impossible : un grand disque sur un petit.');sel=-1;draw();return;}
+          tp.push(f.pop());sel=-1;mc++;cnt.textContent='Coups : '+mc;say('');draw();if(P[2].length===n)setTimeout(win,300);};pg.append(e);});};draw();}};
+};
+/* ============ 10. Bougies (lampes) ============ */
+PZ.lampes=(d,R)=>{
+  const N=[3,4,4,5,5][d-1];let g;
+  do{g=Array(N*N).fill(false);for(let i=0;i<N*N;i++)if(R.f()<.5)tg(g,i,N);}while(g.filter(x=>x).length<3);
+  function tg(a,i,N){const x=i%N,y=(i/N)|0;[[0,0],[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const X=x+dx,Y=y+dy;if(X>=0&&X<N&&Y>=0&&Y<N)a[Y*N+X]=!a[Y*N+X];});}
+  return{title:'🕯️ Les flammes du temple',story:'Éteins toutes les flammes. Attention : toucher une flamme change aussi ses 4 voisines (haut, bas, gauche, droite).',
+    hints:['Commence par éteindre la ligne du haut, en touchant la ligne du dessous.','Descends ligne après ligne : on ne touche que les cases sous une flamme.','Si la dernière ligne n’est pas éteinte, recommence en jouant d’abord sur la première ligne.'],
+    mount(root,win){const gr=el('div','grid');gr.style.gridTemplateColumns='repeat('+N+',1fr)';root.append(gr);const cnt=el('div','muted sm','Coups : 0');root.append(cnt);let mc=0;
+      const draw=()=>{gr.innerHTML='';g.forEach((v,i)=>{const b=el('div','lamp'+(v?' on':''));b.onclick=()=>{tg(g,i,N);mc++;cnt.textContent='Coups : '+mc;draw();if(!g.some(x=>x))setTimeout(win,300);};gr.append(b);});};draw();}};
+};
+/* ============ 11. Jarres ============ */
+function jarSolve(cap,T){const key=s=>s.join(','),q=[[cap.map(()=>0),0]],seen=new Set([key(q[0][0])]);
+  for(let h=0;h<q.length;h++){const[s,dd]=q[h];if(s.includes(T))return dd;
+    cap.forEach((c,i)=>{const a=s.slice();a[i]=c;const b=s.slice();b[i]=0;[a,b].forEach(e=>{const k=key(e);if(!seen.has(k)){seen.add(k);q.push([e,dd+1]);}});
+      cap.forEach((c2,j)=>{if(i!==j){const t=Math.min(s[i],c2-s[j]);if(t>0){const e=s.slice();e[i]-=t;e[j]+=t;const k=key(e);if(!seen.has(k)){seen.add(k);q.push([e,dd+1]);}}}});});}
+  return -1;}
+PZ.jarres=(d,R)=>{
+  const nj=d<=2?2:3,mx=d<=2?9:13,rg=[[4,7],[6,9],[6,9],[9,13],[12,20]][d-1];let best=null;
+  for(let a=0;a<250;a++){const cap=R.shuf(Array.from({length:mx-1},(_,i)=>i+2)).slice(0,nj).sort((x,y)=>x-y),T=R.int(1,cap[nj-1]-1);if(cap.includes(T))continue;
+    const st=jarSolve(cap,T);if(st<0)continue;const sc=Math.abs(st-(rg[0]+rg[1])/2);if(!best||sc<best.sc){best={cap,T,st,sc};}if(st>=rg[0]&&st<=rg[1])break;}
+  if(!best)best={cap:[3,5],T:4,st:6};
+  const{cap,T}=best;
+  return{_st:best.st,_cap:cap,_T:T,title:'🏺 Les jarres du puits',story:'Tu as des jarres de '+cap.join(', ')+' litres (sans graduation) et une source d’eau à volonté. Obtiens exactement '+T+' litres dans une jarre.',
+    hints:['Tu peux remplir une jarre, la vider, ou la verser dans une autre jusqu’à ce qu’elle soit pleine.','Remplis la plus grande, verse dans la plus petite, et regarde ce qui reste.','Il faut au minimum '+best.st+' manipulations.'],
+    mount(root,win){const v=cap.map(()=>0);let sel=-1,mc=0;const jg=el('div','jugs'),ct=el('div','row2'),f=el('button','mb','🚰 Remplir'),e=el('button','mb','🗑 Vider'),cnt=el('div','muted sm','Manipulations : 0');
+      ct.append(f,e);root.append(el('div','eq q','Objectif : '+T+' L'),jg,ct,cnt);
+      const draw=()=>{jg.innerHTML='';cap.forEach((c,i)=>{const j=el('div','jug'+(sel===i?' sel':''),'<div class="gl" style="height:'+(40+c*8)+'px"><i style="height:'+(v[i]/c*100)+'%"></i></div><b>'+v[i]+' / '+c+' L</b>');j.onclick=()=>{if(sel<0){sel=i;}else if(sel===i){sel=-1;}else{const t=Math.min(v[sel],cap[i]-v[i]);if(t>0){v[sel]-=t;v[i]+=t;mc++;}sel=-1;}cnt.textContent='Manipulations : '+mc;draw();chk();};jg.append(j);});};
+      const chk=()=>{if(v.includes(T))setTimeout(win,300);};
+      f.onclick=()=>{if(sel<0){say('Touche d’abord une jarre.');return;}v[sel]=cap[sel];sel=-1;mc++;say('');cnt.textContent='Manipulations : '+mc;draw();chk();};
+      e.onclick=()=>{if(sel<0){say('Touche d’abord une jarre.');return;}v[sel]=0;sel=-1;mc++;say('');cnt.textContent='Manipulations : '+mc;draw();};draw();}};
+};
+/* ============ 12. Balance ============ */
+PZ.pesee=(d,R)=>{
+  const n=d<=3?9:12,W=[3,3,2,3,3][d-1],ask=d>=5,unk=d>=4;
+  return{title:'⚖️ La fausse pièce',story:'Parmi '+n+' pièces d’or, une est fausse : '+(unk?'plus lourde OU plus légère':'plus lourde')+'. Tu as droit à '+W+' pesées'+(ask?'. Désigne la pièce ET dis si elle est lourde ou légère.':'. Trouve-la.'),
+    hints:['Mets autant de pièces à gauche qu’à droite.','Si la balance est équilibrée, la fausse pièce est parmi celles que tu n’as pas pesées.',n===9?'Pèse 3 pièces contre 3 : tu sauras dans quel groupe de 3 elle se trouve.':'Pèse 4 contre 4 pour commencer.'],
+    mount(root,win){let odd,dir,arr,wl,hist,des=false,dsel=0;
+      const sc=el('div','scale'),L=el('div','pan'),Rr=el('div','pan'),cn=el('div','coins'),lg=el('div','muted sm'),ct=el('div','row2'),wb=el('button','mb',''),db=el('button','mb','🎯 Je sais !'),dr=el('div','row2');
+      sc.append(L,Rr);ct.append(wb,db);root.append(sc,cn,ct,dr,lg);
+      const reset=()=>{odd=R.int(0,n-1);dir=unk?R.pick([1,-1]):1;arr=Array(n).fill(0);wl=W;hist=[];des=false;dsel=0;draw();};
+      const draw=()=>{cn.innerHTML='';for(let i=0;i<n;i++){const b=el('button','coin'+(arr[i]===1?' l':arr[i]===2?' r':'')+(des?' tg':''),i+1);b.onclick=()=>{
+          if(des){if(ask&&!dsel){say('Choisis d’abord : lourde ou légère.');return;}if(i===odd&&(!ask||dsel===dir)){win();}else{say('Raté ! La balance est remélangée.');bad(cn);reset();}return;}
+          arr[i]=(arr[i]+1)%3;draw();};cn.append(b);}
+        L.innerHTML=arr.map((a,i)=>a===1?'<span class="chip" style="min-width:34px;padding:4px">'+(i+1)+'</span>':'').join('');Rr.innerHTML=arr.map((a,i)=>a===2?'<span class="chip" style="min-width:34px;padding:4px">'+(i+1)+'</span>':'').join('');
+        wb.textContent='⚖️ Peser ('+wl+')';wb.disabled=wl<=0||des;db.textContent=des?'↩ Annuler':'🎯 Je sais !';
+        dr.innerHTML='';if(des&&ask){[[1,'Lourde'],[-1,'Légère']].forEach(([v,t])=>{const b=el('button','mb',t);b.style.borderColor=dsel===v?'var(--gold)':'';b.onclick=()=>{dsel=v;draw();};dr.append(b);});}
+        lg.innerHTML=hist.map((h,k)=>'<div>Pesée '+(k+1)+' : '+h+'</div>').join('')||'Touche une pièce : 1 fois = plateau gauche, 2 fois = plateau droit.';};
+      wb.onclick=()=>{const l=[],r=[];arr.forEach((a,i)=>{if(a===1)l.push(i);if(a===2)r.push(i);});if(!l.length||l.length!==r.length){bad(sc);say('Mets le même nombre de pièces des deux côtés.');return;}say('');
+        const res=(l.includes(odd)?dir:r.includes(odd)?-dir:0);hist.push((l.map(x=>x+1).join(' ')+' ⚖️ '+r.map(x=>x+1).join(' '))+' → '+(res>0?'le plateau de gauche descend':res<0?'le plateau de droite descend':'équilibre'));wl--;arr=Array(n).fill(0);
+        sc.style.transform='rotate('+(res>0?-4:res<0?4:0)+'deg)';setTimeout(()=>sc.style.transform='',700);draw();};
+      db.onclick=()=>{des=!des;say(des?'Touche la pièce fausse.':'');draw();};reset();}};
+};
+/* ============ 13. Séquence des pierres ============ */
+PZ.ordre=(d,R)=>{
+  const n=[4,4,5,5,6][d-1],ic=['🔴','🔵','🟢','🟡','🟣','🟠'].slice(0,n),perms=[];
+  (function rec(p){if(p.length===n){perms.push(p.slice());return;}for(let i=0;i<n;i++)if(!p.includes(i)){p.push(i);rec(p);p.pop();}})([]);
+  const sol=R.pick(perms),P=(p,i)=>p.indexOf(i);
+  const mk=()=>{const a=R.int(0,n-1);let b=R.int(0,n-1);while(b===a)b=R.int(0,n-1);const k=R.int(0,5),ord=['1ʳᵉ','2ᵉ','3ᵉ','4ᵉ','5ᵉ','6ᵉ'];
+    if(k===0)return{t:ic[a]+' avant '+ic[b],f:p=>P(p,a)<P(p,b)};
+    if(k===1)return{t:ic[b]+' est juste après '+ic[a],f:p=>P(p,b)===P(p,a)+1};
+    if(k===2){const q=R.int(0,n-1);return{t:ic[a]+' est en '+ord[q]+' position',f:p=>P(p,a)===q};}
+    if(k===3)return{t:ic[a]+' n’est pas en dernier',f:p=>P(p,a)!==n-1};
+    if(k===4)return{t:ic[a]+' et '+ic[b]+' ne sont pas côte à côte',f:p=>Math.abs(P(p,a)-P(p,b))>1};
+    return{t:ic[a]+' est en premier ou en dernier',f:p=>P(p,a)===0||P(p,a)===n-1};};
+  let cand=perms,cons=[];
+  for(let t=0;t<600&&cand.length>1;t++){const c=mk();if(!c.f(sol))continue;const nc=cand.filter(c.f);if(nc.length<cand.length){cons.push(c);cand=nc;}}
+  return{_n:cand.length,_sol:sol,title:'🗿 La séquence des pierres',story:'Il faut appuyer sur les '+n+' pierres dans le bon ordre, du premier au dernier. Les indices permettent de déduire l’ordre exact. Une erreur et le mécanisme se bloque !',
+    hints:['Commence par les indices les plus précis (« en 2ᵉ position »).','Dessine '+n+' cases et place les pierres une à une.','La première pierre est '+ic[sol[0]]+'.'],
+    mount(root,win){cons.forEach(c=>root.append(el('div','rule',c.t)));const sl=el('div','slots'),ob=el('div','ordr');root.append(sl,ob);let pr=[];
+      const draw=()=>{sl.innerHTML=Array.from({length:n},(_,i)=>'<b>'+(pr[i]!=null?ic[pr[i]]:'')+'</b>').join('');ob.innerHTML='';ic.forEach((c,i)=>{const b=el('button','',c);b.disabled=pr.includes(i);b.onclick=()=>{pr.push(i);draw();
+          if(pr.length===n){if(pr.join()===sol.join())setTimeout(win,300);else{bad(sl);say('Clac ! Le mécanisme se bloque et se remet à zéro.');setTimeout(()=>{pr=[];draw();},600);}}};ob.append(b);});};
+      draw();const u=el('button','ob alt','↶ Retirer la dernière pierre');u.onclick=()=>{pr.pop();draw();};root.append(u);}};
+};
+/* ============ 14. Fouille de la pièce ============ */
+PZ.fouille=(d,R)=>{
+  const n=[3,4,4,5,5][d-1];
+  const KINDS=[{id:'shelf',ic:'📚',nm:'l’étagère'},{id:'clock',ic:'🕰️',nm:'la pendule'},{id:'candle',ic:'🕯️',nm:'le chandelier'},{id:'paint',ic:'🖼️',nm:'le tableau'},{id:'drawer',ic:'🗄️',nm:'la commode'},{id:'window',ic:'🪟',nm:'la fenêtre'}];
+  const mkk=(k,dg)=>{
+    if(k.id==='shelf'){const bk=['📗','📘','📙'],a=[];for(let i=0;i<dg;i++)a.push('📕');const tot=dg+R.int(8,12);while(a.length<tot)a.push(R.pick(bk));return{ask:'Compte les livres rouges 📕.',h:'<div class="big">'+R.shuf(a).join('')+'</div>'};}
+    if(k.id==='clock'){const m=R.pick([0,10,15,20,40,45,50]),pt=(a,L)=>(50+L*Math.sin(a*Math.PI/180)).toFixed(1)+','+(50-L*Math.cos(a*Math.PI/180)).toFixed(1),ah=((dg%12)+m/60)*30,am=m*6;
+      return{ask:'Quelle heure marque la pendule ? (le chiffre de l’heure)',h:'<svg viewBox="0 0 100 100" width="190"><circle cx="50" cy="50" r="47" fill="#f6f3e6" stroke="#c9962a" stroke-width="3"/>'+[12,3,6,9].map((x,i)=>'<text x="'+[50,87,50,13][i]+'" y="'+[14,54,92,54][i]+'" text-anchor="middle" font-size="11" font-weight="900" fill="#14202e">'+x+'</text>').join('')+'<polyline points="50,50 '+pt(ah,24)+'" stroke="#14202e" stroke-width="5" stroke-linecap="round"/><polyline points="50,50 '+pt(am,36)+'" stroke="#a33" stroke-width="3" stroke-linecap="round"/></svg>'};}
+    if(k.id==='candle'){const tot=Math.max(dg+R.int(1,3),6),a=Array(tot).fill('▪️').map((_,i)=>i<dg?'🔥':'▪️');return{ask:'Combien de bougies sont allumées 🔥 ?',h:'<div class="big">'+R.shuf(a).join(' ')+'</div>'};}
+    if(k.id==='paint'){const set=['🐟','🦆','🌸','⭐','🍎'],tgt=R.pick(set),o=set.filter(x=>x!==tgt),a=[];for(let i=0;i<dg;i++)a.push(tgt);while(a.length<20)a.push(R.pick(o));const s=R.shuf(a);let h='';for(let r=0;r<4;r++)h+='<div class="big">'+s.slice(r*5,r*5+5).join(' ')+'</div>';return{ask:'Compte les '+tgt+' dans le tableau.',h};}
+    if(k.id==='drawer'){let t;if(d<=2){const a=R.int(0,dg);t=a+' + '+(dg-a);}else{const a=R.int(3,9),b=R.int(3,4);t=a+' × '+b+' − '+(a*b-dg);}return{ask:'Un papier est collé : calcule le résultat.',h:'<div class="big">'+t+' = ?</div>'};}
+    const a=[];for(let i=0;i<dg;i++)a.push('⭐');while(a.length<20)a.push(R.pick(['·','·','🌙','☁️']));const s=R.shuf(a);let h='';for(let r=0;r<4;r++)h+='<div class="big">'+s.slice(r*5,r*5+5).join(' ')+'</div>';return{ask:'Compte les étoiles ⭐ dans le ciel.',h};};
+  const sh=R.shuf(KINDS),ch=sh.slice(0,n).map(k=>({k,dg:R.int(1,9)})),dc=sh.slice(n,n+(d>=3?1:0)).map(k=>({k,dg:R.int(1,9)}));
+  ch.forEach(o=>o.v=mkk(o.k,o.dg));dc.forEach(o=>o.v=mkk(o.k,o.dg));
+  const code=ch.map(o=>o.dg);
+  return{title:'🗝️ La pièce secrète',story:'Fouille la pièce : touche les objets pour les examiner. Le parchemin explique comment composer le code du coffre.',
+    hints:['Lis le parchemin 📜 : il donne l’ordre des chiffres.','Tous les objets ne servent pas forcément.','Le premier chiffre du code est '+code[0]+'.'],
+    mount(root,win){const notes={},box=el('div'),pr=el('div');root.append(box);let W=null;
+      const all=R.shuf(ch.concat(dc).map(o=>({k:o.k,v:o.v,id:o.k.id})).concat([{k:{id:'note',ic:'📜',nm:'le parchemin'},v:{ask:'',h:'<div class="rule">Le coffre s’ouvre avec, dans l’ordre : <br><b>'+ch.map((o,i)=>(i+1)+'. '+o.k.nm).join('<br>')+'</b></div>'},id:'note'}]));
+      const room=()=>{box.innerHTML='';const r=el('div','room');all.forEach(o=>{const b=el('button','hs','<span>'+o.k.ic+'</span>'+o.k.nm.replace(/^l’|^la |^le /,'')+(notes[o.id]?'<em>'+notes[o.id]+'</em>':''));b.onclick=()=>insp(o);r.append(b);});box.append(r,el('div','muted sm','Code du coffre :'));W=wheels(box,n);
+        const b=el('button','ob','🔓 Ouvrir le coffre');b.onclick=()=>{if(W.vals.join()===code.join())win();else{bad(W.node);say('Le coffre reste fermé.');}};box.append(b);};
+      const insp=o=>{box.innerHTML='';const c=el('div','card insp','<div class="pt">'+o.k.ic+' '+o.k.nm.charAt(0).toUpperCase()+o.k.nm.slice(1)+'</div><div class="story">'+o.v.ask+'</div>'+o.v.h);box.append(c);
+        if(o.id!=='note'){c.append(el('div','muted sm','Noter un chiffre (facultatif) :'));const nr=el('div','chips');for(let i=0;i<=9;i++){const b=el('button','chip',i);b.style.border=0;b.onclick=()=>{notes[o.id]=i;room();};nr.append(b);}c.append(nr);}
+        const rt=el('button','ob alt','← Retour à la pièce');rt.onclick=room;c.append(rt);};
+      room();}};
+};
+/* ====== aventures ====== */
+const ADV=[
+ {id:'tombeau',n:'Le tombeau oublié',ic:'🏺',bg:'egypte',lvl:1,len:4,rw:20,lab:'Facile',fl:['Une lourde dalle de pierre vous barre la route.','Des hiéroglyphes brillent faiblement sur le mur.','Une chambre poussiéreuse s’ouvre devant vous.']},
+ {id:'ile',n:'L’île du capitaine',ic:'🏴‍☠️',bg:'marins',lvl:2,len:6,rw:45,lab:'Moyen',fl:['Le vieux pirate a verrouillé sa cachette.','Les vagues claquent contre la grotte.','Une carte déchirée indique un nouveau mécanisme.']},
+ {id:'manoir',n:'Le manoir Valcourt',ic:'🕯️',bg:'baroque',lvl:3,len:8,rw:80,lab:'Difficile',fl:['Une porte secrète craque derrière la bibliothèque.','Un courant d’air fait vaciller les bougies.','Le portrait semble vous suivre des yeux.']},
+ {id:'atelier',n:'L’atelier du Professeur',ic:'⚙️',bg:'steampunk',lvl:4,len:10,rw:130,lab:'Expert',fl:['Des engrenages tournent derrière la cloison.','La vapeur siffle : un mécanisme se réveille.','Le Professeur a laissé un dernier verrou.']},
+ {id:'temple',n:'Le temple des étoiles',ic:'🔮',bg:'astro',lvl:5,len:12,rw:200,lab:'Légendaire',fl:['Les étoiles dessinent une énigme sur la voûte.','Le sol vibre : une porte cosmique s’éveille.','Seuls les plus malins vont plus loin.']}];
+const MINLV={pesee:2};
+let CUR=ADV[0],RUN=null,TS=0;
+const stepD=(a,k)=>k===a.len-1?Math.min(5,a.lvl+1):a.lvl;
+function newRun(a){const seed=Math.floor(Math.random()*1e9),R=mkR(seed),used=[],ty=[],all=Object.keys(PZ);
+  for(let k=0;k<a.len;k++){const d=stepD(a,k);let c=all.filter(t=>!used.includes(t)&&(MINLV[t]||1)<=d);if(!c.length)c=all.filter(t=>(MINLV[t]||1)<=d);const t=R.pick(c);used.push(t);ty.push(t);}
+  return{id:a.id,seed,ty,step:0,salt:ty.map(()=>0),el:0,hints:0};}
+function tick(){if(RUN&&TS){RUN.el+=Date.now()-TS;}TS=Date.now();}
+function persist(){tick();ST.run=RUN;save();}
+const fmt=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+' min '+String(s%60).padStart(2,'0')+' s';};
+function bgSet(a){$('app').style.backgroundImage=a?'linear-gradient(rgba(10,20,32,.80),rgba(10,20,32,.92)),url(../cartes-img/'+a.bg+'/bg1.webp)':'none';}
+/* ====== accueil ====== */
+function home(){RUN=null;TS=0;bgSet(null);$('sc').textContent='La chasse au trésor';const m=$('main');m.innerHTML='';
+  m.append(el('p','muted sm','Choisis une aventure. Plus elle est longue et difficile, plus le trésor est gros. Les épreuves sont différentes à chaque partie.'));
+  ADV.forEach(a=>{const b=el('button','adv','<div class="ic" style="background-image:linear-gradient(#0005,#0005),url(../cartes-img/'+a.bg+'/bg1.webp)">'+a.ic+'</div><div><b>'+a.n+'</b><small><span class="tag">'+a.lab+'</span>'+a.len+' épreuves · 💎 '+a.rw+'</small><br><small>'+(ST.done[a.id]?'✔ réussie '+ST.done[a.id]+' fois'+(ST.best[a.id]?' · record '+fmt(ST.best[a.id]):''):'Pas encore tentée')+(ST.run&&ST.run.id===a.id?' · <b class="gold">en cours</b>':'')+'</small></div>');
+    b.onclick=()=>intro(a);m.append(b);});}
+function intro(a){const has=ST.run&&ST.run.id===a.id;
+  openOv('<div style="font-size:54px">'+a.ic+'</div><h2>'+a.n+'</h2><p class="muted">'+a.lab+' · '+a.len+' épreuves</p><p>Résous toutes les énigmes pour ouvrir le coffre : <span class="gold">'+a.rw+' 💎</span>.<br>Un indice coûte 3 💎, changer d’énigme 5 💎.</p>'
+   +(has?'<button class="ob" id="rs">Reprendre ('+(ST.run.step+1)+'/'+a.len+')</button><button class="ob alt" id="nw">Nouvelle aventure</button>':'<button class="ob" id="nw">Commencer</button>')+'<button class="ob alt" id="cn">Retour</button>');
+  if(has)$('rs').onclick=()=>{closeOv();CUR=a;RUN=ST.run;TS=Date.now();step();};
+  $('nw').onclick=()=>{closeOv();CUR=a;RUN=newRun(a);TS=Date.now();persist();step();};$('cn').onclick=closeOv;}
+/* ====== une épreuve ====== */
+let P=null,HSH=0;
+function step(){const a=CUR,k=RUN.step,d=stepD(a,k),R=mkR(RUN.seed*7+k*131+RUN.salt[k]*977);P=PZ[RUN.ty[k]](d,R);HSH=0;bgSet(a);$('sc').textContent=a.ic+' '+a.n;
+  const m=$('main');m.innerHTML='';m.scrollTop=0;
+  m.append(el('div','pips',a.len?Array.from({length:a.len},(_,i)=>'<i class="'+(i<k?'dn':i===k?'on':'')+'">'+(i<k?'✔':i===k?(k===a.len-1?'👑':i+1):'🔒')+'</i>').join(''):''));
+  const c=el('div','card');c.append(el('div','pt',P.title),el('p','story',(k===0?'':'')+R.pick(a.fl)+' '+P.story));const pz=el('div');pz.id='pz';c.append(pz,el('div','',''));const fb=el('div');fb.id='fb';c.append(fb);m.append(c);
+  const hb=el('div','row2');const hi=el('button','mb','💡 Indice (3 💎)'),ch=el('button','mb','🔄 Autre énigme (5 💎)');hb.append(hi,ch);m.append(hb);const hs=el('div');hs.id='hints';m.append(hs);
+  hi.onclick=()=>{if(HSH>=P.hints.length){toast('Plus d’indice pour cette épreuve.');return;}if(gems()<3){toast('Il te faut 3 💎.');return;}addGems(-3);RUN.hints++;hs.append(el('div','h','💡 '+P.hints[HSH++]));persist();};
+  ch.onclick=()=>{if(gems()<5){toast('Il te faut 5 💎.');return;}openOv('<h2>Changer d’énigme ?</h2><p class="muted">Une autre épreuve du même niveau. Coût : 5 💎.</p><button class="ob" id="y">Oui</button><button class="ob alt" id="n">Non</button>');
+    $('n').onclick=closeOv;$('y').onclick=()=>{closeOv();addGems(-5);const used=RUN.ty,all=Object.keys(PZ).filter(t=>!used.includes(t)&&(MINLV[t]||1)<=d);if(all.length)RUN.ty[k]=mkR(Date.now()).pick(all);RUN.salt[k]++;persist();step();};};
+  P.mount(pz,()=>win());}
+function win(){const last=RUN.step>=CUR.len-1;persist();
+  if(!last){openOv('<div style="font-size:54px">🔓</div><h2>Bravo !</h2><p class="muted">Épreuve '+(RUN.step+1)+'/'+CUR.len+' réussie.</p><button class="ob" id="nx">Suite →</button>');$('nx').onclick=()=>{closeOv();RUN.step++;persist();step();};return;}
+  tick();const t=RUN.el,id=CUR.id;ST.done[id]=(ST.done[id]||0)+1;if(!ST.best[id]||t<ST.best[id])ST.best[id]=t;ST.run=null;save();addGems(CUR.rw);
+  openOv('<div style="font-size:64px">💰</div><h2>Le trésor est à toi !</h2><p class="gold" style="font-size:22px">+'+CUR.rw+' 💎</p><p class="muted">'+CUR.n+' · '+fmt(t)+(RUN.hints?' · '+RUN.hints+' indice'+(RUN.hints>1?'s':''):'')+'</p><button class="ob" id="rp">Rejouer (autres énigmes)</button><button class="ob alt" id="hm">Aventures</button>');
+  $('rp').onclick=()=>{closeOv();RUN=newRun(CUR);TS=Date.now();persist();step();};$('hm').onclick=()=>{closeOv();home();};}
+$('bmenu').onclick=()=>{openOv('<img class="mi" src="icons/icon-192.png" alt=""><h2>La chasse au trésor</h2><button class="ob" id="rs">Reprendre</button><button class="ob alt" id="ad">Aventures</button><button class="ob alt" id="hm">Retour aux jeux</button>');
+  $('rs').onclick=closeOv;$('ad').onclick=()=>{closeOv();if(RUN)persist();home();};$('hm').onclick=()=>{if(RUN)persist();location.href='../';};};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&RUN)persist();else TS=Date.now();});
+gmUpdate();home();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

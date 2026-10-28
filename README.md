@@ -12,6 +12,7 @@ Jeux en un seul fichier HTML, jouables sur téléphone, sans publicité, install
 - `motus/` : Motus (mots français de 5 à 8 lettres, mot du jour)
 - `navale/` : Bataille navale (solo 3 niveaux ou en ligne avec code)
 - `scrabble/` : Scrabble contre l'ordinateur (dictionnaire français de 300 000 mots, an-array-of-french-words, licence MIT)
+- `tresor/` : La chasse au trésor, 5 aventures d'énigmes (cadenas, logique, mots, mécanismes…), épreuves différentes à chaque partie, 💎 à gagner
 - `snake/` : Snake (accessoires, nourriture, décors payants en 💎)
 - `blocs/` : Blocs (tétrominos, réserve, styles de blocs)
 - `maze/` : Croque-labyrinthe (gommes, ennemis, accessoires)
