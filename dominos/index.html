@@ -68,7 +68,7 @@ body{background-image:radial-gradient(circle at 50% 0,#4a2f1c,#1a1008 70%);--gol
 .dt.pl{transform:translateY(-8px);filter:drop-shadow(0 0 4px var(--gold)) drop-shadow(0 0 4px var(--gold))}
 .dt.no{filter:brightness(.55) drop-shadow(0 2px 3px #000b)}
 #chain{background:url(img/table.webp) center/100% 100% no-repeat;border-radius:6px;box-shadow:0 4px 12px #000a;padding:30px 26px;min-height:230px;margin:8px 0;display:flex;flex-direction:column;gap:14px;justify-content:center}
-.cr{display:flex;gap:3px;align-items:center}
+.cr{display:flex;gap:3px;align-items:center}.tn{color:var(--gold);font-size:26px;font-weight:900;line-height:1;width:22px;text-align:center;text-shadow:0 1px 3px #000}
 #chain .dt.h{width:58px;height:29px}#chain .dt.d.h{width:29px;height:58px}#chain .dt.h:not(.d) .im{width:29px;height:58px;left:14.5px;top:-14.5px}
 .en{font-weight:900;color:var(--gold);font-size:13px;background:#0008;border-radius:10px;padding:2px 7px}
 #hd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:14px 0 6px;min-height:92px}
@@ -259,13 +259,14 @@ const domH=(t,cls)=>{const sw=t.a>t.b,x=sw?t.b:t.a,y=sw?t.a:t.b,hor=cls.indexOf(
   return '<div class="dt '+cls+'" data-id="'+t.id+'"><div class="im" style="background-image:url(img/d_'+x+'_'+y+'.webp);'+(rot?'transform:rotate('+rot+'deg)':'')+'"></div></div>';};
 function chainHtml(ch,e){
   if(!ch.length)return '<span class="muted" style="text-align:center">Aucun domino posé.</span>';
-  const W=Math.max(200,($('main').clientWidth||360)-52-4);
+  const W=Math.max(200,($('main').clientWidth||360)-52-4-24);
   const items=[{k:'en',v:e[0],w:28}].concat(ch.map(t=>({k:'t',t,w:t.a===t.b?29:58}))).concat([{k:'en',v:e[1],w:28}]);
   const rows=[];let cur=[],used=0;
   items.forEach(it=>{if(cur.length&&used+it.w+3>W){rows.push(cur);cur=[];used=0;}cur.push(it);used+=it.w+3;});
   if(cur.length)rows.push(cur);
   return rows.map((r,i)=>{const rev=i%2===1,L=rev?r.slice().reverse():r;
-    return '<div class="cr" style="justify-content:'+(rev?'flex-end':'flex-start')+'">'+L.map(it=>it.k==='en'?'<span class="en">'+it.v+'</span>':domH(it.t,'h'+(it.t.a===it.t.b?' d':'')+(rev?' f':''))).join('')+'</div>';}).join('');
+    const more=i<rows.length-1,ar=more?'<span class="tn">'+(rev?'↲':'↴')+'</span>':'';
+    return '<div class="cr" style="justify-content:'+(rev?'flex-end':'flex-start')+'">'+(rev?ar:'')+L.map(it=>it.k==='en'?'<span class="en">'+it.v+'</span>':domH(it.t,'h'+(it.t.a===it.t.b?' d':'')+(rev?' f':''))).join('')+(rev?'':ar)+'</div>';}).join('');
 }
 function onView(v){V=v;if(!v.endInfo)closeOv();render();if(v.endInfo)setTimeout(endDialog,800);}
 function render(){
