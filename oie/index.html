@@ -38,8 +38,8 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 
 body{background-image:radial-gradient(circle at 50% 0,#3a3a52,#14141e 70%);--gold:#e8c46a}
 #bw{width:min(100%,calc(100vh - 300px));margin:6px auto 0}
-#bd{position:relative;width:100%;aspect-ratio:1;border-radius:6px;background:url(img/bg.webp) center/100% 100%;box-shadow:0 10px 26px #000b}
-#fl{position:absolute;left:17.6%;top:17.6%;width:64.8%;height:64.8%}
+#bd{position:relative;width:100%;aspect-ratio:1;border-radius:6px;background:url(img/board.webp) center/100% 100%;box-shadow:0 10px 26px #000b}
+#fl{position:absolute;left:16.75%;top:16.75%;width:66.52%;height:66.52%}
 #fl>*{position:absolute}
 .oc{background:linear-gradient(145deg,#fbf3dc,#efe0b8);border:1.5px solid #7a6238;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 2px #fffaf0aa,inset 0 -3px 5px #b8975a44,0 1px 2px #0005}
 .oc:nth-child(even){background:linear-gradient(145deg,#f3ead0,#e6d3a6)}
@@ -224,10 +224,6 @@ let built=false;const anim={t:null,steps:[],i:-1,shown:{}};
 function cellXY(pos,k,n){const [r,c]=SPIRAL[pos],u=100/8;let ox=0,oy=0;if(n>1){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;ox=(cc-(cols-1)/2)*u*.28;oy=(rr-(Math.ceil(n/cols)-1)/2)*u*.22;}return [c*u+u/2+ox,r*u+u/2+oy+u*.18];}
 function buildBoard(v){
   const u=100/8;let h='<div id="bw"><div id="bd"><div id="fl">';
-  SPIRAL.forEach(([r,c],i)=>{
-    const sp=SPI[i]||(GEESE.includes(i)?'goose':'');
-    const cl=i===0?' st':i===63?' cr':GEESE.includes(i)?' g':(i===6||i===31)?' w':(i===42||i===52||i===58)?' d':(i===26||i===53||i===19)?' v':'';
-    h+='<div class="oc'+cl+'" style="left:'+c*u+'%;top:'+r*u+'%;width:'+u+'%;height:'+u+'%">'+(i===0?'<b style="position:static;font-size:calc(var(--nf) - 1px);text-align:center;font-style:italic">Départ</b>':'<b>'+i+'</b>'+(sp?'<img src="img/i_'+sp+'.webp" alt="">':''))+'</div>';});
   v.pl.forEach((q,i)=>{h+='<img class="pw" data-i="'+i+'" src="img/pw'+q.pw+'.webp" alt="">';});
   h+='</div></div></div><div id="dz"><div class="dd"><img id="d1" src="img/d1.webp" alt="" style="opacity:.5"><img id="d2" src="img/d2.webp" alt="" style="opacity:.5"></div><button class="ob" id="rb">Lancer les dés</button></div><div id="lg"></div>'+
    '<div class="lgd"><span><img src="img/i_goose.webp" alt="">oie : rejoue</span><span><img src="img/i_bridge.webp" alt="">pont → 12</span><span><img src="img/i_inn.webp" alt="">1 tour</span><span><img src="img/i_dice.webp" alt="">26 ⇄ 53</span><span><img src="img/i_well.webp" alt="">puits</span><span><img src="img/i_prison.webp" alt="">prison</span><span><img src="img/i_maze.webp" alt="">→ 30</span><span><img src="img/i_skull.webp" alt="">→ départ</span></div>';
