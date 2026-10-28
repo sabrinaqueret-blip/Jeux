@@ -233,10 +233,9 @@ function hostOnline(name){
     peer.on('open',lobby);
     peer.on('error',e=>{if(e.type==='unavailable-id'&&tries<5){roomCode=genCode();open(tries+1);}else{toast('Connexion impossible ('+(e.type||'erreur')+').',5000);showHome();}});
     peer.on('connection',c=>{
-      if(H||names.length>=4){c.on('open',()=>{try{c.send({t:'full'});}catch(e){}});return;}
       const o={conn:c,p:-1};
-      c.on('data',m=>{if(m.t==='hello'&&o.p<0){o.p=names.length;names.push(String(m.name||'Joueur').slice(0,12));conns.push(o);lobby();}else if(o.p>0&&m.t==='act'){const r=act(o.p,m.a);if(r==='invalid')try{c.send({t:'err'});}catch(e){}}else if(o.p>0&&m.t==='next'&&H&&H.pause)nextRound();});
-      c.on('close',()=>{if(H)toast('Un joueur a quitté la partie.',4000);else{const i=conns.indexOf(o);if(i>=0){conns.splice(i,1);names.splice(o.p,1);conns.forEach(x=>{if(x.p>o.p)x.p--;});lobby();}}});
+      c.on('data',m=>{if(m.t==='hello'&&o.p<0){const nm=String(m.name||'Joueur').slice(0,12),full=()=>{try{c.send({t:'full'});}catch(e){}};if(H){const od=conns.find(x=>x.dead&&H.pl[x.p]&&H.pl[x.p].name===nm);if(od){conns[conns.indexOf(od)]=o;o.p=od.p;H.pl[o.p].bot=false;toast(nm+' est de retour !',3500);pushViews();maybeBot();}else full();}else if(names.length>=4)full();else{o.p=names.length;names.push(nm);conns.push(o);lobby();}}else if(o.p>0&&m.t==='act'){const r=act(o.p,m.a);if(r==='invalid')try{c.send({t:'err'});}catch(e){}}else if(o.p>0&&m.t==='next'&&H&&H.pause)nextRound();});
+      c.on('close',()=>{if(H){if(o.p>0&&conns.indexOf(o)>=0){o.dead=true;H.pl[o.p].bot=true;toast(H.pl[o.p].name+' a quitté : un robot joue à sa place (reconnexion possible).',5000);maybeBot();pushViews();}}else{const i=conns.indexOf(o);if(i>=0){conns.splice(i,1);names.splice(o.p,1);conns.forEach(x=>{if(x.p>o.p)x.p--;});lobby();}}});
     });
   };
   open(0);
@@ -249,7 +248,7 @@ function joinOnline(name,code){
   peer.on('open',()=>{const c=peer.connect('dominos-'+code,{reliable:true});peer.conn=c;
     c.on('open',()=>{opened=true;c.send({t:'hello',name});$('home').innerHTML='<h2>Connecté !</h2><p class="muted">En attente du lancement par l’hôte…</p><button class="ob alt" id="back">Quitter</button>';$('back').onclick=showHome;});
     c.on('data',m=>{if(m.t==='full')fail('La partie est complète ou déjà commencée.');else if(m.t==='view'){if($('game').hidden)show('game');onView(m.v);}else if(m.t==='err')toast('Action impossible.');});
-    c.on('close',()=>{if(V&&!V.over)openOv('<h2>Connexion perdue</h2><button class="ob" id="q">Quitter</button>'),$('q').onclick=showHome;});});
+    c.on('close',()=>{if(V&&!V.over){openOv('<h2>Connexion perdue</h2><p class="muted">Un robot joue à ta place. Reconnecte-toi avec le même code et le même nom pour reprendre.</p><button class="ob" id="rc">Se reconnecter</button><button class="ob alt" id="q">Quitter</button>');$('rc').onclick=()=>{closeOv();joinOnline(name,code);};$('q').onclick=showHome;}});});
   setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},15000);
 }
 function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne peux pas jouer ce domino.');}else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
