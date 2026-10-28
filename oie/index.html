@@ -120,17 +120,17 @@ let H=null,peer=null,conns=[],isHost=false,myIdx=0,V=null,roomCode='';
 function nextRound(){}
 
 const GEESE=[5,9,14,18,23,27,32,36,41,45,50,54,59];
-const SPI={6:'bridge',19:'inn',26:'dice',31:'well',42:'maze',52:'prison',53:'dice',58:'skull',63:'crown'};
-const NAMES={6:'Le pont',19:'L’auberge',26:'Les dés',31:'Le puits',42:'Le labyrinthe',52:'La prison',53:'Les dés',58:'La mort',63:'Le jardin de l’oie'};
+const SPI={6:'bridge',19:'inn',26:'dice',31:'well',42:'maze',52:'prison',53:'dice',58:'skull',60:'crown'};
+const NAMES={6:'Le pont',19:'L’auberge',26:'Les dés',31:'Le puits',42:'Le labyrinthe',52:'La prison',53:'Les dés',58:'La mort',60:'Le jardin de l’oie'};
 const SPIRAL=(()=>{const n=8,g=[];let top=0,bot=n-1,left=0,right=n-1;while(top<=bot&&left<=right){for(let c=left;c<=right;c++)g.push([top,c]);top++;for(let r=top;r<=bot;r++)g.push([r,right]);right--;if(top<=bot){for(let c=right;c>=left;c--)g.push([bot,c]);bot--;}if(left<=right){for(let r=bot;r>=top;r--)g.push([r,left]);left++;}}return g;})();
 function hlog(s){H.log=s;}
 const NP=()=>H.pl.length;
-const bounce=p=>p>63?126-p:p;
+const bounce=p=>p>60?120-p:p;
 function settle(i,n,trail){
   const pl=H.pl[i];let guard=0,jumped=false,msgs=[];
   while(guard++<30){
     const p=pl.pos;
-    if(p===63){H.over=true;H.win=i;msgs.push(pl.name+' atteint le jardin de l’oie : victoire !');break;}
+    if(p===60){H.over=true;H.win=i;msgs.push(pl.name+' atteint le jardin de l’oie : victoire !');break;}
     if(GEESE.includes(p)){const nb=bounce(p+n);if(nb===p){msgs.push('Une oie, mais impossible d’avancer de '+n+' : '+pl.name+' reste sur place.');break;}pl.pos=nb;trail.push(pl.pos);H.again=true;msgs.push('Une oie ! '+pl.name+' avance encore de '+n+' et rejoue.');continue;}
     if(p===6){pl.pos=12;trail.push(12);msgs.push('Le pont : '+pl.name+' passe à la case 12.');continue;}
     if(p===19){pl.skip=1;msgs.push('L’auberge : '+pl.name+' passera un tour.');break;}
@@ -166,7 +166,7 @@ function botStep(){if(!H||H.over)return;const i=H.turn;if(!H.pl[i].bot)return;ac
 /* ================= accueil / réseau ================= */
 function showHome(){
   leave();show('home');
-  $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Jeu de l’oie</h1><p class="muted">Le grand classique : 63 cases, des oies qui font avancer, un pont, un puits, une prison… Le premier au jardin de l’oie gagne. Contre des robots, ou à plusieurs avec un code.</p>'+
+  $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Jeu de l’oie</h1><p class="muted">Le grand classique : 60 cases, des oies qui font avancer, un pont, un puits, une prison… Le premier au jardin de l’oie gagne. Contre des robots, ou à plusieurs avec un code.</p>'+
    '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'">'+
    '<div class="tabs"><span>Robots :</span>'+[1,2,3,4,5].map(n=>'<button data-b="'+n+'" class="'+(P.bots===n?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<button class="ob" id="solo">Jouer contre les robots</button>'+
@@ -180,7 +180,7 @@ function showHome(){
   $('joinB').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');P.code=c;nm();joinOnline(nm(),c);};
   $('rl').onclick=rules;
 }
-function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:13px"><p>Lance les deux dés et avance d’autant de cases. Il faut arriver <b>exactement</b> à la case 63 : si tu dépasses, tu recules de l’excédent.</p><p>🪿 <b>Oie</b> (5, 9, 14, 18…) : tu avances encore du même nombre et tu rejoues.<br>🌉 <b>Pont</b> (6) : direction la case 12.<br>🏠 <b>Auberge</b> (19) : tu passes un tour.<br>🎲 <b>Dés</b> (26 et 53) : tu files à l’autre case des dés.<br>🪣 <b>Puits</b> (31) et ⛓️ <b>prison</b> (52) : tu restes bloqué jusqu’à ce qu’un autre joueur arrive sur la case.<br>🌀 <b>Labyrinthe</b> (42) : retour à la case 30.<br>💀 <b>Mort</b> (58) : retour au départ.<br>👑 <b>63</b> : le jardin de l’oie, tu gagnes !</p><p>Au premier lancer, un 6 + 3 t’envoie à la case 26 et un 5 + 4 à la case 53.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
+function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:13px"><p>Lance les deux dés et avance d’autant de cases. Il faut arriver <b>exactement</b> à la case 60 : si tu dépasses, tu recules de l’excédent.</p><p>🪿 <b>Oie</b> (5, 9, 14, 18…) : tu avances encore du même nombre et tu rejoues.<br>🌉 <b>Pont</b> (6) : direction la case 12.<br>🏠 <b>Auberge</b> (19) : tu passes un tour.<br>🎲 <b>Dés</b> (26 et 53) : tu files à l’autre case des dés.<br>🪣 <b>Puits</b> (31) et ⛓️ <b>prison</b> (52) : tu restes bloqué jusqu’à ce qu’un autre joueur arrive sur la case.<br>🌀 <b>Labyrinthe</b> (42) : retour à la case 30.<br>💀 <b>Mort</b> (58) : retour au départ.<br>👑 <b>60</b> : le jardin de l’oie, tu gagnes !</p><p>Au premier lancer, un 6 + 3 t’envoie à la case 26 et un 5 + 4 à la case 53.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
 function leave(){clearTimeout(H&&H.bt);clearTimeout(anim.t);try{conns.forEach(c=>c.conn&&c.conn.close());}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conns=[];H=null;V=null;isHost=false;built=false;endDialog.paid=0;closeOv();}
 function startGame(humans,bots){
   const names=humans.slice();const bn=['Luna','Comète','Orion','Plume','Nougat'];for(let i=0;i<bots;i++)names.push(bn[i]);
@@ -221,7 +221,7 @@ function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne p
 
 /* ================= affichage ================= */
 let built=false;const anim={t:null,steps:[],i:-1,shown:{}};
-function cellXY(pos,k,n){const [r,c]=SPIRAL[pos],u=100/8;let ox=0,oy=0;if(n>1){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;ox=(cc-(cols-1)/2)*u*.28;oy=(rr-(Math.ceil(n/cols)-1)/2)*u*.22;}return [c*u+u/2+ox,r*u+u/2+oy+u*.18];}
+function cellXY(pos,k,n){if(pos>=60){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;return [50+(cc-(cols-1)/2)*11,50+(rr-(Math.ceil(n/cols)-1)/2)*10+4];}const [r,c]=SPIRAL[pos],u=100/8;let ox=0,oy=0;if(n>1){const cols=Math.ceil(Math.sqrt(n)),rr=Math.floor(k/cols),cc=k%cols;ox=(cc-(cols-1)/2)*u*.28;oy=(rr-(Math.ceil(n/cols)-1)/2)*u*.22;}return [c*u+u/2+ox,r*u+u/2+oy+u*.18];}
 function buildBoard(v){
   const u=100/8;let h='<div id="bw"><div id="bd"><div id="fl">';
   v.pl.forEach((q,i)=>{h+='<img class="pw" data-i="'+i+'" src="img/pw'+q.pw+'.webp" alt="">';});
