@@ -677,6 +677,7 @@ function genBox(R,L){
   if(kinds.length<CFG.n)continue;
   if(kinds.filter(k=>['lights','tiles','train','balance','mirrors','pipes','rings'].includes(k)).length>(L>=4?2:(L===3?3:1)))continue;
   mod.used=[];mod.usedT=[];let ms=R.shuf(kinds).map(k=>mod(k,R,L));
+  ms.forEach(m=>{if(m.hh&&!m.inline){m.sk=R.pick([null,'dr','dw','tr','vt','pn','cf','ca','dr','dw','tr','ca']);if(m.sk)m.hh+=9;}});
   const fi=ms.findIndex(m=>!m.needKey&&!m.needItems);if(fi<0)continue;if(fi>0){const t=ms[0];ms[0]=ms[fi];ms[fi]=t;}
   const gems=R.shuf(['g0','g1','g2','g3','g4','g5','g6','g7','g8']);let gi=0;
   const items={},rewards=ms.map(()=>[]),extra=[];let nid=0;
@@ -720,7 +721,7 @@ function genBox(R,L){
     const add=p=>{p.f=f;p.y=Math.round((p.y+Y)*10)/10;parts.push(p);};
     if(e.m){const m=e.m,P=m.P,giv=rewards[m.i].slice();
       const ps=m.parts(P,m.d,giv);ps.forEach(add);
-      if(m.hh&&!m.inline){const sk=R.pick([null,'door','drawer','door','drawer']);add({t:'hatch',id:'H'+m.i,x:sk?19:28,y:m.h+(sk?3:4),w:sk?62:44,h:m.hh+(sk?3:0),open:()=>D(P),give:giv,sk:sk||undefined});}
+      if(m.hh&&!m.inline){const sk=m.sk;add({t:'hatch',id:'H'+m.i,x:sk?18:28,y:m.h+(sk?2:4),w:sk?64:44,h:m.hh+(sk?-2:0),open:()=>D(P),give:giv,sk:sk||undefined});}
       m.f=f;}
     else if(e.c){const c=e.c,m=c.m;
       if(c.type==='plate')add({t:'marks',x:14,y:0,w:72,h:14,plate:1,items:cm(m,(100/m.digits)/2,100/m.digits,52,m.digits>4?8:9)});

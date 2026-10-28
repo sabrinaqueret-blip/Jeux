@@ -106,7 +106,9 @@ const css=`
 .fz{display:grid;grid-template-columns:1fr 1fr;gap:10% 5%;width:100%;height:100%;align-content:center}.fz button{background:linear-gradient(#2a1d10,#150d06);border:2px solid #7a5a22;border-radius:10px;padding:0;aspect-ratio:175/70;position:relative;box-shadow:inset 0 3px 7px #000d,0 2px 4px #000a}.fz button img{position:absolute;inset:8% 4%;width:92%;height:84%;object-fit:contain}.fz button.bad img{filter:drop-shadow(0 0 5px #f33a)}.fz button.ok img{filter:drop-shadow(0 0 5px #fff6)}
 .pkb{flex:1;height:100%;border:0;background:none;padding:0;position:relative}.pkb img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 4px #000c)}.pkb.f img{filter:drop-shadow(0 0 9px #fff9)}
 .hs2.dn{opacity:.55}
-.hk{position:relative;width:100%;height:100%}.hk>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px #000c)}.hk .in{position:absolute;display:flex;justify-content:center;align-items:center;gap:3%}.hk.door .in{left:6%;top:8%;width:54%;height:84%}.hk.drawer .in{left:8%;top:-34%;width:84%;height:96%}.hk .in{flex-wrap:wrap;align-content:center}.hk .in .hs2{height:48%;flex:0 0 30%;min-width:0}.hk .in .hs2 img{max-height:100%;animation:pu 1.6s infinite}
+.hkw{container-type:size;display:flex;align-items:flex-end}.hkw.l{justify-content:flex-start}.hkw.c{justify-content:center}.hkw.r{justify-content:flex-end}.hk{position:relative;width:min(100cqw,calc(100cqh*var(--r)));aspect-ratio:var(--r);cursor:pointer}.hk>img{position:absolute;bottom:0;height:auto;opacity:0;transition:opacity .1s;filter:drop-shadow(0 3px 5px #000c);pointer-events:none}.hk>img.on{opacity:1}.hkw.l .hk>img{left:0}.hkw.r .hk>img{right:0}.hkw.c .hk>img{left:50%;transform:translateX(-50%)}
+.hk .in{position:absolute;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:3%;animation:hkin .3s .4s both}.hk .in .hs2{height:48%;flex:0 0 30%;min-width:0}.hk .in .hs2 img{max-height:100%;animation:pu 1.6s infinite}@keyframes hkin{from{opacity:0;transform:translateY(8px) scale(.8)}to{opacity:1;transform:none}}
+.chw{position:relative;width:70%;max-width:260px;aspect-ratio:190/170;margin:0 auto 6px}.chw img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:auto;opacity:0;transition:opacity .3s}.chw img.on{opacity:1}
 .cav{display:flex;justify-content:center;align-items:center;gap:4%;padding:2%}.cav>.hs2{height:100%!important;flex:0 1 38%!important;transform:scale(1.35);z-index:2}.cav>.hs2 img{max-height:100%}
 .stage{overflow:visible!important;box-shadow:none!important}
 .scene{position:absolute;inset:0;perspective:1300px;perspective-origin:50% 42%}
@@ -264,13 +266,17 @@ function solve(p,quiet){OB.done[p.id]=true;if(!quiet){toast(p.msg||'Clic ! Quelq
   draw();}
 window.obDraw=draw;window.showNote=showNote;window.obFace=f=>{setFace(f);draw();};
 function take(id){if(!OB.inv.includes(id)){OB.inv.push(id);OB.flags['took:'+id]=true;toast('Tu prends : '+OB.b.items[id].name+'.');}}
+const CH={"cha": [[179, 137], [179, 138], [169, 150], [183, 158]], "chb": [[180, 137], [184, 138], [170, 155], [184, 164]], "chc": [[185, 136], [183, 138], [183, 163], [175, 156]]};
+function chestAnim(){const k=['cha','chb','chc'][Math.floor(Math.random()*3)],f=CH[k];const W=190,hh=170;
+  const h='<div class="chw">'+f.map((s,i)=>'<img src="img/ob/hk_'+k+i+'.webp" alt="" style="width:'+(s[0]/W*100)+'%"'+(i===0?' class="on"':'')+'>').join('')+'</div>';
+  setTimeout(()=>{const ims=document.querySelectorAll('.chw img');if(!ims.length)return;const st=n=>ims.forEach((x,q)=>x.classList.toggle('on',q===n));[600,1300,2100].forEach((t,n)=>setTimeout(()=>st(n+1),t));},50);return h;}
 function win(){const t=Date.now()-OB.t0,id=OB.d.id;ST.ob=ST.ob||{done:{},best:{}};ST.ob.lv=ST.ob.lv||{};ST.ob.last=id;ST.ob.done[id]=(ST.ob.done[id]||0)+1;if(!ST.ob.best[id]||t<ST.ob.best[id])ST.ob.best[id]=t;
   if(OB.chain&&OB.chain.length){const nx=OB.chain[0];addGems(OB.d.rw);save();
-    openOv('<img src="img/coffre1.webp" alt="" style="width:50%;max-width:180px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Première boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+OB.d.rw+' 💎</p><p class="muted">Une deuxième boîte t’attend, plus retorse encore.</p><button class="ob" id="nx">Boîte suivante</button>');
+    openOv(chestAnim()+'<h2>Première boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+OB.d.rw+' 💎</p><p class="muted">Une deuxième boîte t’attend, plus retorse encore.</p><button class="ob" id="nx">Boîte suivante</button>');
     $('nx').onclick=()=>{closeOv();const n=OB.lv,ch=OB.chain.slice(1),tot=OB.tot,k=OB.num+1,of=OB.of;obStart(nx);OB.lv=n;OB.chain=ch;OB.tot=tot;OB.num=k;OB.of=of;};return;}
   const bonus=0;if(OB.lv)ST.ob.lv[OB.lv]=(ST.ob.lv[OB.lv]||0)+1;addGems(OB.d.rw+bonus);save();
   const lv=OB.lv;
-  openOv('<img src="img/coffre2.webp" alt="" style="width:60%;max-width:220px;border-radius:20px;display:block;margin:0 auto 6px"><h2>Boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+(OB.d.rw+bonus)+' 💎</p><p class="muted">'+OB.d.name+' · '+fmt(t)+(OB.hints?' · '+OB.hints+' indice'+(OB.hints>1?'s':''):'')+'</p>'+(lv?'<button class="ob" id="rp">Nouvelle boîte ('+LV[lv-1].nm+')</button>':'<button class="ob" id="rp">Rejouer</button>')+'<button class="ob alt" id="hm">Menu Openbox</button>');
+  openOv(chestAnim()+'<h2>Boîte ouverte !</h2><p class="gold" style="font-size:22px">+'+(OB.d.rw+bonus)+' 💎</p><p class="muted">'+OB.d.name+' · '+fmt(t)+(OB.hints?' · '+OB.hints+' indice'+(OB.hints>1?'s':''):'')+'</p>'+(lv?'<button class="ob" id="rp">Nouvelle boîte ('+LV[lv-1].nm+')</button>':'<button class="ob" id="rp">Rejouer</button>')+'<button class="ob alt" id="hm">Menu Openbox</button>');
   $('rp').onclick=()=>{closeOv();if(lv)obLevel(lv);else obStart(OB.d);};$('hm').onclick=()=>{closeOv();OB=null;home();};}
 const shake=n=>{if(n){bad(n);}};
 
@@ -464,10 +470,16 @@ T.socket=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.slots.map(()=>false));const w=e
       if(!it||!['gem','key','part'].includes(it.kind)){toast('Il faut quelque chose à placer ici.');shake(b);return;}
       if(it.spr!==sl.g){toast('Ça ne s’emboîte pas.');shake(b);OB.sel=null;draw();return;}
       OB.flags['used:'+OB.sel]=true;OB.inv=OB.inv.filter(x=>x!==OB.sel);OB.sel=null;s[i]=true;if(s.every(x=>x))solve(p);else{toast('Ça s’emboîte parfaitement.');draw();}};w.append(b);});return w;};
-T.hatch=p=>{if(p.sk){const SK={door:['dr_c','dr_o'],drawer:['dw_c','dw_o']}[p.sk];
-  if(!D(p.id)){const b=el('button','hs2',im(SK[0],'pl'));b.onclick=()=>{if(p.open()){OB.done[p.id]=true;OB.anim={id:p.id};toast(p.msg||'Ça s’ouvre.');draw();}else{toast(p.locked||'Fermé.');shake(b);}};return b;}
-  const w=el('div','hk '+p.sk,im(SK[1],'bg'));const inn=el('div','in');
-  (p.give||[]).filter(g=>!OB.flags['took:'+g]).forEach(g=>{const it=OB.b.items[g];const b=el('button','hs2',it.kind==='note'?'<div class="note" style="margin:auto"></div>':im(it.spr)+(it.wv!=null?'<i class="wb">'+it.wv+'</i>':''));b.onclick=()=>{take(g);draw();};inn.append(b);});w.append(inn);return w;}
+const HK={dr:{a:'l',iv:[8, 22, 48, 56],f:[[157, 138], [168, 142], [225, 142]]},dw:{a:'c',iv:[10, -36, 80, 100],f:[[206, 80], [213, 85], [225, 91]]},tr:{a:'c',iv:[18, 32, 64, 54],f:[[140, 116], [157, 133], [191, 127]]},vt:{a:'r',iv:[40, 18, 55, 66],f:[[113, 108], [167, 118], [188, 117]]},pn:{a:'r',iv:[45, 15, 50, 70],f:[[103, 109], [103, 122], [158, 126]]},cf:{a:'c',iv:[15, 0, 70, 55],f:[[123, 83], [126, 112], [127, 115]]},ca:{a:'c',iv:[28, 15, 44, 70],f:[[150, 113], [277, 117], [299, 115]]}};
+T.hatch=p=>{if(p.sk){const H=HK[p.sk],W=Math.max(...H.f.map(f=>f[0])),Hh=Math.max(...H.f.map(f=>f[1]));
+  const w=el('div','hkw '+H.a);const hk=el('div','hk');hk.style.setProperty('--r',W/Hh);
+  const imgs=H.f.map((f,k)=>{const i=document.createElement('img');i.src='img/ob/hk_'+p.sk+k+'.webp';i.alt='';i.draggable=false;i.style.width=(f[0]/W*100)+'%';hk.append(i);return i;});
+  const set=k=>imgs.forEach((i,q)=>i.classList.toggle('on',q===k));
+  if(!D(p.id)){set(0);hk.onclick=()=>{if(p.open()){OB.done[p.id]=true;OB.anim={id:p.id};toast(p.msg||'Ça s’ouvre.');draw();}else{toast(p.locked||'Fermé.');shake(hk);}};w.append(hk);return w;}
+  if(OB.anim&&OB.anim.id===p.id){set(0);setTimeout(()=>set(1),60);setTimeout(()=>set(2),260);}else set(2);
+  const inn=el('div','in');inn.style.cssText='left:'+H.iv[0]+'%;top:'+H.iv[1]+'%;width:'+H.iv[2]+'%;height:'+H.iv[3]+'%';
+  (p.give||[]).filter(g=>!OB.flags['took:'+g]).forEach(g=>{const it=OB.b.items[g];const b=el('button','hs2',it.kind==='note'?'<div class="note" style="margin:auto"></div>':im(it.spr)+(it.wv!=null?'<i class="wb">'+it.wv+'</i>':''));b.onclick=()=>{take(g);draw();};inn.append(b);});
+  hk.append(inn);w.append(hk);return w;}
   if(!D(p.id)){const b=el('button','hs2',im(p.spr||'l7','pl'));b.onclick=()=>{if(p.open()){OB.done[p.id]=true;OB.anim={id:p.id};toast(p.msg||'Le panneau s’ouvre.');draw();}else{toast(p.locked||'Fermé.');shake(b);}};return b;}
   const w=el('div','cav'+(OB.anim&&OB.anim.id===p.id?' ho':''),'<img class="open" src="img/ob/'+(p.spr||'l7')+'.webp" alt="">');
   (p.give||[]).filter(g=>!OB.flags['took:'+g]).forEach(g=>{const it=OB.b.items[g];const b=el('button','hs2',it.kind==='note'?'<div class="note" style="margin:auto"></div>':im(it.spr)+(it.wv!=null?'<i class="wb">'+it.wv+'</i>':''));b.style.cssText='height:100%;flex:1';b.onclick=()=>{take(g);draw();};w.append(b);});return w;};
