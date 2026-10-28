@@ -51,14 +51,14 @@ body{background-image:radial-gradient(circle at 50% 0,#3a3a52,#14141e 70%);--gol
 .oc.cr{background:radial-gradient(circle,#fff6c8,#eec24a);border-color:#8a5a10;box-shadow:0 0 8px #ffd54a,inset 0 0 0 2px #fffaf0aa}
 .oc b{position:absolute;left:3px;top:1px;font:700 var(--nf,9px)/1 Georgia,'Times New Roman',serif;color:#4a3414}
 .oc img{width:72%;height:72%;object-fit:contain;margin-top:6%}
-.pw{width:var(--pw,9%);transform:translate(-50%,-62%);transition:left .4s ease,top .4s ease;filter:drop-shadow(0 2px 2px #000a);pointer-events:none}
+.pw{width:var(--pw,6.6%);transform:translate(-50%,-74%);transition:left .4s ease,top .4s ease;filter:drop-shadow(0 2px 2px #000a);pointer-events:none}
 #dz{display:flex;align-items:center;gap:10px;margin:10px 0}
 #dz .dd{display:flex;gap:6px}#dz .dd img{width:52px;height:52px;filter:drop-shadow(0 3px 4px #000a)}#dz .dd img.r{animation:shake .5s}
 @keyframes shake{20%{transform:rotate(-25deg) translateY(-8px)}50%{transform:rotate(25deg) translateY(4px)}80%{transform:rotate(-10deg)}}
 #dz .ob{margin:0;flex:1}
 #ps{display:flex;gap:6px;overflow-x:auto;padding:4px 0}
 .pl2{flex:1;min-width:76px;background:#0008;border-radius:14px;padding:5px;text-align:center;font-size:12px;font-weight:700;border:2px solid transparent}
-.pl2.t{border-color:var(--gold);box-shadow:0 0 12px #e8c46a88}.pl2 b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl2 img{width:18px;height:18px;vertical-align:middle;margin-right:3px}
+.pl2.t{border-color:var(--gold);box-shadow:0 0 12px #e8c46a88}.pl2 b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl2 img{height:22px;width:auto;vertical-align:middle;margin-right:4px}
 #lg{color:var(--ink);text-align:center;font-size:14px;min-height:40px}
 .plr{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}.plr span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:700}
 .lgd{display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;font-size:11px;color:var(--muted);margin-top:6px}.lgd span img{width:14px;height:14px;vertical-align:middle;margin-right:2px}
@@ -232,7 +232,7 @@ function buildBoard(v){
   h+='</div></div></div><div id="dz"><div class="dd"><img id="d1" src="img/d1.webp" alt="" style="opacity:.5"><img id="d2" src="img/d2.webp" alt="" style="opacity:.5"></div><button class="ob" id="rb">Lancer les dés</button></div><div id="lg"></div>'+
    '<div class="lgd"><span><img src="img/i_goose.webp" alt="">oie : rejoue</span><span><img src="img/i_bridge.webp" alt="">pont → 12</span><span><img src="img/i_inn.webp" alt="">1 tour</span><span><img src="img/i_dice.webp" alt="">26 ⇄ 53</span><span><img src="img/i_well.webp" alt="">puits</span><span><img src="img/i_prison.webp" alt="">prison</span><span><img src="img/i_maze.webp" alt="">→ 30</span><span><img src="img/i_skull.webp" alt="">→ départ</span></div>';
   $('main').innerHTML='<div id="ps"></div>'+h;
-  const bw=$('bd').getBoundingClientRect().width||360;$('bd').style.setProperty('--nf',Math.max(7,Math.round(bw*.026))+'px');$('bd').style.setProperty('--pw',(v.pl.length>3?7.5:9)+'%');
+  const bw=$('bd').getBoundingClientRect().width||360;$('bd').style.setProperty('--nf',Math.max(7,Math.round(bw*.026))+'px');$('bd').style.setProperty('--pw',(v.pl.length>3?5.6:6.6)+'%');
   $('rb').onclick=()=>{const V=window.__l.V;if(!(V&&V.turn===V.me&&!V.over))return toast('Pas ton tour.');send({a:'roll'});};
   built=true;
 }
