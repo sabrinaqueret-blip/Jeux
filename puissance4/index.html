@@ -104,7 +104,7 @@ function evalB(b,me){let s=0;for(const l of LINES){let a=0,o=0;for(const i of l)
   const cc=(CFG.cols-1)/2;if(CFG.grav)for(let i=0;i<N;i++){if(b[i])s+=(b[i]===me?1:-1)*(3-Math.abs(i%CFG.cols-cc));}
   return s;}
 function negamax(b,turn,depth,al,be,me){
-  const w=winLine(b);if(w)return w.p===turn?-1e6-depth:1e6+depth;if(full(b))return 0;
+  const w=winLine(b);if(w)return -1e6-depth;if(full(b))return 0;
   if(depth===0)return turn===me?evalB(b,me):-evalB(b,me);
   let best=-1e9;for(const m of legal(b)){const i=place(b,m);b[i]=turn;const v=-negamax(b,-turn,depth-1,-be,-al,me);b[i]=0;
     if(v>best)best=v;if(best>al)al=best;if(al>=be)break;}return best;}
@@ -231,7 +231,7 @@ function sym(p){const t=cur();return p===1?t.sa:t.sb;}
 function render(){
   if(!view)return;
   const v=view,bd=$('bd'),C=CFG.cols,R=CFG.rows,t=cur();
-  bd.style.gridTemplateColumns='repeat('+C+',1fr)';
+  bd.style.gridTemplateColumns='repeat('+C+',1fr)';bd.style.gridTemplateRows='repeat('+R+',1fr)';
   const win=new Set(v.line||[]);
   let h='';
   for(let i=0;i<N;i++){
