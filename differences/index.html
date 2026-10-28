@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#101827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Différences">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Différences</title>
+<style>
+:root{--bg:#14202e;--panel:#1f3147;--ink:#fbefd9;--muted:#cdb892;--gold:#f0c060;--ca:#e8453c;--cb:#ffd84a;--bd1:#2a4a8a;--bd2:#1a2f66}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overscroll-behavior:none}
+body{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);background-image:radial-gradient(circle at 50% 0,#2b4468,#14202e 70%)}
+section{max-width:520px;margin:0 auto;padding:10px 0}
+h1{margin:6px 0;text-align:center;font-size:28px}h2{text-align:center;margin:8px 0}
+.muted{color:var(--muted);text-align:center;margin:4px 0 10px}
+button,input{font:inherit}
+.ob{display:block;width:100%;margin:8px 0;padding:14px;border-radius:16px;border:2px solid var(--gold);background:var(--gold);color:#2a1c12;font-weight:800;background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%);text-shadow:0 1px 0 #ffffff55;transition:transform .08s}
+.ob:active{transform:translateY(3px)}
+.ob.alt{background:transparent;color:var(--ink);border-color:var(--muted);text-shadow:none;background-image:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0))}
+input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);background:var(--panel);color:var(--ink);text-align:center}
+.join{display:flex;gap:8px;margin-top:6px}.join input{letter-spacing:6px;font-weight:800;text-transform:uppercase}.join .ob{width:auto;margin:0;padding:0 18px}
+.code{font-size:56px;font-weight:900;letter-spacing:10px;color:var(--gold);background:var(--panel);border:3px dashed var(--gold);border-radius:16px;padding:6px 18px 6px 28px;text-align:center;margin:12px 0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:8px 0}
+.tabs button{padding:8px 14px;border-radius:999px;border:2px solid var(--muted);background:transparent;color:var(--ink);font-weight:700}
+.tabs button.on{background:var(--gold);color:#2a1c12;border-color:var(--gold);box-shadow:0 0 14px #f6c85f99}
+#hud{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 0 2px;font-weight:800}
+#hud span,#hud button{background:#0009;padding:5px 10px;border-radius:999px;border:0;color:var(--ink);font:inherit;font-weight:800;font-size:14px;white-space:nowrap}
+#hud .gm{color:var(--gold)}#hud #st{flex:1;text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hero{display:block;width:108px;height:108px;margin:0 auto 4px;border-radius:26px;box-shadow:0 12px 26px #000b,0 0 0 2px #ffffff33 inset}
+#home h1{background:linear-gradient(90deg,#ffe08a,#ff9ad0);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:32px}
+.themes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}.themes button{width:56px;height:44px;border-radius:12px;border:3px solid transparent;padding:0;background:#0006;font-size:20px;color:var(--ink)}.themes button.on{border-color:var(--gold)}
+
+body{background-image:radial-gradient(circle at 50% 0,#2b3f68,#101827 70%)}
+.pics{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:6px}
+.pic{position:relative;width:min(100%,calc((100vh - 250px)/2*4/3));aspect-ratio:4/3;border-radius:14px;overflow:hidden;box-shadow:0 8px 20px #000a,0 0 0 3px var(--gold);touch-action:manipulation;background:#000}
+.pic canvas{display:block;width:100%;height:100%}
+.rg{position:absolute;border:4px solid #3fe08a;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 10px #3fe08a,inset 0 0 8px #3fe08a88;pointer-events:none;animation:rgi .35s}
+.rg.h{border:4px dashed #ffe066;box-shadow:0 0 14px #ffe066;animation:hp .5s 3}
+.xx{position:absolute;transform:translate(-50%,-50%);font-size:34px;font-weight:900;color:#ff4d4d;text-shadow:0 0 6px #000;pointer-events:none;animation:xo .7s forwards}
+@keyframes rgi{from{transform:translate(-50%,-50%) scale(2);opacity:0}to{transform:translate(-50%,-50%)}}
+@keyframes hp{50%{opacity:.2}}@keyframes xo{to{opacity:0;transform:translate(-50%,-90%)}}
+#dbar{display:flex;gap:8px;margin-top:10px}#dbar .ob{margin:0;padding:11px 6px;font-size:15px}
+.stt{text-align:center;color:var(--muted);font-size:13px;margin:6px 0}
+.lv{display:flex;gap:8px;margin:10px 0}.lv button{flex:1;padding:10px 4px;border-radius:14px;border:2px solid var(--muted);background:transparent;color:var(--ink);font-weight:800}.lv button small{display:block;font-weight:600;opacity:.8}.lv button.on{background:var(--gold);color:#2a1c12;border-color:var(--gold);box-shadow:0 0 14px #f6c85f99}
+</style>
+</head>
+<body>
+<section id="home"></section>
+<section id="game" hidden>
+  <div id="hud"><button type="button" id="bmenu" aria-label="Menu">☰</button><span id="st"></span><span class="gm" id="gm">0 💎</span></div>
+  <div id="main"></div>
+</section>
+<div id="ov" hidden></div><div id="toast" hidden></div>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='diff-v1',WK='cartes-v1';
+function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(typeof j.gems!=='number')j.gems=20;return j;}
+function addGems(n){const j=wal();j.gems+=n;try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}gmUpdate();return j.gems;}
+function gmUpdate(){$('gm').textContent=wal().gems+' 💎';}
+let P={lvl:1,w:0,best:{},seen:[]};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
+function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
+function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
+function closeOv(){$('ov').hidden=true;}
+function show(m){$('home').hidden=m!=='home';$('game').hidden=m!=='game';}
+const NSC=15,W=720,H=540;
+const LV=[{n:5,r:.085,thr:36,ty:[0,1,3,4],name:'Facile'},{n:7,r:.065,thr:26,ty:[0,1,2,3,4,5,6],name:'Moyen'},{n:9,r:.05,thr:19,ty:[0,1,2,5,6],name:'Difficile'}];
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+let G=null,tmr=null;
+const imgCache={};
+function loadImg(i){return new Promise((res,rej)=>{if(imgCache[i])return res(imgCache[i]);const im=new Image();im.onload=()=>{imgCache[i]=im;res(im);};im.onerror=rej;im.src='img/s'+String(i).padStart(2,'0')+'.webp';});}
+function showHome(){
+  clearInterval(tmr);G=null;show('home');gmUpdate();
+  const b=P.best[P.lvl];
+  $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Différences</h1><p class="muted">Deux images presque identiques : touche les différences, sur l’une ou sur l’autre. Chaque partie est unique !</p>'+
+  '<div class="lv">'+LV.map((l,i)=>'<button data-l="'+i+'" class="'+(P.lvl===i?'on':'')+'">'+l.name+'<small>'+l.n+' différences</small></button>').join('')+'</div>'+
+  '<button class="ob" id="go">Jouer</button>'+
+  '<p class="stt">Parties gagnées : '+P.w+(b?' · Record '+LV[P.lvl].name+' : '+fmt(b):'')+'</p>'+
+  '<button class="ob alt" id="rl">📖 Règles</button>';
+  $('home').querySelectorAll('[data-l]').forEach(x=>x.onclick=()=>{P.lvl=+x.dataset.l;saveP();showHome();});
+  $('go').onclick=()=>play();
+  $('rl').onclick=()=>{openOv('<h2>Règles</h2><p style="text-align:left">Compare les deux images et touche chaque endroit qui change. Une différence trouvée s’entoure de vert sur les deux images.<br><br>Une erreur de touche ou un indice (3 maximum par image) réduit ton gain de 💎. Plus tu es précis, plus tu gagnes !</p><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;};
+}
+/* ---------- génération ---------- */
+function lum(d,i){return d[i]*.3+d[i+1]*.59+d[i+2]*.11;}
+function cropFor(im){
+  let sw=im.width,sh=sw*H/W;if(sh>im.height){sh=im.height;sw=sh*W/H;}
+  const sx=(im.width-sw)/2,max=im.height-sh,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{willReadFrequently:true});
+  const cand=[];const nc=max>8?7:1;
+  for(let k=0;k<nc;k++){const sy=nc>1?max*k/(nc-1):0;x.drawImage(im,sx,sy,sw,sh,0,0,W,H);const d=x.getImageData(0,0,W,H).data;let s=0,s2=0,n=0;for(let p=0;p<d.length;p+=4*37){const l=lum(d,p);s+=l;s2+=l*l;n++;}const m=s/n;cand.push({sy,v:s2/n-m*m});}
+  cand.sort((a,b)=>b.v-a.v);const pick=cand[(Math.random()*Math.min(3,cand.length))|0];
+  x.drawImage(im,sx,pick.sy,sw,sh,0,0,W,H);return c;
+}
+function circStd(d,cx,cy,r){let s=0,s2=0,n=0;for(let y=Math.max(0,cy-r)|0;y<Math.min(H,cy+r);y+=3)for(let x=Math.max(0,cx-r)|0;x<Math.min(W,cx+r);x+=3){if((x-cx)**2+(y-cy)**2>r*r)continue;const l=lum(d,(y*W+x)*4);s+=l;s2+=l*l;n++;}const m=s/n;return Math.sqrt(Math.max(0,s2/n-m*m));}
+function applyEdit(a,b,cx,cy,r,ty){
+  const ang=(Math.random()<.5?1:-1)*(110+Math.random()*80)*Math.PI/180,co=Math.cos(ang),si=Math.sin(ang);
+  const hm=[[.213+co*.787-si*.213,.715-co*.715-si*.715,.072-co*.072+si*.928],[.213-co*.213+si*.143,.715+co*.285+si*.140,.072-co*.072-si*.283],[.213-co*.213-si*.787,.715-co*.715+si*.715,.072+co*.928+si*.072]];
+  const fac=Math.random()<.5?.45:1.55,cl=Math.random()*Math.PI*2,dx=Math.round(Math.cos(cl)*2.7*r),dy=Math.round(Math.sin(cl)*2.7*r),sh=Math.round(r*.5),sgn=Math.random()<.5?1:-1;
+  let tot=0,cnt=0;const cl8=v=>v<0?0:v>255?255:v;
+  for(let y=Math.max(0,Math.floor(cy-r));y<Math.min(H,Math.ceil(cy+r));y++)for(let x=Math.max(0,Math.floor(cx-r));x<Math.min(W,Math.ceil(cx+r));x++){
+    const dd=Math.hypot(x-cx,y-cy);if(dd>r)continue;const w=Math.min(1,(1-dd/r)/.3),i=(y*W+x)*4;let R=a[i],Gc=a[i+1],B=a[i+2];
+    if(ty===0){R=cl8(a[i]*hm[0][0]+a[i+1]*hm[0][1]+a[i+2]*hm[0][2]);Gc=cl8(a[i]*hm[1][0]+a[i+1]*hm[1][1]+a[i+2]*hm[1][2]);B=cl8(a[i]*hm[2][0]+a[i+1]*hm[2][1]+a[i+2]*hm[2][2]);}
+    else if(ty===1){R=cl8(R*fac);Gc=cl8(Gc*fac);B=cl8(B*fac);}
+    else if(ty===2){const xs=Math.round(2*cx-x),j=(y*W+xs)*4;if(xs>=0&&xs<W){R=a[j];Gc=a[j+1];B=a[j+2];}}
+    else if(ty===3){let xs=x+dx,ys=y+dy;if(xs<0||xs>=W)xs=x-dx;if(ys<0||ys>=H)ys=y-dy;const j=(Math.max(0,Math.min(H-1,ys))*W+Math.max(0,Math.min(W-1,xs)))*4;R=a[j];Gc=a[j+1];B=a[j+2];}
+    else if(ty===4){R=255-R;Gc=255-Gc;B=255-B;}
+    else if(ty===5){const xs=Math.max(0,Math.min(W-1,x-sgn*sh)),ys=Math.max(0,Math.min(H-1,y-Math.round(sh*.4))),j=(ys*W+xs)*4;R=a[j];Gc=a[j+1];B=a[j+2];}
+    else {const l=a[i]*.3+a[i+1]*.59+a[i+2]*.11;R=Gc=B=l;}
+    b[i]=a[i]*(1-w)+R*w;b[i+1]=a[i+1]*(1-w)+Gc*w;b[i+2]=a[i+2]*(1-w)+B*w;
+    if(dd<r*.8){tot+=Math.abs(b[i]-a[i])+Math.abs(b[i+1]-a[i+1])+Math.abs(b[i+2]-a[i+2]);cnt++;}
+  }
+  return cnt?tot/cnt/3:0;
+}
+function makeDiffs(cA,lv){
+  const xa=cA.getContext('2d',{willReadFrequently:true}),ia=xa.getImageData(0,0,W,H),a=ia.data,b=new Uint8ClampedArray(a),r=lv.r*W,list=[];
+  let tries=0,minStd=11;
+  while(list.length<lv.n&&tries<1600){tries++;if(tries===500)minStd=6;if(tries===1000)minStd=2;
+    const cx=r*1.4+Math.random()*(W-2.8*r),cy=r*1.4+Math.random()*(H-2.8*r);
+    if(list.some(q=>Math.hypot(q.x-cx,q.y-cy)<r*(tries>1000?2.5:3)))continue;
+    if(circStd(a,cx,cy,r)<minStd)continue;
+    const ty=lv.ty[(Math.random()*lv.ty.length)|0],bak=b.slice();
+    const sc=applyEdit(a,b,cx,cy,r,ty);
+    if(sc<lv.thr){b.set(bak);continue;}
+    list.push({x:cx,y:cy,found:false});
+  }
+  const cB=document.createElement('canvas');cB.width=W;cB.height=H;cB.getContext('2d').putImageData(new ImageData(b,W,H),0,0);
+  return {cB,list,r};
+}
+/* ---------- partie ---------- */
+async function play(){
+  const lv=LV[P.lvl];show('game');$('st').textContent='Chargement…';$('main').innerHTML='';
+  let id;do{id=1+((Math.random()*NSC)|0);}while(P.seen.includes(id)&&P.seen.length<NSC);
+  P.seen.push(id);if(P.seen.length>=NSC)P.seen=[id];saveP();
+  let im;try{im=await loadImg(id);}catch(e){toast('Image introuvable.');return showHome();}
+  let cA,cB,list,r;for(let k=0;k<3;k++){cA=cropFor(im);({cB,list,r}=makeDiffs(cA,lv));if(list.length>=lv.n)break;}
+  if(list.length<3)return play();
+  G={lv,n:list.length,list,r,found:0,miss:0,hints:0,t0:Date.now(),over:false};
+  $('main').innerHTML='<div class="pics"><div class="pic" id="pa"></div><div class="pic" id="pb"></div></div>'+
+   '<div id="dbar"><button class="ob alt" id="hint">💡 Indice (3)</button><button class="ob alt" id="skip">Autre image</button></div>';
+  cA.style.cssText='';cB.style.cssText='';$('pa').appendChild(cA);$('pb').appendChild(cB);
+  ['pa','pb'].forEach(k=>{$(k).addEventListener('pointerdown',e=>{e.preventDefault();tap(k,e);});});
+  $('hint').onclick=hint;$('skip').onclick=()=>{play();};
+  clearInterval(tmr);tmr=setInterval(upd,500);upd();
+}
+function upd(){if(!G)return;G.sec=Math.floor((Date.now()-G.t0)/1000);$('st').textContent='⏱ '+fmt(G.sec)+' · '+G.found+'/'+G.n;$('hint').textContent='💡 Indice ('+(3-G.hints)+')';}
+function ring(d,cls){['pa','pb'].forEach(k=>{const e=document.createElement('div');e.className='rg'+(cls?' '+cls:'');const s=G.r*2.6/W*100;e.style.cssText='left:'+d.x/W*100+'%;top:'+d.y/H*100+'%;width:'+s+'%;height:'+s*W/H+'%';$(k).appendChild(e);if(cls)setTimeout(()=>e.remove(),1600);});}
+function tap(k,e){
+  if(!G||G.over)return;const rc=$(k).getBoundingClientRect(),x=(e.clientX-rc.left)/rc.width*W,y=(e.clientY-rc.top)/rc.height*H;
+  const tol=Math.max(G.r*1.35,26*W/rc.width);let hit=null,bd=1e9;
+  G.list.forEach(d=>{if(d.found)return;const dd=Math.hypot(d.x-x,d.y-y);if(dd<tol&&dd<bd){bd=dd;hit=d;}});
+  if(hit){hit.found=true;G.found++;ring(hit);try{navigator.vibrate&&navigator.vibrate(20);}catch(_){}upd();if(G.found===G.list.length)win();}
+  else{G.miss++;['pa','pb'].forEach(kk=>{const m=document.createElement('div');m.className='xx';m.textContent='✖';m.style.cssText='left:'+x/W*100+'%;top:'+y/H*100+'%';$(kk).appendChild(m);setTimeout(()=>m.remove(),700);});}
+}
+function hint(){
+  if(!G||G.over)return;if(G.hints>=3)return toast('Plus d’indice pour cette image.');
+  const d=G.list.find(q=>!q.found);if(!d)return;G.hints++;ring(d,'h');upd();
+}
+function win(){
+  G.over=true;clearInterval(tmr);const s=Math.floor((Date.now()-G.t0)/1000),n=G.n;
+  const gain=Math.max(1,n*2-G.miss-G.hints*3);addGems(gain);P.w++;
+  const old=P.best[P.lvl],rec=!old||s<old;if(rec)P.best[P.lvl]=s;saveP();
+  setTimeout(()=>{openOv('<h2>🎉 Bravo !</h2><p class="muted">'+n+' différences trouvées en '+fmt(s)+'</p><div class="sc"><span>Erreurs : '+G.miss+'</span><span>Indices : '+G.hints+'</span></div>'+(rec?'<p class="gold">⭐ Nouveau record !</p>':'')+'<p class="gold">+'+gain+' 💎</p><button class="ob" id="nx">Image suivante</button><button class="ob alt" id="q">Menu</button>');$('nx').onclick=()=>{closeOv();play();};$('q').onclick=()=>{closeOv();showHome();};},700);
+}
+$('bmenu').onclick=()=>{if(G&&!G.over){openOv('<h2>Menu</h2><button class="ob" id="n">Reprendre</button><button class="ob alt" id="y">Quitter la partie</button>');$('n').onclick=closeOv;$('y').onclick=()=>{closeOv();showHome();};}else showHome();};
+gmUpdate();showHome();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+window.__l={get G(){return G;},play,tap};
+</script>
+</body>
+</html>
