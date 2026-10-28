@@ -58,7 +58,7 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 .sc{display:flex;gap:8px;justify-content:center;margin:6px 0}.sc span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px}
 
 body{background-image:radial-gradient(circle at 50% 0,#2a2f6a,#0f1530 70%)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}
+.vch{display:flex;gap:6px;justify-content:center;margin:2px 0 8px}.vch button{padding:0;border:2px solid transparent;border-radius:12px;background:none;width:50px;height:50px;overflow:hidden;opacity:.6}.vch button.on{border-color:var(--gold);opacity:1}.vch img{width:100%;height:100%;object-fit:cover}.pl img.vt{width:100%;height:46px;object-fit:cover;border-radius:8px;margin-bottom:3px}#req{display:flex;gap:10px;align-items:center;text-align:left}#req img{width:84px;height:84px;border-radius:10px;flex:none;object-fit:cover}.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}
 #ps{display:flex;gap:6px;overflow-x:auto;padding:4px 0}
 .pl{flex:1;min-width:78px;background:#0008;border-radius:14px;padding:5px 6px;text-align:center;font-size:12px;font-weight:700;border:2px solid transparent}
 .pl.t{border-color:var(--gold);box-shadow:0 0 12px #f0c06088}.pl b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -126,7 +126,7 @@ const KEY='lune-v1',WK='cartes-v1';
 function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(typeof j.gems!=='number')j.gems=20;return j;}
 function addGems(n){const j=wal();j.gems+=n;try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}gmUpdate();return j.gems;}
 function gmUpdate(){$('gm').textContent=wal().gems+' 💎';}
-let P={name:'',code:'',bots:2,lvl:1,w:0,l:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+let P={name:'',code:'',bots:2,lvl:1,w:0,l:0,veh:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
 function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
 function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
@@ -171,7 +171,7 @@ function newRound(){
   H.disc.forEach((a,i)=>a.push(H.deck.pop()));H.turn=(H.round||0)%H.pl.length;H.phase='draw';H.round=(H.round||0)+1;H.log='Manche '+H.round+' : à '+H.pl[H.turn].name+' de commencer.';
 }
 function view(p){return {me:p,round:H.round,turn:H.turn,phase:H.phase,log:H.log,deckN:H.deck.length,over:H.over,win:H.win,
-  pl:H.pl.map((q,i)=>({name:q.name,lvl:q.lvl,n:q.hand.length,laid:q.laid,bot:q.bot,top:H.disc[i].length?H.disc[i][H.disc[i].length-1]:null,dn:H.disc[i].length})),
+  pl:H.pl.map((q,i)=>({veh:q.veh,name:q.name,lvl:q.lvl,n:q.hand.length,laid:q.laid,bot:q.bot,top:H.disc[i].length?H.disc[i][H.disc[i].length-1]:null,dn:H.disc[i].length})),
   hand:H.pl[p].hand,melds:H.melds.map(m=>({id:m.id,t:m.t,cards:m.cards,owner:m.owner})),endInfo:H.endInfo};}
 function pushViews(){H.pl.forEach((q,i)=>{if(q.bot)return;const v=view(i);if(i===0)setTimeout(()=>onView(v),0);else{const c=conns.find(x=>x.p===i);if(c&&c.conn&&c.conn.open)try{c.conn.send({t:'view',v});}catch(e){}}});maybeBot();}
 function hlog(s){H.log=s;}
@@ -246,6 +246,7 @@ function showHome(){
   leave();show('home');
   $('home').innerHTML='<img class="hero" src="icons/icon-192.png" alt=""><h1>Cap sur la Lune</h1><p class="muted">Franchis les 8 paliers avant les autres : brelans, suites, couleurs… Contre des robots, ou à plusieurs avec un code.</p>'+
    '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'">'+
+   '<div class="tabs"><span>Ton voyage :</span></div><div class="vch">'+[0,1,2,3,4,5].map(k=>'<button data-v="'+k+'" class="'+(P.veh===k?'on':'')+'"><img src="img/v'+k+'_1.webp" alt=""></button>').join('')+'</div>'+
    '<div class="tabs"><span>Robots :</span>'+[1,2,3,4,5].map(n=>'<button data-b="'+n+'" class="'+(P.bots===n?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<div class="tabs"><span>Niveau :</span>'+['Facile','Moyen','Fort'].map((n,i)=>'<button data-l="'+i+'" class="'+(P.lvl===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<button class="ob" id="solo">Jouer contre les robots</button>'+
@@ -253,6 +254,7 @@ function showHome(){
    '<div class="join"><input id="cd" maxlength="4" placeholder="CODE" value="'+esc(P.code)+'" aria-label="Code de la partie" autocapitalize="characters"><button class="ob alt" id="joinB">Rejoindre</button></div>'+
    '<button class="ob alt" id="rl" style="margin-top:14px">📖 Règles</button><p class="muted sm">Victoires '+P.w+' · Défaites '+P.l+'</p>';
   const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
+  $('home').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{P.veh=+b.dataset.v;nm();saveP();showHome();});
   $('home').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.bots=+b.dataset.b;nm();saveP();showHome();});
   $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;nm();saveP();showHome();});
   $('solo').onclick=()=>startGame([nm()],P.bots);
@@ -264,7 +266,7 @@ function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:1
 function leave(){clearTimeout(H&&H.bt);try{conns.forEach(c=>c.conn&&c.conn.close());}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conns=[];H=null;V=null;isHost=false;sel=new Set();closeOv();}
 function startGame(humans,bots){
   const names=humans.slice();const bn=['Luna','Comète','Orion','Nova','Astro'];for(let i=0;i<bots;i++)names.push(bn[i]);
-  H={pl:names.map((n,i)=>({name:n,bot:i>=humans.length,lvl:0,hand:[],laid:false})),round:0,over:false,pause:false};
+  H={pl:names.map((n,i)=>({veh:((P.veh||0)+i)%6,name:n,bot:i>=humans.length,lvl:0,hand:[],laid:false})),round:0,over:false,pause:false};
   newRound();isHost=true;myIdx=0;show('game');pushViews();
 }
 function hostOnline(name){
@@ -309,9 +311,9 @@ function render(){
   const canLay=v.phase==='play'&&mine&&!pl.laid&&findLay(v.hand,pl.lvl,false);
   const canDraw=mine&&v.phase==='draw';
   let h='<div class="moon">'+Array.from({length:8},(_,i)=>'<span class="'+(pl.lvl>i?'on':'')+(pl.lvl===i?' me':'')+'">'+(i+1)+'</span>').join('')+'<span>🌙</span></div>';
-  h+='<div id="ps">'+v.pl.map((q,i)=>'<div class="pl'+(v.turn===i?' t':'')+'"><b>'+esc(q.name)+(i===me?' (toi)':'')+'</b><span class="lv">Palier '+Math.min(8,q.lvl+1)+(q.laid?' ✓':'')+'</span><br><span>'+q.n+' cartes</span><div class="dc">'+(q.top?'<button class="cd k'+q.top.c+' sm'+(canDraw?' sel':'')+'" style="--c:'+COL[q.top.c]+';padding:0" data-d="'+i+'"><b>'+q.top.v+'</b><i>'+SY[q.top.c]+'</i></button>':'<div class="cd sm emp"></div>')+'</div></div>').join('')+'</div>';
+  h+='<div id="ps">'+v.pl.map((q,i)=>'<div class="pl'+(v.turn===i?' t':'')+'"><img class="vt" src="img/v'+q.veh+'_'+Math.min(8,q.lvl+1)+'.webp" alt=""><b>'+esc(q.name)+(i===me?' (toi)':'')+'</b><span class="lv">Palier '+Math.min(8,q.lvl+1)+(q.laid?' ✓':'')+'</span><br><span>'+q.n+' cartes</span><div class="dc">'+(q.top?'<button class="cd k'+q.top.c+' sm'+(canDraw?' sel':'')+'" style="--c:'+COL[q.top.c]+';padding:0" data-d="'+i+'"><b>'+q.top.v+'</b><i>'+SY[q.top.c]+'</i></button>':'<div class="cd sm emp"></div>')+'</div></div>').join('')+'</div>';
   h+='<div id="mid"><button id="dk"><div class="cd bg back"><b>'+v.deckN+'</b></div>Pioche</button></div>';
-  h+='<div id="req">Palier '+Math.min(8,pl.lvl+1)+' : <b>'+reqTxt(Math.min(7,pl.lvl))+'</b>'+(canLay?' <em>· tu peux le poser !</em>':'')+'</div>';
+  h+='<div id="req"><img src="img/v'+pl.veh+'_'+Math.min(8,pl.lvl+1)+'.webp" alt=""><div>Palier '+Math.min(8,pl.lvl+1)+' : <b>'+reqTxt(Math.min(7,pl.lvl))+'</b>'+(canLay?' <em>· tu peux le poser !</em>':'')+'</div></div>';
   h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'<p class="muted" style="margin:6px">Aucune combinaison posée pour l’instant.</p>')+'</div>';
   h+='<div id="lg">'+esc(v.log||'')+'</div>';
   h+='<div id="hd">'+hand.map(c=>cardH(c,'bg'+(sel.has(c.id)?' sel':''))).join('')+'</div>';
@@ -329,7 +331,7 @@ function endDialog(){
   const v=V;if(!v||!v.endInfo)return;const e=v.endInfo;
   const rows=e.names.map((n,i)=>'<tr><td>'+esc(n)+'</td><td>'+(e.adv[i]?'+'+e.adv[i]:'–')+'</td><td><b>'+Math.min(8,e.lvls[i])+'</b>/8</td></tr>').join('');
   if(v.over){const iWon=v.win.includes(v.me);if(!endDialog.paid){endDialog.paid=1;if(iWon){addGems(Math.min(15,v.pl.length*3));P.w++;}else{addGems(1);P.l++;}saveP();}
-    openOv('<h2>'+(iWon?'🌙 Tu as atteint la Lune !':'La Lune est atteinte par '+esc(v.win.map(i=>v.pl[i].name).join(' et ')))+'</h2><table>'+rows+'</table>'+(iWon?'<p class="gold">+'+Math.min(15,v.pl.length*3)+' 💎</p>':'<p class="gold">+1 💎</p>')+'<button class="ob" id="q">Menu</button>');$('q').onclick=showHome;endDialog.paid=0;return;}
+    openOv('<img src="img/v'+v.pl[v.win[0]].veh+'_8.webp" alt="" style="width:60%;border-radius:14px"><h2>'+(iWon?'🌙 Tu as atteint la Lune !':'La Lune est atteinte par '+esc(v.win.map(i=>v.pl[i].name).join(' et ')))+'</h2><table>'+rows+'</table>'+(iWon?'<p class="gold">+'+Math.min(15,v.pl.length*3)+' 💎</p>':'<p class="gold">+1 💎</p>')+'<button class="ob" id="q">Menu</button>');$('q').onclick=showHome;endDialog.paid=0;return;}
   openOv('<h2>'+(e.deckOut?'Pioche épuisée':esc(e.names[e.w])+' a vidé sa main !')+'</h2><table><tr><th></th><th>Manche</th><th>Palier</th></tr>'+rows+'</table>'+(isHost?'<button class="ob" id="nx">Manche suivante</button>':'<button class="ob" id="nx">Prêt pour la suite</button>')+'<button class="ob alt" id="q">Quitter</button>');
   $('nx').onclick=()=>{if(isHost)nextRound();else{try{peer.conn.send({t:'next'});}catch(e){}$('nx').textContent='En attente de l’hôte…';}};$('q').onclick=showHome;
 }
