@@ -662,8 +662,8 @@ function mod(kind,R,L){
  case 'gate':{let k;do{k=R.int(0,8);}while(mod.used.includes(k));mod.used.push(k);
   return{kind,h:30,hh:26,needKey:KEYSPR[k],keyName:KEYNM[k],parts:(P)=>{const L2=R.pick([['pl_br',1],['pl_st',1],['pl_go',1],['lk_orn',0],['lk_iris',0],[null,0]]);return[{t:'keyhole',id:P,x:36,y:0,w:28,h:30,key:KEYSPR[k],key2:1,keyed:1,lock:L2[0]||undefined,lockO:L2[1]}];},hint:f=>'Une serrure sur '+FN[f]+' attend '+KEYNM[k].toLowerCase().replace('clé','une clé')+'.'};}
  case 'train':{const turns=R.int(4,8);
-  return{kind,big:1,h:86,hh:0,inline:1,needItems:['r0','r1','r3','m0'],parts:(P,d,give)=>[{t:'train',id:P+'t',x:4,y:0,w:92,h:54,slots:[{x:30,y:48,w:46,g:'r0'},{x:68,y:30,w:28,g:'r1'},{x:72,y:72,w:36,g:'r3'}],key:true},
-    {t:'crank',id:P,x:28,y:57,w:44,h:28,item:'m0',turns,need:()=>D(P+'t'),key:true,give}],hint:f=>'Sur '+FN[f]+', trois axes vides : pose les trois engrenages, place la manivelle, puis tourne-la.'};}
+  return{kind,big:1,h:86,hh:0,inline:1,needItems:['r0','r1','r3','m0'],parts:(P,d,give)=>[{t:'train',id:P+'t',x:4,y:0,w:92,h:52,slots:[{x:30,y:48,w:46,g:'r0'},{x:68,y:30,w:28,g:'r1'},{x:72,y:72,w:36,g:'r3'}],key:true},
+    {t:'crank',id:P,x:30,y:53,w:40,h:33,item:'m0',turns,need:()=>D(P+'t'),key:true,give}],hint:f=>'Sur '+FN[f]+', trois axes vides : pose les trois engrenages, place la manivelle, puis tourne-la.'};}
  }}
 const needsOfX=0;
 const needsOf=m=>m.digits?'d':(m.needKey?'k':(m.needItems?'i':''));
