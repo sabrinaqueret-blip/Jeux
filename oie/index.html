@@ -127,11 +127,11 @@ function hlog(s){H.log=s;}
 const NP=()=>H.pl.length;
 const bounce=p=>p>60?120-p:p;
 function settle(i,n,trail){
-  const pl=H.pl[i];let guard=0,jumped=false,msgs=[];
+  const pl=H.pl[i];let guard=0,jumped=false,msgs=[];const seen=new Set();
   while(guard++<30){
     const p=pl.pos;
     if(p===60){H.over=true;H.win=i;msgs.push(pl.name+' atteint le jardin de l’oie : victoire !');break;}
-    if(GEESE.includes(p)){const nb=bounce(p+n);if(nb===p){msgs.push('Une oie, mais impossible d’avancer de '+n+' : '+pl.name+' reste sur place.');break;}pl.pos=nb;trail.push(pl.pos);H.again=true;msgs.push('Une oie ! '+pl.name+' avance encore de '+n+' et rejoue.');continue;}
+    if(GEESE.includes(p)){const nb=bounce(p+n);if(nb===p||seen.has(p)){seen.add(p);msgs.push('Une oie, mais impossible d’avancer de '+n+' : '+pl.name+' reste sur place.');break;}seen.add(p);pl.pos=nb;trail.push(pl.pos);H.again=true;msgs.push('Une oie ! '+pl.name+' avance encore de '+n+' et rejoue.');continue;}
     if(p===6){pl.pos=12;trail.push(12);msgs.push('Le pont : '+pl.name+' passe à la case 12.');continue;}
     if(p===19){pl.skip=1;msgs.push('L’auberge : '+pl.name+' passera un tour.');break;}
     if((p===26||p===53)&&!jumped){jumped=true;pl.pos=p===26?53:26;trail.push(pl.pos);msgs.push('Les dés : '+pl.name+' file à la case '+pl.pos+'.');continue;}
@@ -152,10 +152,9 @@ function view(p){return {me:p,turn:H.turn,dice:H.dice,roll:H.roll,trail:H.trail,
 function pushViews(){H.pl.forEach((q,i)=>{if(q.bot)return;const v=view(i);if(i===0)setTimeout(()=>onView(v),0);else{const c=conns.find(x=>x.p===i);if(c&&c.conn&&c.conn.open)try{c.conn.send({t:'view',v});}catch(e){}}});maybeBot();}
 function act(p,m){
   if(!H||H.over||H.turn!==p||m.a!=='roll')return 'invalid';const pl=H.pl[p];
-  const a=1+((Math.random()*6)|0),b=1+((Math.random()*6)|0),n=a+b;H.dice=[a,b];H.roll=(H.roll||0)+1;H.again=false;
-  const trail=[pl.pos];hlog(pl.name+' fait '+a+' + '+b+' = '+n+'.');
-  if(pl.first&&pl.pos===0&&n===9){pl.first=false;pl.pos=(a===6||b===6)?26:53;trail.push(pl.pos);hlog(pl.name+' fait '+a+' + '+b+' : départ éclair, direction la case '+pl.pos+' !');}
-  else{pl.first=false;pl.pos=bounce(pl.pos+n);trail.push(pl.pos);settle(p,n,trail);}
+  const a=1+((Math.random()*6)|0),n=a;H.dice=[a];H.roll=(H.roll||0)+1;H.again=false;
+  const trail=[pl.pos];hlog(pl.name+' fait '+n+'.');
+  {pl.first=false;pl.pos=bounce(pl.pos+n);trail.push(pl.pos);settle(p,n,trail);}
   H.trail={i:p,steps:trail};
   if(!H.over)nextTurn(p);
   pushViews();
@@ -180,11 +179,11 @@ function showHome(){
   $('joinB').onclick=()=>{const c=$('cd').value.trim().toUpperCase();if(c.length!==4)return toast('Le code a 4 caractères.');P.code=c;nm();joinOnline(nm(),c);};
   $('rl').onclick=rules;
 }
-function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:13px"><p>Lance les deux dés et avance d’autant de cases. Il faut arriver <b>exactement</b> à la case 60 : si tu dépasses, tu recules de l’excédent.</p><p>🪿 <b>Oie</b> (5, 9, 14, 18…) : tu avances encore du même nombre et tu rejoues.<br>🌉 <b>Pont</b> (6) : direction la case 12.<br>🏠 <b>Auberge</b> (19) : tu passes un tour.<br>🎲 <b>Dés</b> (26 et 53) : tu files à l’autre case des dés.<br>🪣 <b>Puits</b> (31) et ⛓️ <b>prison</b> (52) : tu restes bloqué jusqu’à ce qu’un autre joueur arrive sur la case.<br>🌀 <b>Labyrinthe</b> (42) : retour à la case 30.<br>💀 <b>Mort</b> (58) : retour au départ.<br>👑 <b>60</b> : le jardin de l’oie, tu gagnes !</p><p>Au premier lancer, un 6 + 3 t’envoie à la case 26 et un 5 + 4 à la case 53.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
+function rules(){openOv('<h2>Règles</h2><div style="text-align:left;font-size:13px"><p>Lance le dé et avance d’autant de cases. Il faut arriver <b>exactement</b> à la case 60 : si tu dépasses, tu recules de l’excédent.</p><p>🪿 <b>Oie</b> (5, 9, 14, 18…) : tu avances encore du même nombre et tu rejoues.<br>🌉 <b>Pont</b> (6) : direction la case 12.<br>🏠 <b>Auberge</b> (19) : tu passes un tour.<br>🎲 <b>Dés</b> (26 et 53) : tu files à l’autre case des dés.<br>🪣 <b>Puits</b> (31) et ⛓️ <b>prison</b> (52) : tu restes bloqué jusqu’à ce qu’un autre joueur arrive sur la case.<br>🌀 <b>Labyrinthe</b> (42) : retour à la case 30.<br>💀 <b>Mort</b> (58) : retour au départ.<br>👑 <b>60</b> : le jardin de l’oie, tu gagnes !</p><p>Au premier lancer, un 6 + 3 t’envoie à la case 26 et un 5 + 4 à la case 53.</p></div><button class="ob" id="x">OK</button>');$('x').onclick=closeOv;}
 function leave(){clearTimeout(H&&H.bt);clearTimeout(anim.t);try{conns.forEach(c=>c.conn&&c.conn.close());}catch(e){}try{if(peer)peer.destroy();}catch(e){}peer=null;conns=[];H=null;V=null;isHost=false;built=false;endDialog.paid=0;closeOv();}
 function startGame(humans,bots){
   const names=humans.slice();const bn=['Luna','Comète','Orion','Plume','Nougat'];for(let i=0;i<bots;i++)names.push(bn[i]);
-  H={pl:names.map((n,i)=>({name:n,bot:i>=humans.length,pos:0,skip:0,stuck:false,first:true,pw:i%6})),turn:0,dice:[1,1],roll:0,trail:null,over:false,log:'À '+names[0]+' de lancer les dés !'};
+  H={pl:names.map((n,i)=>({name:n,bot:i>=humans.length,pos:0,skip:0,stuck:false,first:true,pw:i%6})),turn:0,dice:[1],roll:0,trail:null,over:false,log:'À '+names[0]+' de lancer le dé !'};
   isHost=true;myIdx=0;built=false;endDialog.paid=0;show('game');pushViews();
 }
 function hostOnline(name){
@@ -230,7 +229,7 @@ function cellXY(pos,k,n){
 function buildBoard(v){
   const u=100/8;let h='<div id="bw"><div id="bd"><div id="fl">';
   v.pl.forEach((q,i)=>{h+='<img class="pw" data-i="'+i+'" src="img/pw'+q.pw+'.webp" alt="">';});
-  h+='</div></div></div><div id="dz"><div class="dd"><img id="d1" src="img/d1.webp" alt="" style="opacity:.5"><img id="d2" src="img/d2.webp" alt="" style="opacity:.5"></div><button class="ob" id="rb">Lancer les dés</button></div><div id="lg"></div>'+
+  h+='</div></div></div><div id="dz"><div class="dd"><img id="d1" src="img/d1.webp" alt="" style="opacity:.5"></div><button class="ob" id="rb">Lancer le dé</button></div><div id="lg"></div>'+
    '<div class="lgd"><span><img src="img/i_goose.webp" alt="">oie : rejoue</span><span><img src="img/i_bridge.webp" alt="">pont → 12</span><span><img src="img/i_inn.webp" alt="">1 tour</span><span><img src="img/i_dice.webp" alt="">26 ⇄ 53</span><span><img src="img/i_well.webp" alt="">puits</span><span><img src="img/i_prison.webp" alt="">prison</span><span><img src="img/i_maze.webp" alt="">→ 30</span><span><img src="img/i_skull.webp" alt="">→ départ</span></div>';
   $('main').innerHTML='<div id="ps"></div>'+h;
   const bw=$('bd').getBoundingClientRect().width||360;$('bd').style.setProperty('--nf',Math.max(7,Math.round(bw*.026))+'px');$('bd').style.setProperty('--pw',(v.pl.length>3?3.8:4.4)+'%');
@@ -257,7 +256,7 @@ function render(newRoll){
     const step=()=>{k++;if(k>=t.steps.length){placePawns(v);return;}const o={};o[t.i]=t.steps[k];placePawns(v,o);anim.t=setTimeout(step,520);};
     anim.t=setTimeout(step,450);
   }else placePawns(v);
-  if(v.dice&&v.roll){[0,1].forEach(k=>{const e=$('d'+(k+1));e.src='img/d'+v.dice[k]+'.webp';e.style.opacity=1;if(newRoll){e.classList.remove('r');void e.offsetWidth;e.classList.add('r');}});}
+  if(v.dice&&v.roll){[0].forEach(k=>{const e=$('d'+(k+1));e.src='img/d'+v.dice[k]+'.webp';e.style.opacity=1;if(newRoll){e.classList.remove('r');void e.offsetWidth;e.classList.add('r');}});}
   $('rb').disabled=!mine;$('rb').style.opacity=$('rb').disabled?.5:1;
   $('lg').textContent=busy&&t&&t.steps.length>1&&false?'':(v.log||'');
 }
