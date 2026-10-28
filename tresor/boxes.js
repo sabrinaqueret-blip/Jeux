@@ -541,6 +541,33 @@ const KEYNM=['Clé de laiton','Clé d’argent','Clé ancienne','Clé de bronze'
 const BOXN=['Le coffre','La boîte','Le coffret','Le cabinet','Le reliquaire'];
 const BOXQ=['de l’explorateur','du horloger','du capitaine','de l’alchimiste','du collectionneur','du voyageur','de l’inventeur','du bibliothécaire','de l’orfèvre','du mage'];
 const DECOY=[['Boussole','o4'],['Sablier','o5'],['Miroir','o6'],['Cloche','o7'],['Coquillage','o9'],['Bougeoir','o3']];
+
+const MREF=(o,dx,dy)=>o===0?[-dy,-dx]:[dy,dx];
+function genMir(R,cols,rows,nm,nd,no){
+ for(let t=0;t<500;t++){
+  const proj=R.int(0,rows-1);let r=proj,c=0,dx=1,dy=0;const used=new Set([r+','+c]),mir=[];let ok=true;
+  const ins=(rr,cc)=>rr>=0&&rr<rows&&cc>=1&&cc<=cols&&!used.has(rr+','+cc);
+  for(let m=0;m<=nm&&ok;m++){
+   const k=R.int(1,3);let moved=0;
+   for(let q=0;q<k;q++){if(!ins(r+dy,c+dx))break;r+=dy;c+=dx;used.add(r+','+c);moved++;}
+   if(moved===0){ok=false;break;}
+   if(m===nm)break;
+   // turn: choose a perpendicular direction with room
+   const opts=[[-dy,dx],[dy,-dx]].filter(([ndx,ndy])=>ins(r+ndy,c+ndx));if(!opts.length){ok=false;break;}
+   const[ndx,ndy]=R.pick(opts);const o=[0,1].find(oo=>{const[a,b]=MREF(oo,dx,dy);return a===ndx&&b===ndy;});
+   mir.push({r,c,o});dx=ndx;dy=ndy;
+  }
+  if(!ok||mir.length!==nm)continue;
+  const tgt={r,c};const free=[];for(let rr=0;rr<rows;rr++)for(let cc=1;cc<=cols;cc++)if(!used.has(rr+','+cc))free.push([rr,cc]);
+  const fs=R.shuf(free);if(fs.length<nd+no)continue;
+  const pathMir=mir.map(m=>({r:m.r,c:m.c}));const dec=fs.slice(0,nd).map(([rr,cc])=>({r:rr,c:cc}));const obs=fs.slice(nd,nd+no).map(([rr,cc])=>({r:rr,c:cc}));
+  const all=pathMir.concat(dec),sol=mir.map(m=>m.o).concat(dec.map(()=>R.int(0,1)));
+  let init;for(let a=0;a<30;a++){init=sol.map((v,i)=>i<nm?(R.int(0,1)?1-v:v):R.int(0,1));if(init.some((v,i)=>i<nm&&v!==sol[i])){break;}}
+  if(!init.some((v,i)=>i<nm&&v!==sol[i]))continue;
+  return{proj,tgt,mir:all,obs,init,sol};
+ }
+ throw new Error('mirrors impossible');
+}
 function mod(kind,R,L){
  const digits=n=>Array.from({length:n},()=>R.int(1,9));
  switch(kind){
@@ -556,24 +583,37 @@ function mod(kind,R,L){
   return{kind,h,hh:20,digits:n,parts:(P,d)=>[{t:'sliders',id:P,x:6,y:0,w:88,h,init:i,target:d,key:true}],hint:f=>'Sur '+FN[f]+', des curseurs à régler sur les bons chiffres (de haut en bas).'};}
  case 'ring':{const n=[3,3,4,5][L-1];
   return{kind,h:26,hh:20,digits:n,parts:(P,d)=>[{t:'ring',id:P,x:4,y:0,w:92,h:26,n,syms:DG,spr:'c4',code:d,key:true}],hint:f=>'Sur '+FN[f]+', des molettes à tourner du doigt sur le bon code.'};}
+ case 'gauges':{const n=L>=4?4:3,DL=[{spr:'xg0',dark:0},{spr:'xg1',dark:1},{spr:'xg2',dark:1},{spr:'xg4',dark:0}];
+  const dials=Array.from({length:n},()=>{const d=R.pick(DL);return{spr:d.spr,dark:d.dark,nd:d.dark?R.pick(['xn0','xn2']):R.pick(['xn1','xn3','xn0'])};});
+  return{kind,h:n>3?24:30,hh:20,digits:n,range:[0,9],parts:(P,d)=>[{t:'gauges',id:P,x:3,y:0,w:94,h:n>3?24:30,n,dials,init:d.map(v=>(v+R.int(2,7))%10),target:d,key:true}],hint:f=>'Sur '+FN[f]+', des jauges : fais tourner chaque aiguille du doigt sur le bon chiffre.'};}
+ case 'balance':{const k=L>=3?5:4,vals=R.shuf([1,2,3,4,5,6,7,8,9]).slice(0,k),sp=R.shuf(['xw0','xw1','xw3','xw4','xw5','xw6']).slice(0,k);
+  const ns=L>=3?3:2,sol=sp.slice(0,ns),target=vals.slice(0,ns).reduce((a,v)=>a+v,0),defs={};sp.forEach((id,i)=>defs[id]={name:'Poids',kind:'part',spr:id,wv:vals[i]});
+  return{kind,big:1,h:64,hh:18,needItems:sp,itemDefs:defs,parts:P=>[{t:'balance',id:P,x:8,y:0,w:84,h:64,target,sol,key:true}],hint:f=>'Sur '+FN[f]+', une balance : pose des poids sur le plateau de gauche (touche le plateau) pour égaler la pierre de droite.'};}
+ case 'memory':{const rows=L<=1?2:3,pairs=rows*2,syms=R.shuf([0,1,2,3,4,5,6,7]).slice(0,pairs),deck=R.shuf(syms.concat(syms)),h=rows===2?36:52;
+  return{kind,h,hh:20,parts:P=>[{t:'memory',id:P,x:14,y:0,w:72,h,cols:4,deck,back:R.int(0,1),key:true}],hint:f=>'Sur '+FN[f]+', des tuiles à retourner : retrouve toutes les paires.'};}
+ case 'dial':{const n=L>=4?4:3;
+  return{kind,h:52,hh:20,digits:n,range:[1,39],parts:(P,d)=>[{t:'dial',id:P,x:22,y:0,w:56,h:52,n,code:d,key:true}],hint:f=>'Sur '+FN[f]+', un cadran de coffre : tourne-le du doigt sur chaque nombre dans l’ordre et touche « Valider ».'};}
+ case 'mirrors':{const cfg=[[4,3,2,0,0],[4,3,3,0,0],[5,4,3,1,1],[5,4,4,2,2]][L-1],cols=cfg[0],rows=cfg[1],g=genMir(R,cols,rows,cfg[2],cfg[3],cfg[4]),h=rows*(90/(cols+1));
+  return{kind,big:1,h:Math.round(h),hh:20,parts:P=>[{t:'mirrors',id:P,x:5,y:0,w:90,h:Math.round(h),cols,rows,proj:g.proj,tgt:g.tgt,mir:g.mir,obs:g.obs,init:g.init,sol:g.sol,key:true}],hint:f=>'Sur '+FN[f]+', un projecteur et un cristal : tourne les miroirs (touche-les) pour que le rayon atteigne le cristal.'};}
  case 'gate':{let k;do{k=R.int(0,8);}while(mod.used.includes(k));mod.used.push(k);
   return{kind,h:30,hh:26,needKey:KEYSPR[k],keyName:KEYNM[k],parts:(P)=>[{t:'keyhole',id:P,x:36,y:0,w:28,h:30,key:KEYSPR[k],key2:1,keyed:1}],hint:f=>'Une serrure sur '+FN[f]+' attend '+KEYNM[k].toLowerCase().replace('clé','une clé')+'.'};}
  case 'train':{const turns=R.int(4,8);
   return{kind,big:1,h:86,hh:0,inline:1,needItems:['r0','r1','r3','m0'],parts:(P,d,give)=>[{t:'train',id:P+'t',x:4,y:0,w:92,h:54,slots:[{x:30,y:48,w:46,g:'r0'},{x:68,y:30,w:28,g:'r1'},{x:72,y:72,w:36,g:'r3'}],key:true},
     {t:'crank',id:P,x:28,y:57,w:44,h:28,item:'m0',turns,need:()=>D(P+'t'),key:true,give}],hint:f=>'Sur '+FN[f]+', trois axes vides : pose les trois engrenages, place la manivelle, puis tourne-la.'};}
  }}
+const needsOfX=0;
 const needsOf=m=>m.digits?'d':(m.needKey?'k':(m.needItems?'i':''));
 function genBox(R,L){
- const CFG={1:{n:3,pool:['lights','simon','knot','sliders','ring'],max:{sliders:1,ring:1}},
-  2:{n:4,pool:['lights','simon','knot','sliders','ring','gate'],max:{lights:1,sliders:1,ring:1,gate:1}},
-  3:{n:5,pool:['lights','simon','knot','sliders','ring','gate','tiles','train'],max:{lights:1,tiles:1,train:1,gate:2,sliders:1,ring:1}},
-  4:{n:6,pool:['lights','simon','knot','sliders','ring','gate','tiles','train'],max:{lights:1,tiles:1,train:1,gate:2,sliders:2,ring:2,knot:2,simon:2}}}[L];
+ const CFG={1:{n:3,pool:['lights','simon','knot','sliders','ring','gauges','memory'],max:{sliders:1,ring:1,gauges:1,memory:1}},
+  2:{n:4,pool:['lights','simon','knot','sliders','ring','gate','gauges','memory','dial','mirrors','balance'],max:{lights:1,sliders:1,ring:1,gate:1,gauges:1,memory:1,dial:1,mirrors:1,balance:1}},
+  3:{n:5,pool:['lights','simon','knot','sliders','ring','gate','tiles','train','gauges','memory','dial','mirrors','balance'],max:{lights:1,tiles:1,train:1,gate:2,sliders:1,ring:1,gauges:1,memory:1,dial:1,mirrors:1,balance:1}},
+  4:{n:6,pool:['lights','simon','knot','sliders','ring','gate','tiles','train','gauges','memory','dial','mirrors','balance'],max:{lights:1,tiles:1,train:1,gate:2,sliders:2,ring:2,knot:2,simon:2,gauges:2,memory:1,dial:2,mirrors:1,balance:1}}}[L];
  for(let tryN=0;tryN<400;tryN++){
   const kinds=[],cnt={};let g=0;while(kinds.length<CFG.n&&g++<200){const k=R.pick(CFG.pool);if((cnt[k]||0)>=(CFG.max[k]||1))continue;cnt[k]=(cnt[k]||0)+1;kinds.push(k);}
   if(kinds.length<CFG.n)continue;
-  if(kinds.filter(k=>k==='lights'||k==='tiles'||k==='train').length>(L>=4?2:3))continue;
+  if(kinds.filter(k=>['lights','tiles','train','balance','mirrors'].includes(k)).length>(L>=4?2:(L===3?3:1)))continue;
   mod.used=[];let ms=R.shuf(kinds).map(k=>mod(k,R,L));
-  const fi=ms.findIndex(m=>m.kind!=='gate'&&m.kind!=='train');if(fi<0)continue;if(fi>0){const t=ms[0];ms[0]=ms[fi];ms[fi]=t;}
+  const fi=ms.findIndex(m=>!m.needKey&&!m.needItems);if(fi<0)continue;if(fi>0){const t=ms[0];ms[0]=ms[fi];ms[fi]=t;}
   const gems=R.shuf(['g0','g1','g2','g3','g4','g5','g6','g7','g8']);let gi=0;
   const items={},rewards=ms.map(()=>[]),extra=[];let nid=0;
   ms.forEach((m,i)=>{m.i=i;m.P='P'+i;m.gem=gems[gi++];items[m.gem]=G(m.gem);rewards[i].push(m.gem);});
@@ -584,8 +624,8 @@ function genBox(R,L){
   const carriers=[];
   ms.forEach((m,j)=>{
    if(m.needKey){items[m.needKey]=K(m.keyName,m.needKey);supply(m.needKey,j);}
-   if(m.needItems){const nm={r0:'Grand engrenage',r1:'Petit engrenage',r3:'Engrenage de fer',m0:'Manivelle'};m.needItems.forEach(id=>{items[id]=O(nm[id],id);supply(id,j);});}
-   if(m.digits){m.d=digits2(R,m.digits);
+   if(m.needItems){const nm={r0:'Grand engrenage',r1:'Petit engrenage',r3:'Engrenage de fer',m0:'Manivelle'};m.needItems.forEach(id=>{items[id]=m.itemDefs?m.itemDefs[id]:O(nm[id],id);supply(id,j);});}
+   if(m.digits){m.d=Array.from({length:m.digits},()=>R.int(m.range?m.range[0]:1,m.range?m.range[1]:9));
      const w=L===1?[['plate',60],['note',40]]:L===2?[['plate',30],['note',40],['loupe',30]]:[['plate',15],['note',40],['loupe',45]];let r=R.int(1,100),ty='plate';for(const [t,p] of w){if(r<=p){ty=t;break;}r-=p;}
      if(ty!=='plate'&&j===0)ty='plate';
      if(ty==='plate')carriers.push({type:'plate',m,h:14});
@@ -635,7 +675,7 @@ function genBox(R,L){
       else if(m.clue)hints.push('Le '+m.clue.nn.toLowerCase()+' que tu trouves donne les chiffres à régler sur '+FN[m.f]+'.');}
     hints.push(m.hint(m.f));
     if(m.needKey)hints.push('La clé qu’il faut est cachée dans une cavité d’une autre face.');
-    if(m.needItems)hints.push('Engrenages et manivelle sont éparpillés dans les cavités ou ramassés sur les faces.');
+    if(m.needItems)hints.push(m.kind==='balance'?'Les poids sont éparpillés dans les cavités ou sur les faces : chacun porte sa valeur. Il faut une combinaison qui égale la pierre.':'Engrenages et manivelle sont éparpillés dans les cavités ou ramassés sur les faces.');
   });
   hints.push('Chaque mécanisme résolu libère une gemme : toutes se logent sur '+FN[els.find(e=>e.sock).f]+'.');
   const th=R.pick(GTH);
