@@ -615,7 +615,7 @@ function mod(kind,R,L){
   return{kind,h:50,hh:24,parts:P=>[{t:'knot',id:P,x:6,y:0,w:88,h:50,n,cols,init,key:true}],hint:f=>'Sur '+FN[f]+', des fils emmêlés : échange deux extrémités voisines à droite jusqu’à ce qu’aucun ne se croise.'};}
  case 'tiles':{const gl=R.shuf(SY).slice(0,8),init=tileInit(R,70+L*14);
   return{kind,big:1,h:58,hh:24,parts:P=>[{t:'tiles',id:P,x:21,y:0,w:58,h:58,glyphs:gl,init,key:true}],hint:f=>'Sur '+FN[f]+', un taquin : fais glisser les tuiles pour les remettre dans l’ordre.'};}
- case 'sliders':{const n=[3,3,4,5][L-1],{t,i}=slidersInit(R,n),h=n*10+4;
+ case 'sliders':{const n=[3,3,4,5][L-1],{t,i}=slidersInit(R,n),h=n*12+2;
   return{kind,h,hh:20,digits:n,parts:(P,d)=>[{t:'sliders',id:P,x:6,y:0,w:88,h,init:i,target:d,key:true}],hint:f=>'Sur '+FN[f]+', des curseurs à régler sur les bons chiffres (de haut en bas).'};}
  case 'ring':{const n=[3,3,4,5][L-1];
   return{kind,h:26,hh:20,digits:n,parts:(P,d)=>[{t:'ring',id:P,x:4,y:0,w:92,h:26,n,syms:DG,spr:'c4',code:d,key:true}],hint:f=>'Sur '+FN[f]+', des molettes à tourner du doigt sur le bon code.'};}
