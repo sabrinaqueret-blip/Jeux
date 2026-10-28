@@ -121,7 +121,6 @@ window.addEventListener('resize',()=>{if(OB&&!OB.over)stSize();});
 const LV=[{n:1,nm:'Facile',ic:'k1',th:'wood',st:'★',tx:'Une boîte, quelques mécanismes.'},{n:2,nm:'Moyen',ic:'k3',th:'egypt',st:'★★',tx:'Plus de mécanismes, des pièges.'},{n:3,nm:'Difficile',ic:'g2',th:'night',st:'★★★',tx:'Des boîtes retorses à fouiller.'},{n:4,nm:'Extrême',ic:'k8',th:'obsidian',st:'★★★★',tx:'La boîte la plus retorse. Courage.'}];
 const lvOf=d=>({'Facile':1,'Moyen':2,'Difficile':3,'Extrême':4})[d.lab]||3;
 window.obList=function(box){
-  box.innerHTML='';
   box.append(el('p','muted sm','Choisis un niveau : une boîte tirée au hasard, aucun mode d’emploi. Fais-la tourner du doigt, touche, déplace.'));
   const g=el('div','lvl');
   LV.forEach(l=>{const done=(ST.ob&&ST.ob.lv&&ST.ob.lv[l.n])||0;
