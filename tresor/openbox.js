@@ -60,6 +60,7 @@ const css=`
 .bn{position:relative;display:block;width:100%;height:118px;border:2px solid #c9962a;border-radius:18px;margin-bottom:12px;overflow:hidden;color:#fff;text-align:left;background-size:cover;background-position:center;padding:0;box-shadow:0 6px 16px #000a}
 .bn::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#000e,#0002 75%)}.bn div{position:absolute;left:14px;right:14px;bottom:10px;z-index:1}.bn b{font-size:19px;display:block}.bn small{opacity:.92;display:block;font-size:12.5px}.bn .tag{color:#ffe08a;background:#f0c06033;border:1px solid #c9962a;border-radius:8px;padding:1px 7px;margin-right:6px}
 .sg{height:1.05em;width:auto;vertical-align:middle;filter:drop-shadow(0 2px 2px #000a)}.eng .sg{height:1em}.rg span img.sg{position:static;width:auto;height:70%;inset:auto;filter:brightness(.42) contrast(1.3) drop-shadow(0 1px 0 #fff7)}.tl2{overflow:hidden;min-width:0;min-height:0;padding:0}.tl2 .sg{height:calc(var(--st)*.15);width:auto;max-width:90%;object-fit:contain}
+.kn{position:relative;width:100%;height:100%}.kn svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.kl,.kr{position:absolute;width:11%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #222;box-shadow:0 2px 4px #000a,inset 0 2px 3px #fff8;padding:0}.kl{left:6%}.kr{left:94%}.kr.sel{outline:3px solid #fff;box-shadow:0 0 12px #fff}
 .stage{overflow:visible!important;box-shadow:none!important}
 .scene{position:absolute;inset:0;perspective:1300px;perspective-origin:50% 42%}
 .cube{position:absolute;inset:0;transform-style:preserve-3d}
@@ -92,9 +93,9 @@ const st=document.createElement('style');st.textContent=css;document.head.append
 const SY=['☀','☾','★','☠','⚷','♥','♦','⚓','☘','⚡','♞','✿'];
 const YF={'☀':0,'☾':1,'★':2,'⚓':3,'☘':4,'♥':5,'♦':6,'⚡':7,'♞':8,'✿':9,'⚷':10,'☠':11};
 const G=t=>String(t).replace(/[\u2600-\u27BF\u2665\u2666\u265E\u26A1\u2693\u2620\u26B7]\uFE0E?/g,c=>{const k=c[0];return k in YF?'<img class="sg" src="img/ob/y'+YF[k]+'.webp" alt="" draggable="false">':c;});
-const DINK={d0:'#3a2a12',d1:'#f6e7b8',d2:'#3b1d0a',d3:'#2b2418',d4:'#222',d5:'#3a2a12',d6:'#222',d7:'#fff',d8:'#123'};
+const DINK={c4:'#3a2610',c5:'#f3e3b0',c6:'#3a2610',d0:'#3a2a12',d1:'#f6e7b8',d2:'#3b1d0a',d3:'#2b2418',d4:'#222',d5:'#3a2a12',d6:'#222',d7:'#fff',d8:'#123'};
 const FACES=['Face avant','Côté gauche','Face arrière','Côté droit','Dessus'];
-const TH={wood:{img:'p_wood',safe:[11,11,78,78]},obsidian:{img:'p_obsidian',safe:[15,15,70,70]},egypt:{img:'p_egypt',safe:[17,17,66,66]},steam:{img:'p_steam',safe:[11,11,78,78]},night:{img:'p_night',safe:[16,16,68,68]}};
+const TH={wood:{img:'p_wood',safe:[11,11,78,78]},jade:{img:'p_jade',safe:[15,15,70,70]},ice:{img:'p_ice',safe:[16,16,68,68]},clock:{img:'p_clock',safe:[19,19,62,62]},ivory:{img:'p_ivory',safe:[18,18,64,64]},obsidian:{img:'p_obsidian',safe:[15,15,70,70]},egypt:{img:'p_egypt',safe:[17,17,66,66]},steam:{img:'p_steam',safe:[11,11,78,78]},night:{img:'p_night',safe:[16,16,68,68]}};
 window.OBX={SY,boxes:[]};
 let OB=null;
 const D=id=>!!OB.done[id],F=f=>!!OB.flags[f],H=id=>OB.inv.includes(id)||!!OB.flags['used:'+id];
@@ -238,13 +239,25 @@ T.socket=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.slots.map(()=>false));const w=e
 T.hatch=p=>{if(!D(p.id)){const b=el('button','hs2',im(p.spr||'l7','pl'));b.onclick=()=>{if(p.open()){OB.done[p.id]=true;OB.anim={id:p.id};toast(p.msg||'Le panneau s’ouvre.');draw();}else{toast(p.locked||'Fermé.');shake(b);}};return b;}
   const w=el('div','cav'+(OB.anim&&OB.anim.id===p.id?' ho':''),'<img class="open" src="img/ob/'+(p.spr||'l7')+'.webp" alt="">');
   (p.give||[]).filter(g=>!OB.flags['took:'+g]).forEach(g=>{const it=OB.b.items[g];const b=el('button','hs2',it.kind==='note'?'<div class="note" style="margin:auto"></div>':im(it.spr));b.style.cssText='height:100%;flex:1';b.onclick=()=>{take(g);draw();};w.append(b);});return w;};
-T.hot=p=>{if(D(p.id)&&!p.spr)return null;const w=el('button','hs2',p.spr?im(p.spr):(p.glint===false?'':'<div class="glint"></div>'));w.style.width='100%';w.style.height='100%';
+T.hot=p=>{if(D(p.id)&&(!p.spr||p.pick))return null;const w=el('button','hs2',p.spr?im(p.spr):(p.glint===false?'':'<div class="glint"></div>'));w.style.width='100%';w.style.height='100%';
   if(p.spr&&(D(p.id)||(p.toggle&&OB.flags[p.id])))w.style.filter='drop-shadow(0 0 8px #fff)';
-  w.onclick=()=>{if(D(p.id)&&!p.again)return;if(p.cond&&!p.cond()){toast(p.fail||'Rien ne se passe.');shake(w);return;}if(p.toggle){OB.flags[p.id]=!OB.flags[p.id];toast(OB.flags[p.id]?'Allumé.':'Éteint.');draw();return;}solve(p);};return w;};
+  w.onclick=()=>{if(D(p.id)&&!p.again)return;if(p.uses&&OB.sel!==p.uses){toast(p.fail||'Il faudrait utiliser quelque chose ici.');shake(w);return;}if(p.cond&&!p.cond()){toast(p.fail||'Rien ne se passe.');shake(w);return;}if(p.toggle){OB.flags[p.id]=!OB.flags[p.id];toast(OB.flags[p.id]?'Allumé.':'Éteint.');draw();return;}solve(p);};return w;};
 T.marks=p=>{const w=el('div','');w.style.pointerEvents='none';w.innerHTML=p.items.map(mk).join('');return w;};
 T.tiles=p=>{const N=3;const s=OB.st[p.id]||(OB.st[p.id]=p.init.slice());const w=el('div','tg');w.style.gridTemplateColumns='repeat(3,1fr)';
   s.forEach((v,i)=>{const b=el('button','tl2'+(v?'':' e'),v?G(p.glyphs[v-1]):'');b.onclick=()=>{if(D(p.id))return;const z=s.indexOf(0),x=i%N,y=(i/N)|0,zx=z%N,zy=(z/N)|0;if(Math.abs(x-zx)+Math.abs(y-zy)!==1)return;s[z]=v;s[i]=0;
       if(s.every((q,j)=>q===(j+1)%9))solve(p);else draw();};w.append(b);});if(D(p.id))w.style.boxShadow='0 0 8px #5ee6a0';return w;};
+T.knot=p=>{const n=p.n,r=OB.st[p.id]||(OB.st[p.id]=p.init.slice());const done=D(p.id);const sel=OB.st[p.id+'_s'];
+  const w=el('div','kn');const Y=i=>(i+.5)*100/n;
+  let svg='<svg viewBox="0 0 100 100" preserveAspectRatio="none">';
+  const order=r.map((s0,pos)=>[s0,pos]);
+  order.forEach(([st,pos])=>{const y0=Y(st),y1=Y(pos),d='M9 '+y0+' C 50 '+y0+' 50 '+y1+' 91 '+y1;
+    svg+='<path d="'+d+'" stroke="#000a" stroke-width="5.6" fill="none" vector-effect="non-scaling-stroke" style="stroke-width:11px"/><path d="'+d+'" stroke="'+p.cols[st]+'" fill="none" vector-effect="non-scaling-stroke" style="stroke-width:7px"/><path d="'+d+'" stroke="#fff6" fill="none" vector-effect="non-scaling-stroke" style="stroke-width:2px;transform:translateY(-1.2px)"/>';});
+  svg+='</svg>';w.innerHTML=svg;
+  for(let i=0;i<n;i++){const l=el('i','kl');l.style.top=Y(i)+'%';l.style.background=p.cols[i];w.append(l);}
+  for(let pos=0;pos<n;pos++){const b=el('button','kr'+(sel===pos?' sel':''));b.style.top=Y(pos)+'%';b.style.background=p.cols[r[pos]];
+    b.onclick=()=>{if(D(p.id))return;const q=OB.st[p.id+'_s'];if(q==null||q===pos){OB.st[p.id+'_s']=q===pos?null:pos;draw();return;}
+      if(Math.abs(q-pos)===1){const t=r[q];r[q]=r[pos];r[pos]=t;OB.st[p.id+'_s']=null;if(r.every((v,i)=>v===i))solve(p);else draw();}else{OB.st[p.id+'_s']=pos;draw();}};w.append(b);}
+  if(done)w.style.filter='drop-shadow(0 0 6px #5ee6a0)';return w;};
 T.keyhole=p=>{const w=el('div','row');const f=D(p.id);const b=el('button','sl '+(f?'f':'e'),im(p.key));
   b.onclick=()=>{if(f)return;const it=OB.sel&&OB.b.items[OB.sel];if(!it||it.kind!=='key'){toast('Une serrure… il faudrait une clé.');shake(b);return;}
     if(it.spr!==p.key){toast('Cette clé ne convient pas.');shake(b);OB.sel=null;draw();return;}OB.flags['used:'+OB.sel]=true;OB.inv=OB.inv.filter(x=>x!==OB.sel);OB.sel=null;solve(p);};w.append(b);return w;};
@@ -256,8 +269,9 @@ window.obBot=function(){let g=0;while(!OB.over&&g++<80){let prog=false;
     if(p.t==='ring'){if(!D(p.id)){OB.st[p.id]=p.code.slice();solve(p,true);prog=true;}}
     else if(p.t==='lever'){if(!D(p.id)){OB.st[p.id]=p.target.slice();solve(p,true);prog=true;}}
     else if(p.t==='pads'){if(!D(p.id)){solve(p,true);prog=true;}}
+    else if(p.t==='knot'){if(!D(p.id)){OB.st[p.id]=p.cols.map((_,i)=>i);solve(p,true);prog=true;}}
     else if(p.t==='tiles'){if(!D(p.id)){OB.st[p.id]=[1,2,3,4,5,6,7,8,0];solve(p,true);prog=true;}}
-    else if(p.t==='hot'){if(!D(p.id)&&(!p.cond||p.cond())){solve(p,true);prog=true;}}
+    else if(p.t==='hot'){if(!D(p.id)&&(!p.cond||p.cond())&&(!p.uses||OB.inv.includes(p.uses))){solve(p,true);prog=true;}}
     else if(p.t==='hatch'){if(!D(p.id)&&p.open()){OB.done[p.id]=true;prog=true;}if(D(p.id))(p.give||[]).forEach(x=>{if(!OB.flags['took:'+x]){take(x);prog=true;}});}
     else if(p.t==='keyhole'){if(!D(p.id)){const id=OB.inv.find(i=>OB.b.items[i].kind==='key'&&OB.b.items[i].spr===p.key);if(id){OB.inv=OB.inv.filter(x=>x!==id);OB.flags['used:'+id]=true;solve(p,true);prog=true;}}}
     else if(p.t==='socket'){if(!D(p.id)){const s=OB.st[p.id]||(OB.st[p.id]=p.slots.map(()=>false));p.slots.forEach((sl,i)=>{if(s[i])return;const id=OB.inv.find(x=>OB.b.items[x].spr===sl.g&&['gem','key','part'].includes(OB.b.items[x].kind));if(id){OB.inv=OB.inv.filter(x=>x!==id);OB.flags['used:'+id]=true;s[i]=true;prog=true;}});if(s.every(x=>x)){solve(p,true);prog=true;}}}
