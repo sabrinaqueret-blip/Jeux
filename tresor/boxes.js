@@ -299,7 +299,7 @@ obDefine({id:'carillon',name:'Le carillon d’ivoire',lab:'Difficile',theme:'ivo
    hints:['Ramasse le miroir sur la face avant.','Sélectionne le miroir dans l’inventaire, puis touche la grande surface vide de la face droite.','Les quatre signes se règlent sur les anneaux de la face avant.','La clé en fer ouvre la serrure de la face gauche.','Le billet donne les cinq manettes de la face arrière.','La petite clé ouvre la serrure du dessus.']};
  }});
 
-obDefine({id:'abime',name:'La chambre d’engrenages',lab:'Extrême',theme:'clock',rw:85,parts:6,icon:'c10',
+obDefine({id:'abime',name:'La chambre d’engrenages',lab:'Extrême',theme:'clock',rw:110,parts:8,icon:'c10',
  intro:'Une chambre de cuivre et de laiton, vivante et tendue. Chaque pièce que tu trouves sert à autre chose qu’à ce que tu crois.',
  win:D=>D('sock'),
  build(R){
@@ -308,17 +308,19 @@ obDefine({id:'abime',name:'La chambre d’engrenages',lab:'Extrême',theme:'cloc
    {t:'tiles',id:'tiles',f:0,x:10,y:6,w:80,h:80,glyphs:gl,init:tileInit(R,110),key:true},
    {t:'marks',f:3,x:14,y:4,w:72,h:15,plate:1,items:ks.map((k,i)=>mark(String(k+1),12.5+i*25,52,9,'gl'))},
    {t:'ring',id:'ring',f:1,x:4,y:26,w:92,h:28,n:4,syms:gl,spr:'c5',code:ks,key:true},
-   {t:'hatch',id:'h1',f:1,x:28,y:62,w:44,h:28,open:()=>D('ring'),give:['c9','o2']},
+   {t:'hatch',id:'h1',f:1,x:28,y:62,w:44,h:28,open:()=>D('ring'),give:['c9','o2','r0','r3']},
    {t:'socket',id:'gs',f:2,x:30,y:8,w:40,h:34,slots:[{g:'c9'}],key:true},
-   {t:'hatch',id:'h2',f:2,x:16,y:52,w:68,h:36,open:()=>D('gs'),give:['c0','o4']},
+   {t:'hatch',id:'h2',f:2,x:16,y:52,w:68,h:36,open:()=>D('gs'),give:['c0','o4','m0']},
    {t:'keyhole',id:'kh',f:3,x:36,y:32,w:28,h:30,key:'c0',key2:1,keyed:1},
    {t:'hatch',id:'h3',f:3,x:20,y:68,w:60,h:24,open:()=>D('kh'),give:['nE','o5']},
    {t:'ring',id:'ring2',f:4,x:4,y:4,w:92,h:22,n:4,syms:DG,spr:'c4',code,key:true},
-   {t:'hatch',id:'h4',f:4,x:30,y:29,w:40,h:20,open:()=>D('ring2'),give:['o6']},
-   {t:'socket',id:'sock',f:4,x:6,y:58,w:88,h:34,slots:[{g:'o2'},{g:'o4'},{g:'o5'},{g:'o6'}],key:true}];
-  return{parts,items:{c9:O('Engrenage','c9'),c0:K('Clé ouvragée','c0'),o2:O('Loupe','o2'),o4:O('Boussole','o4'),o5:O('Sablier','o5'),o6:O('Miroir','o6'),
+   {t:'hatch',id:'h4',f:4,x:30,y:29,w:40,h:20,open:()=>D('ring2'),give:['o6','r1']},
+   {t:'socket',id:'sock',f:4,x:6,y:58,w:88,h:34,slots:[{g:'o2'},{g:'o4'},{g:'o5'},{g:'o6'},{g:'o7'}],key:true},
+   {t:'train',id:'train',f:5,x:4,y:4,w:92,h:58,slots:[{x:30,y:48,w:46,g:'r0'},{x:68,y:30,w:28,g:'r1'},{x:72,y:72,w:36,g:'r3'}],key:true},
+   {t:'crank',id:'crank',f:5,x:28,y:66,w:44,h:30,item:'m0',turns:6,need:()=>D('train'),key:true,give:['o7']}];
+  return{parts,items:{c9:O('Engrenage','c9'),c0:K('Clé ouvragée','c0'),o2:O('Loupe','o2'),o4:O('Boussole','o4'),o5:O('Sablier','o5'),o6:O('Miroir','o6'),o7:O('Cloche','o7'),r0:O('Grand engrenage','r0'),r1:O('Petit engrenage','r1'),r3:O('Engrenage de fer','r3'),m0:O('Manivelle','m0'),
     nE:NT('Carnet d’équations',ex.map((e,i)=>mark(e,50,14+i*19,8,'dk')),'Quatre calculs.')},
-   hints:['Remets les tuiles de la face avant dans l’ordre.','Les nombres du côté droit sont des positions dans la grille résolue.','Les quatre signes se règlent sur les anneaux de la face gauche.','L’engrenage se pose dans le logement de la face arrière.','La clé ouvragée va dans la serrure du côté droit.','Les résultats des quatre calculs du carnet sont les chiffres des anneaux du dessus (de gauche à droite).']};
+   hints:['Remets les tuiles de la face avant dans l’ordre.','Les nombres du côté droit sont des positions dans la grille résolue.','Les quatre signes se règlent sur les anneaux de la face gauche.','L’engrenage se pose dans le logement de la face arrière.','La clé ouvragée va dans la serrure du côté droit.','Les résultats des quatre calculs du carnet sont les chiffres des anneaux du dessus (de gauche à droite).','Le dessous cache un mécanisme : trois axes vides attendent trois engrenages, dispersés dans les cavités des autres faces.','Une fois les engrenages posés, place la manivelle et tourne-la : elle libère la cloche, dernière pièce du logement du dessus.']};
  }});
 
 obDefine({id:'circuit',name:'La boîte à câbles',lab:'Moyen',theme:'steam',rw:28,parts:5,icon:'w0',

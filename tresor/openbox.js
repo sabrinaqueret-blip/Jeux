@@ -32,7 +32,7 @@ const css=`
 .pd.fl{animation:fl .35s}@keyframes fl{50%{filter:brightness(2.2);transform:scale(1.15)}}
 .pdots{position:absolute;left:0;right:0;top:-18%;display:flex;gap:6px;justify-content:center}
 .pdots i{width:8px;height:8px;border-radius:50%;background:#0006;box-shadow:0 0 0 1px #fff3}.pdots i.on{background:#f0c060;box-shadow:0 0 6px #f0c060}
-.sl{flex:1;height:100%}.sl img{width:100%;height:100%;object-fit:contain}.sl.e img{filter:brightness(0);opacity:.4}.sl.f img{filter:drop-shadow(0 0 6px #fff8)}
+.sl{flex:1;height:100%}.sl img{width:100%;height:100%;object-fit:contain}.sl.e img{filter:brightness(0) invert(.78) sepia(1) saturate(3) hue-rotate(-8deg);opacity:.6;transform:scale(.8)}.sl.f img{filter:drop-shadow(0 0 6px #fff8)}
 .hs2>img:not(.pl){width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 3px #000a)}.hs2 img.pl{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 4px #000a)}
 .cav{width:100%;height:100%;border-radius:8px;background:radial-gradient(#1a0f08,#050302);box-shadow:0 0 0 3px #00000088 inset,0 0 8px #000;display:flex;align-items:center;justify-content:center;gap:6px;position:relative}
 .cav img{height:70%;max-width:46%;object-fit:contain;animation:pu 1.6s infinite}.cav .open{position:absolute;left:-8%;top:-10%;width:40%;transform:rotate(-80deg);transform-origin:left bottom;opacity:.9}
@@ -92,7 +92,7 @@ const css=`
 .lv::before{display:none}
 .lv img{position:relative;filter:drop-shadow(0 3px 3px #000b)}.lv.au img{animation:lau .22s ease-out}.lv.ad img{animation:lad .22s ease-out}
 @keyframes lau{from{transform:scaleY(-1)}to{transform:scaleY(1)}}@keyframes lad{from{transform:scaleY(1)}to{transform:scaleY(-1)}}
-.sl::before{content:"";position:absolute;inset:4%;border-radius:50%;background:radial-gradient(circle,#000c 50%,#0000 75%);box-shadow:inset 0 4px 9px #000d,0 1px 0 #ffffff44}
+.sl::before{content:"";position:absolute;inset:4%;border-radius:50%;background:radial-gradient(circle,#1a0f08 55%,#3a2610 100%);border:3px solid #c9a24a;box-shadow:inset 0 4px 9px #000d,0 1px 0 #fff6,0 2px 5px #000a}
 .sl img{position:relative}.sl.f img{filter:drop-shadow(0 0 8px #fff9)}
 .cav.ho{animation:cin .5s ease-out}@keyframes cin{from{transform:scale(.6);filter:brightness(2.5)}to{transform:scale(1);filter:none}}
 .hs2 img.pl{filter:drop-shadow(0 4px 5px #000c)}
