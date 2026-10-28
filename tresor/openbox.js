@@ -101,6 +101,11 @@ const css=`
 .face.cur{display:block}
 .lsv{width:100%;height:100%;overflow:visible;filter:var(--tn) drop-shadow(0 3px 3px #000b)}.lsv .arm.au{animation:larm .22s ease-out}.lsv .arm.ad{animation:larm2 .22s ease-out}@keyframes larm{from{transform:rotate(180deg)}to{transform:rotate(0)}}@keyframes larm2{from{transform:rotate(0)}to{transform:rotate(180deg)}}
 .in>.p{position:absolute!important}
+.cyc{display:flex;justify-content:space-around;align-items:center;width:100%;height:100%;gap:2%}.cyc button{background:none;border:0;padding:0;flex:1;aspect-ratio:1;max-height:100%;min-width:0}.cyc button img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 4px #000b)}
+.swb{display:flex;flex-direction:column;justify-content:space-between;width:100%;height:100%}.swb .r{display:flex;justify-content:space-around;align-items:center;height:42%}.swb .r>*{flex:1;height:100%;display:flex;align-items:center;justify-content:center;min-width:0;background:none;border:0;padding:0}.swb img{max-width:92%;max-height:100%;object-fit:contain;filter:drop-shadow(0 2px 3px #000a)}
+.fz{display:grid;grid-template-columns:1fr 1fr;gap:10% 5%;width:100%;height:100%;align-content:center}.fz button{background:linear-gradient(#2a1d10,#150d06);border:2px solid #7a5a22;border-radius:10px;padding:0;aspect-ratio:175/70;position:relative;box-shadow:inset 0 3px 7px #000d,0 2px 4px #000a}.fz button img{position:absolute;inset:8% 4%;width:92%;height:84%;object-fit:contain}.fz button.bad img{filter:drop-shadow(0 0 5px #f33a)}.fz button.ok img{filter:drop-shadow(0 0 5px #fff6)}
+.pkb{flex:1;height:100%;border:0;background:none;padding:0;position:relative}.pkb img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 4px #000c)}.pkb.f img{filter:drop-shadow(0 0 9px #fff9)}
+.hs2.dn{opacity:.55}
 .cav{display:flex;justify-content:center;align-items:center;gap:4%;padding:2%}.cav>.hs2{height:100%!important;flex:0 1 38%!important;transform:scale(1.35);z-index:2}.cav>.hs2 img{max-height:100%}
 .stage{overflow:visible!important;box-shadow:none!important}
 .scene{position:absolute;inset:0;perspective:1300px;perspective-origin:50% 42%}
@@ -136,7 +141,7 @@ const YF={'☀':0,'☾':1,'★':2,'⚓':3,'☘':4,'♥':5,'♦':6,'⚡':7,'♞':
 const G=t=>String(t).replace(/[\u2600-\u27BF\u2665\u2666\u265E\u26A1\u2693\u2620\u26B7]\uFE0E?/g,c=>{const k=c[0];return k in YF?'<img class="sg" src="img/ob/y'+YF[k]+'.webp" alt="" draggable="false">':c;});
 const DINK={c4:'#3a2610',c5:'#f3e3b0',c6:'#3a2610',d0:'#3a2a12',d1:'#f6e7b8',d2:'#3b1d0a',d3:'#2b2418',d4:'#222',d5:'#3a2a12',d6:'#222',d7:'#fff',d8:'#123'};
 const FACES=['Face avant','Côté gauche','Face arrière','Côté droit','Dessus','Dessous'];
-const TH={wood:{img:'p_wood',kn:'b0',safe:[11,11,78,78]},lacque:{img:'p_lacque',kn:'u8',safe:[19,19,62,62]},pierre:{img:'p_pierre',kn:'u7',safe:[21,21,58,58]},jouet:{img:'p_jouet',kn:'u0',safe:[20,20,60,60],tn:'hue-rotate(-62deg) saturate(.75) brightness(1.12)'},marbre:{img:'p_marbre',kn:'u3',safe:[20,20,60,60]},rouille:{img:'p_rouille',kn:'u9',safe:[14,14,72,72]},cristal:{img:'p_cristal',kn:'u6',safe:[15,15,70,70]},sable:{img:'p_sable',kn:'b2',safe:[14,14,72,72]},corail:{img:'p_corail',kn:'u10',safe:[16,16,68,68]},jade:{img:'p_jade',kn:'u4',safe:[15,15,70,70]},ice:{img:'p_ice',kn:'u5',safe:[16,16,68,68],tn:'hue-rotate(150deg) saturate(.5) brightness(1.1)'},clock:{img:'p_clock',kn:'b7',safe:[19,19,62,62]},ivory:{img:'p_ivory',kn:'u2',safe:[18,18,64,64]},obsidian:{img:'p_obsidian',kn:'u11',safe:[15,15,70,70]},egypt:{img:'p_egypt',kn:'b4',safe:[17,17,66,66]},steam:{img:'p_steam',kn:'b6',safe:[11,11,78,78]},night:{img:'p_night',kn:'b3',safe:[16,16,68,68]}};
+const TH={noyer:{img:'p_noyer',kn:'b0',safe:[20,20,60,60]},cuir:{img:'p_cuir',kn:'b2',safe:[20,20,60,60]},lave:{img:'p_lave',kn:'u11',safe:[22,22,58,58]},verre:{img:'p_verre',kn:'u5',safe:[18,18,64,64]},nacre:{img:'p_nacre',kn:'u2',safe:[22,22,56,56]},beton:{img:'p_beton',kn:'u9',safe:[22,22,57,57]},wood:{img:'p_wood',kn:'b0',safe:[11,11,78,78]},lacque:{img:'p_lacque',kn:'u8',safe:[19,19,62,62]},pierre:{img:'p_pierre',kn:'u7',safe:[21,21,58,58]},jouet:{img:'p_jouet',kn:'u0',safe:[20,20,60,60],tn:'hue-rotate(-62deg) saturate(.75) brightness(1.12)'},marbre:{img:'p_marbre',kn:'u3',safe:[20,20,60,60]},rouille:{img:'p_rouille',kn:'u9',safe:[14,14,72,72]},cristal:{img:'p_cristal',kn:'u6',safe:[15,15,70,70]},sable:{img:'p_sable',kn:'b2',safe:[14,14,72,72]},corail:{img:'p_corail',kn:'u10',safe:[16,16,68,68]},jade:{img:'p_jade',kn:'u4',safe:[15,15,70,70]},ice:{img:'p_ice',kn:'u5',safe:[16,16,68,68],tn:'hue-rotate(150deg) saturate(.5) brightness(1.1)'},clock:{img:'p_clock',kn:'b7',safe:[19,19,62,62]},ivory:{img:'p_ivory',kn:'u2',safe:[18,18,64,64]},obsidian:{img:'p_obsidian',kn:'u11',safe:[15,15,70,70]},egypt:{img:'p_egypt',kn:'b4',safe:[17,17,66,66]},steam:{img:'p_steam',kn:'b6',safe:[11,11,78,78]},night:{img:'p_night',kn:'b3',safe:[16,16,68,68]}};
 window.OBX={SY,boxes:[]};
 let OB=null;
 const D=id=>!!OB.done[id],F=f=>!!OB.flags[f],H=id=>OB.inv.includes(id)||!!OB.flags['used:'+id];
@@ -461,7 +466,7 @@ T.socket=p=>{const s=OB.st[p.id]||(OB.st[p.id]=p.slots.map(()=>false));const w=e
 T.hatch=p=>{if(!D(p.id)){const b=el('button','hs2',im(p.spr||'l7','pl'));b.onclick=()=>{if(p.open()){OB.done[p.id]=true;OB.anim={id:p.id};toast(p.msg||'Le panneau s’ouvre.');draw();}else{toast(p.locked||'Fermé.');shake(b);}};return b;}
   const w=el('div','cav'+(OB.anim&&OB.anim.id===p.id?' ho':''),'<img class="open" src="img/ob/'+(p.spr||'l7')+'.webp" alt="">');
   (p.give||[]).filter(g=>!OB.flags['took:'+g]).forEach(g=>{const it=OB.b.items[g];const b=el('button','hs2',it.kind==='note'?'<div class="note" style="margin:auto"></div>':im(it.spr)+(it.wv!=null?'<i class="wb">'+it.wv+'</i>':''));b.style.cssText='height:100%;flex:1';b.onclick=()=>{take(g);draw();};w.append(b);});return w;};
-T.hot=p=>{if(D(p.id)&&(!p.spr||p.pick))return null;const w=el('button','hs2',p.spr?im(p.spr):(p.glint===false?'':'<div class="glint"></div>'));w.style.width='100%';w.style.height='100%';
+T.hot=p=>{if(D(p.id)&&(!p.spr||p.pick))return null;const w=el('button','hs2'+(D(p.id)&&p.fade?' dn':''),p.spr?im(D(p.id)&&p.sprD?p.sprD:p.spr):(p.glint===false?'':'<div class="glint"></div>'));w.style.width='100%';w.style.height='100%';
   if(p.spr&&(D(p.id)||(p.toggle&&OB.flags[p.id])))w.style.filter='drop-shadow(0 0 8px #fff)';
   w.onclick=()=>{if(D(p.id)&&!p.again)return;if(p.uses&&OB.sel!==p.uses){toast(p.fail||'Il faudrait utiliser quelque chose ici.');shake(w);return;}if(p.cond&&!p.cond()){toast(p.fail||'Rien ne se passe.');shake(w);return;}if(p.toggle){OB.flags[p.id]=!OB.flags[p.id];toast(OB.flags[p.id]?'Allumé.':'Éteint.');draw();return;}solve(p);};return w;};
 T.marks=p=>{const w=el('div',p.plate?'plq':'');w.style.pointerEvents='none';w.innerHTML=p.items.map(mk).join('');return w;};
@@ -492,9 +497,26 @@ T.crank=p=>{const w=el('div','crk');const s=OB.st[p.id]||(OB.st[p.id]={has:false
   hub.onclick=()=>{if(done)return;if(!s.has){const it=OB.sel&&OB.b.items[OB.sel];if(!it||it.spr!==p.item){toast('Il manque une manivelle pour tourner ça.');shake(hub);return;}OB.flags['used:'+OB.sel]=true;OB.inv=OB.inv.filter(x=>x!==OB.sel);OB.sel=null;s.has=true;toast('La manivelle est en place. Tourne !');draw();return;}
     s.n++;OB.anim={id:p.id};if(s.n>=p.turns)solve(p);else draw();};
   w.append(hub);const pp=el('div','cp');for(let i=0;i<p.turns;i++)pp.append(el('i',i<s.n?'on':''));w.append(pp);return w;};
-T.keyhole=p=>{const w=el('div','row');const f=D(p.id);const b=el('button','sl '+(f?'f':'e'),im(p.key));
+T.keyhole=p=>{const w=el('div','row');const f=D(p.id);const b=p.lock?el('button','pkb '+(f?'f':'e'),im(p.lock+(f&&p.lockO?'_o':(p.lockO?'_c':'')))):el('button','sl '+(f?'f':'e'),im(p.key));
   b.onclick=()=>{if(f)return;const it=OB.sel&&OB.b.items[OB.sel];if(!it||it.kind!=='key'){toast('Une serrure… il faudrait une clé.');shake(b);return;}
     if(it.spr!==p.key){toast('Cette clé ne convient pas.');shake(b);OB.sel=null;draw();return;}OB.flags['used:'+OB.sel]=true;OB.inv=OB.inv.filter(x=>x!==OB.sel);OB.sel=null;solve(p);};w.append(b);return w;};
+
+/* symboles / cycle */
+T.cycle=p=>{const st=OB.st[p.id]||(OB.st[p.id]=p.init.slice());const w=el('div','cyc');
+  st.forEach((v,i)=>{const b=el('button','',im(p.sprs[v]));b.onclick=()=>{if(D(p.id))return;st[i]=(st[i]+1)%p.sprs.length;if(st.every((q,j)=>q===p.target[j]))solve(p);else draw();};w.append(b);});return w;};
+/* interrupteurs */
+T.switches=p=>{const st=OB.st[p.id]||(OB.st[p.id]={sw:p.perm.map(()=>0),bu:p.perm.map(()=>0)});const w=el('div','swb');
+  const r1=el('div','r'),r2=el('div','r');
+  st.bu.forEach(v=>r1.append(el('div','',im(v?'bu_on':'bu_off'))));
+  st.sw.forEach((v,i)=>{const b=el('button','',im(v?'sw_b':'sw_a'));b.onclick=()=>{if(D(p.id))return;st.sw[i]^=1;st.bu[p.perm[i]]^=1;if(st.bu.every((q,j)=>q===p.target[j]))solve(p);else draw();};r2.append(b);});
+  w.append(r1,r2);return w;};
+/* fusibles */
+T.fuses=p=>{const st=OB.st[p.id]||(OB.st[p.id]=p.bad.map(()=>false));const w=el('div','fz');
+  p.bad.forEach((bd,i)=>{const fixed=st[i];const b=el('button',bd&&!fixed?'bad':'ok',im(bd&&!fixed?'fu_bk'+(p.v[i]?'2':''):'fu_ok'+(p.v[i]?'2':'')));
+    b.onclick=()=>{if(!bd||fixed){toast('Celui-ci fonctionne.');return;}const it=OB.sel&&OB.b.items[OB.sel];
+      if(!it||it.spr!=='fu_ok'){toast('Ce fusible est grillé : il faut un fusible neuf.');shake(b);return;}
+      OB.flags['used:'+OB.sel]=true;OB.inv=OB.inv.filter(x=>x!==OB.sel);OB.sel=null;st[i]=true;
+      if(p.bad.every((q,j)=>!q||st[j]))solve(p);else{toast('Le fusible neuf s’enclenche.');draw();}};w.append(b);});return w;};
 
 /* ---------- robot de test ---------- */
 window.obBot=function(){let g=0;while(!OB.over&&g++<80){let prog=false;
@@ -512,6 +534,8 @@ window.obBot=function(){let g=0;while(!OB.over&&g++<80){let prog=false;
     else if(p.t==='dial'){if(!D(p.id)){solve(p,true);prog=true;}}
     else if(p.t==='balance'){if(!D(p.id)){if(p.sol.every(id=>OB.inv.includes(id))){OB.st[p.id]=p.sol.slice();OB.inv=OB.inv.filter(x=>!p.sol.includes(x));solve(p,true);prog=true;}}}
     else if(p.t==='pipes'){if(!D(p.id)){OB.st[p.id]=p.sol.slice();solve(p,true);prog=true;}}
+    else if(p.t==='cycle'||p.t==='switches'){if(!D(p.id)){solve(p,true);prog=true;}}
+    else if(p.t==='fuses'){if(!D(p.id)){const st=OB.st[p.id]||(OB.st[p.id]=p.bad.map(()=>false));p.bad.forEach((bd,i)=>{if(!bd||st[i])return;const id=OB.inv.find(x=>OB.b.items[x].spr==='fu_ok');if(id){OB.inv=OB.inv.filter(x=>x!==id);OB.flags['used:'+id]=true;st[i]=true;prog=true;}});if(p.bad.every((q,j)=>!q||st[j])){solve(p,true);prog=true;}}}
     else if(p.t==='hanoi'||p.t==='clock'||p.t==='vials'||p.t==='patch'||p.t==='rings'||p.t==='moons'||p.t==='torn'){if(!D(p.id)){solve(p,true);prog=true;}}
     else if(p.t==='lights'){if(!D(p.id)){OB.st[p.id]=OB.st[p.id]||[];OB.st[p.id]=OB.st[p.id].map(()=>1);solve(p,true);prog=true;}}
     else if(p.t==='simon'){if(!D(p.id)){solve(p,true);prog=true;}}

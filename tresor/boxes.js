@@ -535,12 +535,12 @@ obDefine({id:'sablier',name:'Le sablier d’ébène',lab:'Extrême',theme:'egypt
 
 /* ================= GÉNÉRATEUR DE BOÎTES ================= */
 const FN=['la face avant','le côté gauche','la face arrière','le côté droit','le dessus','le dessous'];
-const GTH=['wood','lacque','pierre','jouet','marbre','rouille','cristal','sable','corail','jade','ice','clock','ivory','obsidian','egypt','steam'];
+const GTH=['noyer','cuir','lave','verre','nacre','beton','wood','lacque','pierre','jouet','marbre','rouille','cristal','sable','corail','jade','ice','clock','ivory','obsidian','egypt','steam'];
 const KEYSPR=['k0','k1','k2','k3','k4','k5','k6','k7','k8'];
 const KEYNM=['Clé de laiton','Clé d’argent','Clé ancienne','Clé de bronze','Clé noire','Clé dorée','Clé fine','Clé massive','Clé ouvragée'];
 const BOXN=['Le coffre','La boîte','Le coffret','Le cabinet','Le reliquaire'];
 const BOXQ=['de l’explorateur','du horloger','du capitaine','de l’alchimiste','du collectionneur','du voyageur','de l’inventeur','du bibliothécaire','de l’orfèvre','du mage'];
-const DECOY=[['Boussole','o4'],['Sablier','o5'],['Miroir','o6'],['Cloche','o7'],['Coquillage','o9'],['Bougeoir','o3']];
+const DECOY=[['Aimant','tl_mag'],['Boussole de laiton','tl_comp'],['Lampe à huile','tl_oil'],['Compas','tl_dv'],['Pièces d’or','tl_gold'],['Boussole','o4'],['Sablier','o5'],['Miroir','o6'],['Cloche','o7'],['Coquillage','o9'],['Bougeoir','o3']];
 
 const MREF=(o,dx,dy)=>o===0?[-dy,-dx]:[dy,dx];
 function genMir(R,cols,rows,nm,nd,no){
@@ -572,6 +572,8 @@ function genMir(R,cols,rows,nm,nd,no){
 const VCOLS=['#d4342c','#2f55d4','#2fa84f','#e0b030','#9a45c8','#e07a30'],PCOLS=['#d4342c','#2f55d4','#2fa84f','#e0b030','#222'];
 const colMarks=cols=>(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('●',x0+i*dx,y,s,c||'gl',cols[v]));
 const moonMarks=(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('<img class="sg" src="img/ob/mn'+v+'.webp" alt="">',x0+i*dx,y,s+2,c||'gl'));
+const bulbMarks=(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('<img class="sg" src="img/ob/'+(v?'bu_on':'bu_off')+'.webp" alt="">',x0+i*dx,y,s+4,c||'gl'));
+const TOOLS=[['chain','chain',null,'tl_pl','Pince',88,12,'Une chaîne barre le passage : il faut en couper un maillon.'],['bolt_c','bolt_c','bolt_o','tl_wr','Clé à molette',52,20,'Un verrou rouillé est serré à fond : il faut le desserrer.'],['pl_st_c','pl_st_c','pl_st_o','tl_ha','Marteau',32,32,'Un vieux cadenas noir est rouillé : il faut le fracasser.'],['lk_cast','lk_cast',null,'tl_sd','Tournevis',32,32,'Une plaque de fonte est coincée : il faut la forcer.']];
 const cm=(m,x0,dx,y,s,c)=>m.marksFn?m.marksFn(m.d,x0,dx,y,s,c):digitMarks(m.d,x0,dx,y,s,c);
 const PIPEB={tp_s:[1,0,1,0],tp_s2:[1,0,1,0],tp_v:[1,0,1,0],tp_e:[0,1,1,0],tp_e2:[0,1,1,0],tp_x:[1,1,1,1],tp_c:[0,0,0,1],tp_z:[0,0,0,0]};
 const popn=(spr,r)=>{const bb=PIPEB[spr];return[0,1,2,3].map(d=>bb[((d-r)%4+4)%4]);};
@@ -646,8 +648,19 @@ function mod(kind,R,L){
   return{kind,h:22,hh:20,digits:n,range:[0,3],marksFn:moonMarks,parts:(P,d)=>[{t:'moons',id:P,x:5,y:0,w:90,h:22,target:d,init:d.map(v=>(v+R.int(1,3))%4),key:true}],hint:f=>'Sur '+FN[f]+', des lunes : touche chaque lune pour changer sa phase jusqu’à reproduire la séquence trouvée.'};}
  case 'torn':{let a;do{a=R.shuf([0,1,2,3]);}while(a.some((v,i)=>v===i));
   return{kind,h:44,hh:20,parts:P=>[{t:'torn',id:P,x:28,y:0,w:44,h:44,init:a,key:true}],hint:f=>'Sur '+FN[f]+', un parchemin déchiré : échange les morceaux (touches-en deux) pour reconstituer la feuille.'};}
+
+ case 'runes':{const k=[4,5,6,8][L-1],n=[3,3,4,4][L-1],sy=R.shuf([0,1,2,3,4,5,6,7,8,9,10,11]).slice(0,k),sprs=sy.map(v=>'sy'+v);
+  return{kind,h:24,hh:20,digits:n,range:[0,k-1],marksFn:(d,x0,dx,y,s,c)=>d.map((v,i)=>mark('<img class="sg" src="img/ob/'+sprs[v]+'.webp" alt="">',x0+i*dx,y,s+2,c||'gl')),
+   parts:(P,d)=>[{t:'cycle',id:P,x:5,y:0,w:90,h:24,sprs,target:d,init:d.map(v=>(v+R.int(1,k-1))%k),key:true}],hint:f=>'Sur '+FN[f]+', des pierres gravées : touche chacune pour changer son symbole jusqu’à reproduire la séquence trouvée.'};}
+ case 'switches':{const n=[3,3,4,5][L-1];let perm;do{perm=R.shuf(Array.from({length:n},(_,i)=>i));}while(perm.every((v,i)=>v===i));
+  return{kind,h:34,hh:20,digits:n,range:[0,1],gen:R=>{let d;do{d=Array.from({length:n},()=>R.int(0,1));}while(d.every(v=>!v)||d.every(v=>v));return d;},marksFn:bulbMarks,
+   parts:(P,d)=>[{t:'switches',id:P,x:10,y:0,w:80,h:34,perm,target:d,key:true}],hint:f=>'Sur '+FN[f]+', des lampes et des interrupteurs : chaque interrupteur est relié à une lampe, mais pas forcément celle du dessus. Essaie, puis reproduis le motif trouvé.'};}
+ case 'fuses':{const nb=[1,2,2,3][L-1],n=nb+(nb===1?1:(nb===3?1:2)),bad=R.shuf(Array.from({length:n},(_,i)=>i<nb)),v=bad.map(()=>R.int(0,1)),ids=Array.from({length:nb},(_,i)=>'fz'+i),defs={};ids.forEach(id=>defs[id]={name:'Fusible neuf',kind:'part',spr:'fu_ok'});
+  return{kind,h:n>2?36:22,hh:20,needItems:ids,itemDefs:defs,itemHint:'Les fusibles neufs sont cachés dans les cavités ou ramassés sur les faces.',parts:P=>[{t:'fuses',id:P,x:8,y:0,w:84,h:n>2?36:22,bad,v,key:true}],hint:f=>'Sur '+FN[f]+', un tableau de fusibles : remplace ceux qui sont grillés (noircis) par des fusibles neufs.'};}
+ case 'tool':{let o;do{o=R.pick(TOOLS);}while(mod.usedT.includes(o[3]));mod.usedT.push(o[3]);const[spr,s1,sD,tid,tn,w,h,txt]=o,defs={};defs[tid]={name:tn,kind:'part',spr:tid};
+  return{kind,h:h+2,hh:20,needItems:[tid],itemDefs:defs,itemHint:'L’outil (« '+tn.toLowerCase()+' ») est dans une cavité ou posé sur une face.',parts:P=>[{t:'hot',id:P,x:(100-w)/2,y:0,w,h,spr:s1,sprD:sD||undefined,fade:sD?0:1,pick:false,uses:tid,fail:'Il faudrait un outil adapté.',msg:'Ça cède.',key:true}],hint:f=>'Sur '+FN[f]+' : '+txt.toLowerCase().replace(/^./,c=>c.toUpperCase())+' Il faut utiliser le bon outil dessus (touche-le dans l’inventaire puis sur l’obstacle).'};}
  case 'gate':{let k;do{k=R.int(0,8);}while(mod.used.includes(k));mod.used.push(k);
-  return{kind,h:30,hh:26,needKey:KEYSPR[k],keyName:KEYNM[k],parts:(P)=>[{t:'keyhole',id:P,x:36,y:0,w:28,h:30,key:KEYSPR[k],key2:1,keyed:1}],hint:f=>'Une serrure sur '+FN[f]+' attend '+KEYNM[k].toLowerCase().replace('clé','une clé')+'.'};}
+  return{kind,h:30,hh:26,needKey:KEYSPR[k],keyName:KEYNM[k],parts:(P)=>{const L2=R.pick([['pl_br',1],['pl_st',1],['pl_go',1],['lk_orn',0],['lk_iris',0],[null,0]]);return[{t:'keyhole',id:P,x:36,y:0,w:28,h:30,key:KEYSPR[k],key2:1,keyed:1,lock:L2[0]||undefined,lockO:L2[1]}];},hint:f=>'Une serrure sur '+FN[f]+' attend '+KEYNM[k].toLowerCase().replace('clé','une clé')+'.'};}
  case 'train':{const turns=R.int(4,8);
   return{kind,big:1,h:86,hh:0,inline:1,needItems:['r0','r1','r3','m0'],parts:(P,d,give)=>[{t:'train',id:P+'t',x:4,y:0,w:92,h:54,slots:[{x:30,y:48,w:46,g:'r0'},{x:68,y:30,w:28,g:'r1'},{x:72,y:72,w:36,g:'r3'}],key:true},
     {t:'crank',id:P,x:28,y:57,w:44,h:28,item:'m0',turns,need:()=>D(P+'t'),key:true,give}],hint:f=>'Sur '+FN[f]+', trois axes vides : pose les trois engrenages, place la manivelle, puis tourne-la.'};}
@@ -656,14 +669,14 @@ const needsOfX=0;
 const needsOf=m=>m.digits?'d':(m.needKey?'k':(m.needItems?'i':''));
 function genBox(R,L){
  const CFG={1:{n:3,pool:['lights','simon','knot','sliders','ring','gauges','memory','moons','torn','patch'],max:{sliders:1,ring:1,gauges:1,memory:1,moons:1,torn:1,patch:1}},
-  2:{n:4,pool:['lights','simon','knot','sliders','ring','gate','gauges','memory','dial','mirrors','balance','pipes','hanoi','clock','vials','patch','moons','torn'],max:{}},
-  3:{n:5,pool:['lights','simon','knot','sliders','ring','gate','tiles','train','gauges','memory','dial','mirrors','balance','pipes','hanoi','clock','vials','patch','rings','moons','torn'],max:{gate:2}},
-  4:{n:6,pool:['lights','simon','knot','sliders','ring','gate','tiles','train','gauges','memory','dial','mirrors','balance','pipes','hanoi','clock','vials','patch','rings','moons','torn'],max:{gate:2,sliders:2,ring:2,knot:2,simon:2,gauges:2,dial:2,clock:2,vials:2,patch:2,moons:2}}}[L];
+  2:{n:4,pool:['lights','simon','knot','sliders','ring','gate','gauges','memory','dial','mirrors','balance','pipes','hanoi','clock','vials','patch','moons','torn','runes','switches','fuses','tool'],max:{}},
+  3:{n:5,pool:['lights','simon','knot','sliders','ring','gate','tiles','train','gauges','memory','dial','mirrors','balance','pipes','hanoi','clock','vials','patch','rings','moons','torn','runes','switches','fuses','tool'],max:{gate:2,tool:2}},
+  4:{n:6,pool:['lights','simon','knot','sliders','ring','gate','tiles','train','gauges','memory','dial','mirrors','balance','pipes','hanoi','clock','vials','patch','rings','moons','torn','runes','switches','fuses','tool'],max:{gate:2,tool:2,runes:2,switches:2,sliders:2,ring:2,knot:2,simon:2,gauges:2,dial:2,clock:2,vials:2,patch:2,moons:2}}}[L];
  for(let tryN=0;tryN<400;tryN++){
   const kinds=[],cnt={};let g=0;while(kinds.length<CFG.n&&g++<200){const k=R.pick(CFG.pool);if((cnt[k]||0)>=(CFG.max[k]||1))continue;cnt[k]=(cnt[k]||0)+1;kinds.push(k);}
   if(kinds.length<CFG.n)continue;
   if(kinds.filter(k=>['lights','tiles','train','balance','mirrors','pipes','rings'].includes(k)).length>(L>=4?2:(L===3?3:1)))continue;
-  mod.used=[];let ms=R.shuf(kinds).map(k=>mod(k,R,L));
+  mod.used=[];mod.usedT=[];let ms=R.shuf(kinds).map(k=>mod(k,R,L));
   const fi=ms.findIndex(m=>!m.needKey&&!m.needItems);if(fi<0)continue;if(fi>0){const t=ms[0];ms[0]=ms[fi];ms[fi]=t;}
   const gems=R.shuf(['g0','g1','g2','g3','g4','g5','g6','g7','g8']);let gi=0;
   const items={},rewards=ms.map(()=>[]),extra=[];let nid=0;
@@ -726,7 +739,7 @@ function genBox(R,L){
       else if(m.clue)hints.push('Le '+m.clue.nn.toLowerCase()+' que tu trouves donne les chiffres à régler sur '+FN[m.f]+'.');}
     hints.push(m.hint(m.f));
     if(m.needKey)hints.push('La clé qu’il faut est cachée dans une cavité d’une autre face.');
-    if(m.needItems)hints.push(m.kind==='balance'?'Les poids sont éparpillés dans les cavités ou sur les faces : chacun porte sa valeur. Il faut une combinaison qui égale la pierre.':'Engrenages et manivelle sont éparpillés dans les cavités ou ramassés sur les faces.');
+    if(m.needItems)hints.push(m.itemHint?m.itemHint:m.kind==='balance'?'Les poids sont éparpillés dans les cavités ou sur les faces : chacun porte sa valeur. Il faut une combinaison qui égale la pierre.':'Engrenages et manivelle sont éparpillés dans les cavités ou ramassés sur les faces.');
   });
   hints.push('Chaque mécanisme résolu libère une gemme : toutes se logent sur '+FN[els.find(e=>e.sock).f]+'.');
   const th=R.pick(GTH);
