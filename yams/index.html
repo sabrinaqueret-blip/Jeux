@@ -62,7 +62,7 @@ body{background-image:radial-gradient(circle at 50% 0,#2a2f6a,#0f1530 70%)}
 body{background:#2a1a0e url(img/table.webp) center/cover fixed}
 #tray{position:relative;width:100%;max-width:430px;aspect-ratio:2/1;margin:6px auto;background:url(img/tray.webp) center/cover;border-radius:10px;box-shadow:0 6px 14px #000a;display:flex;align-items:center;justify-content:center;gap:2.5%}
 .die{width:15%;aspect-ratio:1;background-size:100% 100%;transition:transform .15s;cursor:pointer;filter:drop-shadow(0 3px 3px #000a)}
-.die.k{transform:translateY(-14%) scale(1.06);filter:drop-shadow(0 0 6px #f0c060) drop-shadow(0 0 6px #f0c060)}
+.die{position:relative;touch-action:manipulation;-webkit-user-select:none;user-select:none}.die.k{transform:translateY(-14%) scale(1.06);border-radius:16%;box-shadow:0 0 0 4px #f0c060,0 0 14px 4px #f0c060;filter:drop-shadow(0 0 6px #f0c060)}.die.k::after{content:'GARDÉ';position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);font:800 9px system-ui;color:#2a1c12;background:#f0c060;border-radius:8px;padding:1px 6px;white-space:nowrap}
 .die.r{animation:shake .5s}@keyframes shake{20%{transform:rotate(-20deg) translateY(-8px)}50%{transform:rotate(25deg) translateY(4px)}80%{transform:rotate(-10deg)}}
 #ac{display:flex;gap:8px;align-items:center;max-width:430px;margin:0 auto}#ac .ob{margin:6px 0;padding:10px 6px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
 #ac img{height:30px}
@@ -241,11 +241,11 @@ function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Action 
 function onView(v){const nr=!V||v.stamp!==V.stamp;if(V&&v.turn!==V.turn||v.rolls===0)held=[0,0,0,0,0];V=v;render(nr);if(v.over)setTimeout(endDialog,900);}
 function render(anim){
   const v=V;if(!v)return;const me=v.me,mine=v.turn===me&&!v.over;
-  $('st').textContent=v.over?'Partie terminée':(mine?(v.rolls?'Garde des dés ou inscris':'À toi de lancer !'):'Tour de '+v.pl[v.turn].name);
+  $('st').textContent=v.over?'Partie terminée':(mine?(v.rolls&&v.rolls<3?'Touche les dés à garder':v.rolls?'Inscris une case':'À toi de lancer !'):'Tour de '+v.pl[v.turn].name);
   if(!$('tray')){$('main').innerHTML='<div id="tray"></div><div id="ac"><button class="ob" id="rb"><img src="img/cup.webp" alt=""><span id="rt">Lancer</span></button></div><div id="lg"></div><div id="sh"><table id="tbl"></table></div>';
     $('rb').onclick=()=>{const V=window.__l.V;if(!(V.turn===V.me&&!V.over))return toast('Pas ton tour.');if(V.rolls>=3)return toast('3 lancers faits : inscris une case.');send({a:'roll',held:held});};}
   const tr=$('tray');tr.innerHTML=v.dice.map((d,i)=>'<div class="die'+(held[i]&&v.rolls>0&&v.rolls<3&&mine?' k':'')+((anim&&v.rolls>0&&!(held[i]&&mine&&false))?' r':'')+'" data-i="'+i+'" style="background-image:url(img/d'+d+'.webp);opacity:'+(v.rolls?1:.55)+'"></div>').join('');
-  tr.querySelectorAll('.die').forEach(el=>el.onclick=()=>{if(!(mine&&v.rolls>0&&v.rolls<3))return;const i=+el.dataset.i;held[i]=held[i]?0:1;render(false);});
+  tr.querySelectorAll('.die').forEach(el=>el.onpointerdown=e=>{e.preventDefault();if(!(mine&&v.rolls>0&&v.rolls<3))return;const i=+el.dataset.i;held[i]=held[i]?0:1;render(false);});
   $('rt').textContent=mine?(v.rolls>=3?'Inscris une case':v.rolls===0?'Lancer les dés':'Relancer ('+v.rolls+'/3)'):'…';
   $('rb').disabled=!mine||v.rolls>=3;$('rb').style.opacity=($('rb').disabled?.5:1);
   $('lg').textContent=v.log||'';
