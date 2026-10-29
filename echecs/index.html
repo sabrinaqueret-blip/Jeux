@@ -86,6 +86,9 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 <div id="ov" hidden></div><div id="toast" hidden></div>
 <script src="peerjs.min.js"></script>
 <script>
+const __pp=[];function keepAlive(p){__pp.push(p);p.on('disconnected',()=>{setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},600);});return p;}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')__pp.forEach(p=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}});});
+
 "use strict";
 /* ================= RÈGLES D'ÉCHECS COMPLÈTES ================= */
 // case = r*8+c, r=0 en haut (rang 8). Majuscule = blancs, minuscule = noirs.
@@ -222,7 +225,7 @@ function mkPeer(id){
   if(/net=bc/.test(location.search))return new FakePeer(id);
   if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
   const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
-  return id?new Peer(id,cfg):new Peer(cfg);
+  return keepAlive(id?new Peer(id,cfg):new Peer(cfg));
 }
 
 const CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
