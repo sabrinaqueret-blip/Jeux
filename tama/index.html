@@ -484,7 +484,7 @@ function aiH(id,x,y,hh,m){const im=img('acc/'+id+'.png');if(!imOk(im))return;con
 const HAT={hat_top:[.8,.22],hat_party:[.5,.1],hat_crown:[.7,.3],hat_wizard:[1.05,.18],hat_chef:[.85,.28],hat_cap:[.95,.35],hat_halo:[.7,-.6]};
 function drawPet(s,cx,base,t,mood){
   const st=s.stage,spi=s.species|0,sp=SPN[spi]||'cat',sx=s.sex==='m'?'m':'f';
-  const bad=(st==='teen'&&s.form)||(st==='adult'&&s.form2);
+  const bad=((st==='teen'&&s.form)||(st==='adult'&&s.form2))&&mood!=='happy'&&mood!=='eat';
   const hideAcc=bad||mood==='sick'||s.sick;
   const hk=(s.species2!=null&&s.species2!==s.species)?Math.min(s.species,s.species2)+'-'+Math.max(s.species,s.species2):null,HD=hk&&HYBD[hk];
   const im=img(HD?'hyb/h'+hk+'_'+st+(bad?'_bad':'')+'.png':sp+'_'+sx+'_'+st+(bad?'_bad':'')+'.png');
@@ -570,7 +570,7 @@ function hybridName(x,y){return HYB[Math.min(x,y)+'-'+Math.max(x,y)]||SPECIES[x]
 const PX=(()=>{
 function drawPet(s,cx,base,t,mood){
   if(s.stage==='egg')return drawEgg(s,cx,base,t);
-  const p0=palOf(s),p=(s.species2!=null&&s.species2!==s.species)?Object.assign({},p0,{acc:PAL[s.species2].acc}):p0,z=sizeOf(s),bad=(s.stage==='teen'&&s.form)||(s.stage==='adult'&&s.form2);
+  const p0=palOf(s),p=(s.species2!=null&&s.species2!==s.species)?Object.assign({},p0,{acc:PAL[s.species2].acc}):p0,z=sizeOf(s),bad=((s.stage==='teen'&&s.form)||(s.stage==='adult'&&s.form2))&&mood!=='happy'&&mood!=='eat';
   const sc=4,bob=(mood==='sleep'||mood==='sick')?Math.round(Math.sin(t*.05)*1):Math.round(Math.abs(Math.sin(t*.12))*(mood==='happy'?3:1));
   const U=(x,y,w,h,c)=>R(cx+x*sc,base-bob+y*sc,w*sc,h*sc,c);
   const E=(x,y,rx,ry,c)=>{for(let yy=-ry;yy<=ry;yy++){const w=Math.floor(rx*Math.sqrt(1-(yy*yy)/(ry*ry+.01))+.5);U(x-w,y+yy,w*2,1,c);}};
