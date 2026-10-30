@@ -77,7 +77,7 @@ table{width:100%;border-collapse:collapse}td,th{padding:6px 4px;text-align:cente
 <div id="ov" hidden></div><div id="toast" hidden></div>
 <script src="peerjs.min.js"></script>
 <script>
-const __pp=[];function keepAlive(p){__pp.push(p);p.on('disconnected',()=>{setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},600);});return p;}
+const __pp=[];function keepAlive(p){__pp.push(p);setInterval(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},6000);p.on('disconnected',()=>{setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},600);});return p;}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')__pp.forEach(p=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}});});
 
 "use strict";

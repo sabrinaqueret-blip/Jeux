@@ -70,7 +70,7 @@ input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--muted);b
 <div id="ov" hidden></div><div id="toast" hidden></div>
 <script src="peerjs.min.js"></script>
 <script>
-const __pp=[];function keepAlive(p){__pp.push(p);p.on('disconnected',()=>{setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},600);});return p;}
+const __pp=[];function keepAlive(p){__pp.push(p);setInterval(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},6000);p.on('disconnected',()=>{setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},600);});return p;}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')__pp.forEach(p=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}});});
 
 "use strict";
@@ -222,12 +222,12 @@ function hostMsg(m){
 }
 function newGameHost(){G=new Game(-G.starter);closeOv();prevB=null;push();}
 /* ---- en ligne : invité ---- */
-function joinOnline(name,code){
+function joinOnline(name,code){if(!window.__jt||Date.now()-window.__jt>20000)window.__jt=Date.now();
   leave();kind='guest';my=-1;show('lobby');$('lobby').innerHTML='<h2>Connexion…</h2><p class="muted">Recherche de la partie '+code+'</p><button class="ob alt" id="back">Annuler</button>';$('back').onclick=showHome;
   let opened=false;
   try{peer=mkPeer();}catch(e){toast(e.message,5000);return showHome();}
   const fail=m=>{if(mode==='lobby'||mode==='game'){toast(m,5000);showHome();}};
-  peer.on('error',e=>fail(e.type==='peer-unavailable'?'Aucune partie avec ce code.':'Connexion impossible ('+(e.type||'erreur')+').'));
+  peer.on('error',e=>(e.type==='peer-unavailable'&&Date.now()-window.__jt<12000)?setTimeout(()=>{joinOnline(name,code);},2500):fail(e.type==='peer-unavailable'?'Aucune partie avec ce code.':'Connexion impossible ('+(e.type||'erreur')+').'));
   peer.on('open',()=>{
     conn=peer.connect(CFG.id+'-'+code,{reliable:true});
     conn.on('open',()=>{opened=true;conn.send({t:'hello',name});});
