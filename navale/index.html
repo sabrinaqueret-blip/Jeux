@@ -116,7 +116,7 @@ class FakePeer{
 function mkPeer(id){
   if(/net=bc/.test(location.search))return new FakePeer(id);
   if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
-  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},{urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}]}};
   return keepAlive(id?new Peer(id,cfg):new Peer(cfg));
 }
 
@@ -124,7 +124,7 @@ function mkPeer(id){
 function mkPeer(id){
   if(/net=bc/.test(location.search))return new FakePeer(id);
   if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
-  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},{urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}]}};
   return keepAlive(id?new Peer(id,cfg):new Peer(cfg));
 }
 const CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -252,7 +252,7 @@ function joinOnline(name,code){
     conn.on('data',onMsg);
     conn.on('close',()=>{if(mode==='game'||mode==='lobby'){toast('Connexion perdue.',4000);}});
   });
-  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},15000);
+  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},28000);
 }
 function send(m){try{if(conn)conn.send(m);}catch(e){}}
 function onMsg(m){

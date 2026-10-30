@@ -159,7 +159,7 @@ class FakePeer{
 function mkPeer(id){
   if(/net=bc/.test(location.search))return new FakePeer(id);
   if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
-  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},{urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}]}};
   return keepAlive(id?new Peer(id,cfg):new Peer(cfg));
 }
 
@@ -255,7 +255,7 @@ function joinOnline(name,code){
     c.on('open',()=>{opened=true;c.send({t:'hello',name});$('home').innerHTML='<h2>Connecté !</h2><p class="muted">En attente du lancement par l’hôte…</p><button class="ob alt" id="back">Quitter</button>';$('back').onclick=showHome;});
     c.on('data',m=>{if(m.t==='full')fail('La partie est complète ou déjà commencée.');else if(m.t==='view'){if($('game').hidden)show('game');onView(m.v);}});
     c.on('close',()=>{if(V&&!V.over){openOv('<h2>Connexion perdue</h2><p class="muted">Un robot joue à ta place. Reconnecte-toi avec le même code et le même nom pour reprendre.</p><button class="ob" id="rc">Se reconnecter</button><button class="ob alt" id="q">Quitter</button>');$('rc').onclick=()=>{closeOv();joinOnline(name,code);};$('q').onclick=showHome;}});});
-  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},15000);
+  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},28000);
 }
 function send(a){if(isHost)act(myIdx,a);else try{peer.conn.send({t:'act',a});}catch(e){toast('Connexion perdue.');}}
 /* ================= affichage ================= */

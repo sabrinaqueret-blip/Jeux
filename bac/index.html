@@ -105,7 +105,7 @@ class FakePeer{
 function mkPeer(id){
   if(/net=bc/.test(location.search))return new FakePeer(id);
   if(!window.Peer)throw new Error('La bibliothèque de connexion n’a pas pu se charger (es-tu connecté à Internet ?).');
-  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+  const cfg={debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},{urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}]}};
   return keepAlive(id?new Peer(id,cfg):new Peer(cfg));
 }
 
@@ -223,7 +223,7 @@ function joinGame(name,code){
     c.on('data',m=>{if(m.t==='full')fail('La partie est complète ou déjà commencée.');else onMsg(m);});
     c.on('close',()=>{if(S&&S.phase!=='end')openOv('<h2>Connexion perdue</h2><button class="ob" id="q">Quitter</button>'),$('q').onclick=showHome;});
   });
-  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},15000);
+  setTimeout(()=>{if(!opened)fail('Impossible de joindre la partie. Vérifie le code et ta connexion.');},28000);
 }
 /* ================= affichage ================= */
 function onMsg(m){
