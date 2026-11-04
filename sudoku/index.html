@@ -24,12 +24,12 @@ body{margin:0;min-height:100vh;min-height:100dvh}
 /* Mise en page commune à tous mes jeux : fond sombre ou décor illustré, barre du haut en pastilles, 💎 et boutique */
 :root{
   --bg:#14202e; --panel:#1f3147; --gold:#f0c060; --muted:#b6c4d6;
-  --paper:#161E23; --ink:#f6f3e6;
-  --line:#2f4254; --line-strong:#8fa3b5;
+  --paper:#090D10; --ink:#f6f3e6;
+  --line:#3a5063; --line-strong:#8fa3b5;
   --user:#8FA8FF; --accent:#f0c060; --on-accent:#12202e;
   --hint:#E3AE35; --hint-soft:#4A3B12; --on-hint:#17262D;
   --err:#FF8076; --err-soft:#4A2123;
-  --sel:#25466F; --peer:#1D2A31; --same:#2A4568;
+  --sel:#2F5F9E; --peer:#2A3C47; --same:#355F9A;
   --btn:#0008;
   --font-ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --font-num:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -37,7 +37,7 @@ body{margin:0;min-height:100vh;min-height:100dvh}
 #board[data-th="1"]{--paper:#F8FAF9;--ink:#17262D;--muted:#53686F;--line:#BFCCD0;--line-strong:#2B414C;--user:#2748BD;--peer:#E8EFF1;--same:#CFE0F8;--sel:#B9D2F3;--err:#B82525;--err-soft:#F5D0CC;--hint-soft:#FAE3A6}
 #board[data-th="2"]{--paper:#E6F7F1;--ink:#12382e;--muted:#3d6b5d;--line:#9ccfbf;--line-strong:#1f6b57;--user:#0a6f8a;--peer:#d3efe5;--same:#b5e4d3;--sel:#8fd6bd;--err:#B82525;--err-soft:#F5D0CC;--hint-soft:#FAE3A6}
 #board[data-th="3"]{--paper:#FFF1F6;--ink:#4a1830;--muted:#8a4a66;--line:#efc2d4;--line-strong:#a2325f;--user:#7a2fb8;--peer:#fde0ea;--same:#f8c6d9;--sel:#f4a8c6;--err:#B82525;--err-soft:#F5D0CC;--hint-soft:#FAE3A6}
-#board[data-th="4"]{--paper:#1b1a14;--ink:#f6e9c0;--muted:#b5a678;--line:#4a4326;--line-strong:#f0c060;--user:#ffd778;--peer:#28251a;--same:#3a331a;--sel:#5a4a1a}
+#board[data-th="4"]{--paper:#0d0c08;--ink:#f6e9c0;--muted:#b5a678;--line:#5a5230;--line-strong:#f0c060;--user:#ffd778;--peer:#3a3520;--same:#5a4a1a;--sel:#7a6420}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%}
 [hidden]{display:none!important}
@@ -82,10 +82,10 @@ button{font:inherit;color:inherit;appearance:none;-webkit-appearance:none;margin
 .cell.given{font-weight:800}
 .cell.user{font-weight:600;color:var(--user)}
 .cell.peer{background:var(--peer)}
-.cell.same{background:var(--same)}
+.cell.same{background:var(--same);box-shadow:inset 0 0 0 2px var(--user)}
 .cell.wrong{color:var(--err);background:var(--err-soft)}
 .cell.hu{background:var(--hint-soft)}
-.cell.sel{background:var(--sel)}
+.cell.sel{background:var(--sel);box-shadow:inset 0 0 0 2px var(--gold)}
 .cell.ht{background:var(--hint);color:var(--on-hint)}
 .cell:focus-visible{outline:3px solid var(--gold);outline-offset:-3px;z-index:1}
 .notes{
@@ -536,6 +536,7 @@ function flash(t){
   S.flash=t;render();
   setTimeout(()=>{if(S.flash===t){S.flash='';render();}},2600);
 }
+document.addEventListener('click',e=>{if(S.busy||S.auto||S.sel<0)return;if(e.target.closest('button,#board,#pad,#ov,a,input,select'))return;S.sel=-1;S.focus=0;render();});
 function selectCell(i){
   if(S.busy||S.auto)return;
   S.sel=i;S.focus=0;render();
