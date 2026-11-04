@@ -78,6 +78,11 @@ body{background-image:radial-gradient(circle at 50% 0,#2a2f6a,#0f1530 70%)}
 #hd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:14px 0 6px;min-height:92px}
 #ac{display:flex;gap:8px}#ac .ob{margin:6px 0;padding:11px 6px;font-size:15px}
 #lg{color:var(--muted);text-align:center;font-size:13px;min-height:20px}
+#hist{background:#0007;border-radius:12px;padding:6px 10px;font-size:13px;min-height:34px}
+#hist .hl{padding:2px 0;color:var(--muted);line-height:1.5}#hist .hl b{color:var(--ink)}#hist .hl.new{color:var(--ink);font-size:14px}
+.chip{display:inline-block;background:#fff;color:var(--c);font-weight:900;border-radius:6px;padding:0 6px;margin:0 1px;border:1.5px solid var(--c)}
+.flash{animation:fl 1.6s ease-out}@keyframes fl{0%{box-shadow:0 0 0 0 #ffd54a;transform:scale(1.12)}30%{box-shadow:0 0 0 8px #ffd54acc;transform:scale(1.12)}100%{box-shadow:0 0 0 0 #ffd54a00;transform:scale(1)}}
+.pl.act{animation:fl 1.6s ease-out}
 .moon{display:flex;gap:3px;justify-content:center;margin:4px 0}.moon span{width:22px;height:22px;border-radius:50%;background:#ffffff1a;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:800}.moon span.on{background:var(--gold);color:#2a1c12}.moon span.me{outline:2px solid #fff}
 .plr{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}.plr span{background:#0007;border-radius:999px;padding:4px 12px;font-weight:700}
 </style>
@@ -172,36 +177,37 @@ let H=null; // état de l'hôte
 let peer=null,conns=[],isHost=false,myIdx=0,V=null,sel=new Set(),sortMode=0,roomCode='';
 function newRound(){
   const d=shuf(mkDeck());H.deck=d;H.melds=[];H.mid=0;H.disc=H.pl.map(()=>[]);H.pl.forEach(p=>{p.hand=d.splice(0,10);p.laid=false;});
-  H.disc.forEach((a,i)=>a.push(H.deck.pop()));H.turn=(H.round||0)%H.pl.length;H.phase='draw';H.round=(H.round||0)+1;H.log='Manche '+H.round+' : à '+H.pl[H.turn].name+' de commencer.';
+  H.disc.forEach((a,i)=>a.push(H.deck.pop()));H.turn=(H.round||0)%H.pl.length;H.hist=[];H.phase='draw';H.round=(H.round||0)+1;H.log='Manche '+H.round+' : à '+H.pl[H.turn].name+' de commencer.';
 }
 function view(p){return {me:p,round:H.round,turn:H.turn,phase:H.phase,log:H.log,deckN:H.deck.length,over:H.over,win:H.win,
   pl:H.pl.map((q,i)=>({veh:q.veh,name:q.name,lvl:q.lvl,n:q.hand.length,laid:q.laid,bot:q.bot,top:H.disc[i].length?H.disc[i][H.disc[i].length-1]:null,dn:H.disc[i].length})),
-  hand:H.pl[p].hand,melds:H.melds.map(m=>({id:m.id,t:m.t,cards:m.cards,owner:m.owner})),endInfo:H.endInfo};}
+  hist:(H.hist||[]).slice(-6),hand:H.pl[p].hand,melds:H.melds.map(m=>({id:m.id,t:m.t,cards:m.cards,owner:m.owner})),endInfo:H.endInfo};}
 function pushViews(){H.pl.forEach((q,i)=>{if(q.bot)return;const v=view(i);if(i===0)setTimeout(()=>onView(v),0);else{const c=conns.find(x=>x.p===i);if(c&&c.conn&&c.conn.open)try{c.conn.send({t:'view',v});}catch(e){}}});maybeBot();}
 function hlog(s){H.log=s;}
+function hpush(e){H.hist=H.hist||[];e.id=(H.hs=(H.hs||0)+1);H.hist.push(e);if(H.hist.length>40)H.hist.shift();}
 function act(p,m){
   if(!H||H.over||H.pause)return;const pl=H.pl[p];
   if(H.turn!==p)return;
   if(m.a==='draw'&&H.phase==='draw'){
-    if(m.src==='deck'){if(!H.deck.length)return;pl.hand.push(H.deck.pop());H.nd=0;hlog(pl.name+' pioche.');}
-    else{const d=H.disc[m.src];if(!d||!d.length)return;pl.hand.push(d.pop());H.nd=(H.nd||0)+1;hlog(pl.name+' prend la défausse de '+H.pl[m.src].name+'.');}
+    if(m.src==='deck'){if(!H.deck.length)return;pl.hand.push(H.deck.pop());H.nd=0;hlog(pl.name+' pioche.');hpush({p,k:'draw'});}
+    else{const d=H.disc[m.src];if(!d||!d.length)return;const tk=d.pop();pl.hand.push(tk);H.nd=(H.nd||0)+1;hlog(pl.name+' prend la défausse de '+H.pl[m.src].name+'.');hpush({p,k:'take',c:tk,src:m.src});}
     H.phase='play';
   }else if(m.a==='lay'&&H.phase==='play'&&!pl.laid){
     const ids=m.ids&&m.ids.length?new Set(m.ids):null;const pool=ids?pl.hand.filter(x=>ids.has(x.id)):pl.hand;
     const r=findLay(pool,pl.lvl,!!ids);if(!r){return 'invalid';}
     const used=new Set();r.forEach(g=>{g.cards.forEach(x=>used.add(x.id));H.melds.push({id:H.mid++,t:g.t,cards:g.cards.slice().sort((a,b)=>a.v-b.v),owner:p});});
-    pl.hand=pl.hand.filter(x=>!used.has(x.id));pl.laid=true;hlog(pl.name+' pose le palier '+(pl.lvl+1)+' !');
+    pl.hand=pl.hand.filter(x=>!used.has(x.id));pl.laid=true;hlog(pl.name+' pose le palier '+(pl.lvl+1)+' !');hpush({p,k:'lay',lvl:pl.lvl+1,n:used.size});
   }else if(m.a==='add'&&H.phase==='play'&&pl.laid){
     const me=H.melds.find(x=>x.id===m.meld);if(!me)return 'invalid';const cs=m.ids.map(id=>pl.hand.find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.v-b.v);
     // essaie dans l'ordre croissant puis décroissant (suites)
     const t=JSON.parse(JSON.stringify(me));let ok=true;const done=[];
     let rest=cs.slice();let prog=true;while(rest.length&&prog){prog=false;for(const x of rest){if(canAdd(t,x)){addTo(t,x);done.push(x.id);rest=rest.filter(q=>q!==x);prog=true;break;}}}
     if(rest.length||!done.length)return 'invalid';
-    me.cards=t.cards;pl.hand=pl.hand.filter(x=>!done.includes(x.id));hlog(pl.name+' complète une combinaison.');
+    me.cards=t.cards;pl.hand=pl.hand.filter(x=>!done.includes(x.id));hlog(pl.name+' complète une combinaison.');hpush({p,k:'add',cs:cs.filter(x=>done.includes(x.id))});
   }else if(m.a==='disc'&&H.phase==='play'){
     const i=pl.hand.findIndex(x=>x.id===m.id);if(i<0)return;
     if(pl.laid&&pl.hand.length>1&&false)return;
-    const c=pl.hand.splice(i,1)[0];H.disc[p].push(c);hlog(pl.name+' défausse.');
+    const c=pl.hand.splice(i,1)[0];H.disc[p].push(c);hlog(pl.name+' défausse.');hpush({p,k:'disc',c});
     if(!pl.hand.length&&pl.laid)return endRound(p);
     H.turn=(H.turn+1)%H.pl.length;H.phase='draw';
     if(!H.deck.length)return endRound(-1);
@@ -226,7 +232,7 @@ function utility(c,hand,lvl){let u=0;const same=hand.filter(x=>x!==c&&x.v===c.v)
   return u;}
 function maybeBot(){
   if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);
-  H.bt=setTimeout(()=>botStep(),H.phase==='draw'?900:750);
+  H.bt=setTimeout(()=>botStep(),(window.__spd||1)*(H.phase==='draw'?1700:1600));
 }
 function botStep(){
   if(!H||H.over||H.pause)return;const i=H.turn,p=H.pl[i];if(!p.bot)return;const lv=P.lvl;
@@ -307,6 +313,7 @@ function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Cette p
 /* ================= affichage ================= */
 const cardH=(c,cls)=>'<div class="cd k'+c.c+' '+(cls||'')+'" style="--c:'+COL[c.c]+'" data-id="'+c.id+'"><b>'+c.v+'</b><i>'+SY[c.c]+'</i></div>';
 function onView(v){V=v;if(v.endInfo!==undefined&&!v.endInfo)closeOv();sel=new Set([...sel].filter(id=>v.hand.some(c=>c.id===id)));render();if(v.endInfo)setTimeout(endDialog,600);}
+let flashSeq=-1;
 function render(){
   const v=V;if(!v)return;const me=v.me,mine=v.turn===me,pl=v.pl[me];
   $('st').textContent='Manche '+v.round+' · '+(mine?(v.phase==='draw'?'Pioche !':'À toi'):'Tour de '+v.pl[v.turn].name);
@@ -318,10 +325,20 @@ function render(){
   h+='<div id="mid"><button id="dk"><div class="cd bg back"><b>'+v.deckN+'</b></div>Pioche</button></div>';
   h+='<div id="req"><img src="img/v'+pl.veh+'_'+Math.min(8,pl.lvl+1)+'.webp" alt=""><div>Palier '+Math.min(8,pl.lvl+1)+' : <b>'+reqTxt(Math.min(7,pl.lvl))+'</b>'+(canLay?' <em>· tu peux le poser !</em>':'')+'</div></div>';
   h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'<p class="muted" style="margin:6px">Aucune combinaison posée pour l’instant.</p>')+'</div>';
-  h+='<div id="lg">'+esc(v.log||'')+'</div>';
+  const hc=c=>'<span class="chip" style="--c:'+COL[c.c]+'">'+c.v+' '+SY[c.c]+'</span>';
+  const hl=e=>{const n='<b>'+esc(v.pl[e.p].name)+(e.p===me?' (toi)':'')+'</b>';
+    if(e.k==='draw')return n+' pioche dans la pioche';
+    if(e.k==='take')return n+' prend '+hc(e.c)+' dans la défausse de <b>'+esc(v.pl[e.src].name)+'</b>';
+    if(e.k==='disc')return n+' défausse '+hc(e.c);
+    if(e.k==='lay')return n+' pose son palier '+e.lvl+' ('+e.n+' cartes)';
+    if(e.k==='add')return n+' ajoute '+e.cs.map(hc).join(' ')+' à une combinaison';return n;};
+  const H6=(v.hist||[]).slice().reverse();
+  h+='<div id="hist">'+(H6.length?H6.map((e,k)=>'<div class="hl'+(k===0?' new':'')+'">'+hl(e)+'</div>').join(''):'<div class="hl">'+esc(v.log||'')+'</div>')+'</div>';
+  const last=H6[0],fresh=last&&last.id!==flashSeq;
   h+='<div id="hd">'+hand.map(c=>cardH(c,'bg'+(sel.has(c.id)?' sel':''))).join('')+'</div>';
   h+='<div id="ac"><button class="ob alt" id="so" style="flex:.6">'+(sortMode?'Trier 1-18':'Trier couleur')+'</button><button class="ob" id="lay"'+(v.phase==='play'&&mine&&!pl.laid?'':' disabled style="opacity:.4"')+'>Poser le palier</button><button class="ob" id="ds"'+(v.phase==='play'&&mine&&sel.size===1?'':' disabled style="opacity:.4"')+'>Défausser</button></div>';
   $('main').innerHTML=h;
+  if(fresh){flashSeq=last.id;const tgt=last.k==='draw'?$('dk'):(last.k==='take'?$('main').querySelector('[data-d="'+last.src+'"]'):(last.k==='disc'?$('main').querySelector('[data-d="'+last.p+'"]'):null));if(tgt){tgt.classList.add('flash');}const pe=$('main').querySelectorAll('#ps .pl')[last.p];if(pe)pe.classList.add('act');}
   $('main').querySelectorAll('#hd .cd').forEach(el=>el.onclick=()=>{const id=+el.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);render();});
   $('main').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(!(mine&&v.phase==='draw'))return toast(mine?'Tu as déjà pioché.':'Pas ton tour.');send({a:'draw',src:+b.dataset.d});});
   $('dk').onclick=()=>{if(!(mine&&v.phase==='draw'))return toast(mine?'Tu as déjà pioché.':'Pas ton tour.');if(!v.deckN)return toast('La pioche est vide.');send({a:'draw',src:'deck'});};
