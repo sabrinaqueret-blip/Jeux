@@ -278,7 +278,27 @@ const LEVELS=[
   {name:'Tempête de Ballons',short:'Ballons',kind:'copter',skin:'balloon',seed:307,len:600,enemyP:1,theme:19,types:['bird'],boss:46,gateP:.26},
   {name:'Soucoupe Arc-en-ciel',short:'Arc-en-ciel 2',kind:'copter',skin:'ufo',seed:311,len:600,enemyP:1,theme:19,types:['bird'],boss:47,gateP:.28},
   {name:'Luge Infernale',short:'Infernale',kind:'bike',skin:'sled',seed:313,len:620,gapP:.3,enemyP:.8,theme:13,types:['hop','hog','bee'],boss:48,extras:['boulder']},
-  {name:'Forteresse du Dernier Gardien',short:'Forteresse',kind:'plat',seed:317,len:640,gapP:.34,enemyP:1,theme:20,types:['hop','hog','bee','mush'],boss:49,extras:['boulder','fire','spring']}
+  {name:'Forteresse du Gardien',short:'Forteresse',kind:'plat',seed:317,len:640,gapP:.34,enemyP:1,theme:20,types:['hop','hog','bee','mush'],boss:49,extras:['boulder','fire','spring']},
+  {name:'Sentier des Lanternes',short:'Lanternes',kind:'plat',seed:331,len:640,gapP:0.33,enemyP:1,theme:15,types:['hop','hog','bee','mush'],boss:50,extras:['boulder','fire','spring']},
+  {name:'Rapides Scintillants',short:'Rapides',kind:'copter',skin:'fish',seed:337,len:620,enemyP:1,theme:10,types:['bird'],boss:51,gateP:0.28},
+  {name:'Grande Descente',short:'Descente',kind:'bike',skin:'sled',seed:347,len:640,gapP:0.3,enemyP:0.8,theme:18,types:['hop','hog','bee'],boss:52,extras:['boulder']},
+  {name:'Cité des Nuages',short:'Cité',kind:'plat',seed:349,len:660,gapP:0.34,enemyP:1,theme:19,types:['hop','hog','bee','mush'],boss:53,extras:['boulder','fire','spring']},
+  {name:'Dragon d’Émeraude',short:'Émeraude',kind:'copter',skin:'dragon',seed:353,len:640,enemyP:1,theme:15,types:['bird'],boss:54,gateP:0.28},
+  {name:'Piste des Comètes',short:'Comètes',kind:'bike',skin:'skate',seed:359,len:660,gapP:0.31,enemyP:0.8,theme:12,types:['hop','hog'],boss:55,extras:['boulder']},
+  {name:'Glacier Interdit',short:'Glacier',kind:'plat',seed:367,len:660,gapP:0.34,enemyP:1,theme:7,ice:true,types:['hop','hog','bee'],boss:56,extras:['fire','spring','boulder']},
+  {name:'Envol de Cristal',short:'Cristal',kind:'copter',skin:'balloon',seed:373,len:660,enemyP:1,theme:16,types:['bird'],boss:57,gateP:0.3},
+  {name:'Galop des Aurores',short:'Aurores',kind:'bike',skin:'unicorn',seed:379,len:680,gapP:0.31,enemyP:0.85,theme:18,types:['hop','bee','hog'],boss:58,extras:['boulder']},
+  {name:'Temple du Soleil',short:'Temple',kind:'plat',seed:383,len:680,gapP:0.35,enemyP:1,theme:6,types:['hop','hog','bee','mush'],boss:59,extras:['boulder','fire','spring']},
+  {name:'Tapis des Mille Nuits',short:'Mille Nuits',kind:'copter',skin:'carpet',seed:389,len:680,enemyP:1,theme:6,types:['bird'],boss:60,gateP:0.3},
+  {name:'Descente Volcanique',short:'Lave',kind:'bike',skin:'snowboard',seed:397,len:700,gapP:0.32,enemyP:0.85,theme:13,types:['hop','hog','bee'],boss:61,extras:['boulder']},
+  {name:'Marais Maudit',short:'Maudit',kind:'plat',seed:401,len:700,gapP:0.35,enemyP:1,theme:5,types:['hop','hog','bee','mush'],boss:62,extras:['fire','boulder','spring']},
+  {name:'Soucoupe Cosmique',short:'Cosmos',kind:'copter',skin:'ufo',seed:409,len:700,enemyP:1,theme:23,types:['bird'],boss:63,gateP:0.32},
+  {name:'Carnaval Étoilé',short:'Carnaval',kind:'plat',seed:419,len:720,gapP:0.35,enemyP:1,theme:22,types:['hop','hog','bee','mush'],boss:64,extras:['spring','boulder','fire']},
+  {name:'Chevauchée Infinie',short:'Infinie',kind:'bike',skin:'pony',seed:421,len:740,gapP:0.32,enemyP:0.9,theme:14,types:['hop','hog','bee'],boss:65,extras:['boulder']},
+  {name:'Tempête de Dragons',short:'Tempête',kind:'copter',skin:'dragon',seed:431,len:720,enemyP:1,theme:8,types:['bird'],boss:66,gateP:0.34},
+  {name:'Palais de Givre Éternel',short:'Éternel',kind:'plat',seed:433,len:740,gapP:0.36,enemyP:1,theme:21,ice:true,types:['hop','hog','bee'],boss:67,extras:['fire','spring','boulder']},
+  {name:'Fusée Ultime',short:'Ultime',kind:'copter',skin:'rocket',seed:439,len:740,enemyP:1,theme:12,types:['bird'],boss:68,gateP:0.35},
+  {name:'Trône du Maître des Mondes',short:'Trône',kind:'plat',seed:443,len:780,gapP:0.37,enemyP:1,theme:20,types:['hop','hog','bee','mush'],boss:69,extras:['boulder','fire','spring']}
 ];
 const BOSSES=[
   {name:'Roi Crapaud',quote:'« Jamais deux fois le même signe, petite ! »'},
@@ -330,7 +350,27 @@ const BOSSES=[
   {name:'Sorcière des Ballons',get quote(){return BOSSES[6].quote;}},
   {name:'Yéti des Nuages Roses',get quote(){return BOSSES[7].quote;}},
   {name:'Aigle Infernal',get quote(){return BOSSES[8].quote;}},
-  {name:'Le Dernier Gardien',get quote(){return BOSSES[9].quote;}}
+  {name:'Le Gardien',get quote(){return BOSSES[9].quote;}},
+  {name:'Crapaud des Lanternes',get quote(){return BOSSES[0].quote;}},
+  {name:'Hibou des Rapides',get quote(){return BOSSES[1].quote;}},
+  {name:'Reine de la Descente',get quote(){return BOSSES[2].quote;}},
+  {name:'Golem des Nuages',get quote(){return BOSSES[3].quote;}},
+  {name:'Renard d’Émeraude',get quote(){return BOSSES[4].quote;}},
+  {name:'Dragonnet des Comètes',get quote(){return BOSSES[5].quote;}},
+  {name:'Sorcière du Glacier',get quote(){return BOSSES[6].quote;}},
+  {name:'Yéti de Cristal',get quote(){return BOSSES[7].quote;}},
+  {name:'Aigle des Aurores',get quote(){return BOSSES[8].quote;}},
+  {name:'Roi du Soleil',get quote(){return BOSSES[9].quote;}},
+  {name:'Crapaud des Mille Nuits',get quote(){return BOSSES[0].quote;}},
+  {name:'Chouette de Lave',get quote(){return BOSSES[1].quote;}},
+  {name:'Reine du Marais',get quote(){return BOSSES[2].quote;}},
+  {name:'Robot Cosmique',get quote(){return BOSSES[3].quote;}},
+  {name:'Renard du Carnaval',get quote(){return BOSSES[4].quote;}},
+  {name:'Petit Dragon Infini',get quote(){return BOSSES[5].quote;}},
+  {name:'Sorcière de la Tempête',get quote(){return BOSSES[6].quote;}},
+  {name:'Géant de Givre',get quote(){return BOSSES[7].quote;}},
+  {name:'Aigle Ultime',get quote(){return BOSSES[8].quote;}},
+  {name:'Le Maître des Mondes',get quote(){return BOSSES[9].quote;}}
 ];
 function rng(seed){
   return function(){
@@ -1258,6 +1298,7 @@ try{
   const j=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
   if(j){prog.unlocked=Math.max(1,Math.min(NLV,j.unlocked|0));prog.muted=!!j.muted;
     prog.best=Array.from({length:NLV},(_,q)=>(j.best&&j.best[q])|0);
+    if(prog.best[49]>0)prog.unlocked=Math.max(prog.unlocked,51);
     prog.wallet=Math.max(0,j.wallet|0);const u=j.up||{};
     prog.up={heart:Math.min(2,u.heart|0)};
     /* anciennes versions : les objets achetés pour toujours sont remboursés */
@@ -1386,7 +1427,7 @@ function showTitle(){
     const open=i<prog.unlocked,ic=' '+(SKINIC[LEVELS[i].skin]||(LEVELS[i].kind==='bike'?'🚲':LEVELS[i].kind==='copter'?'🚁':''));
     btns+='<button class="lvb" data-act="start" data-li="'+i+'"'+(open?'':' disabled')+'><b>'+(i+1)+'</b><span>'+(open?LEVELS[i].short+ic:'verrouillé')+'</span>'+(prog.best[i]?'<em>'+prog.best[i]+' gemmes</em>':'')+'</button>';
   }
-  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Cinquante mondes à traverser : à pied, en luge, sous l’eau, en fusée, à dos de dragon…</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · chaque niveau commence par la boutique</p></div>');
+  show('<div class="ovbox"><h1 class="ttl">Rosine la Lutine</h1><p class="sub">Soixante-dix mondes à traverser : à pied, en luge, sous l’eau, en fusée, à dos de dragon…</p><div class="lvgrid">'+btns+'<button class="lvb shopb" data-act="shop"><b>🛍</b><span>Boutique</span><em>'+prog.wallet+' gemmes</em></button></div><p class="tip"><b>A</b> saute · <b>B</b> baguette · chaque niveau commence par la boutique</p></div>');
 }
 /* Boutique : seuls les cœurs en plus sont gardés d'un niveau à l'autre. Le reste se rachète à chaque niveau. */
 const ITEMS=[
