@@ -240,7 +240,7 @@ const KEY='uno-v1',WK='cartes-v1';
 function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(typeof j.gems!=='number')j.gems=20;return j;}
 function addGems(n){const j=wal();j.gems+=n;try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}gmUpdate();return j.gems;}
 function gmUpdate(){$('gm').textContent=wal().gems+' 💎';}
-let P={name:'',code:'',bots:2,lvl:1,w:0,l:0,target:500};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+let P={name:'',code:'',bots:2,lvl:1,w:0,l:0,target:500,spd:1};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
 function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
 function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
@@ -312,7 +312,7 @@ function endRound(w){
 }
 function nextRound(){if(!H||H.over)return;H.pause=false;H.endInfo=null;newRound();pushViews();}
 /* ---- robots ---- */
-function maybeBot(){if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);const d=H.slow?4200:3000;H.slow=0;H.bt=setTimeout(botStep,d);}
+function maybeBot(){if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);const base=[1400,3000,4500,6500][P.spd==null?1:P.spd],d=H.slow?base*1.4:base;H.slow=0;H.bt=setTimeout(botStep,d);}
 function botStep(){
   if(!H||H.over||H.pause)return;const i=H.turn,p=H.pl[i];if(!p.bot)return;const lv=P.lvl;
   H.pl.forEach((q,k)=>{if(q.exposed&&k!==i&&Math.random()<[.25,.55,.9][lv])act(i,{a:'catch',t:k});});
@@ -337,6 +337,7 @@ function showHome(){
    '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'">'+
    '<div class="tabs"><span>Robots :</span>'+[1,2,3,4,5].map(n=>'<button data-b="'+n+'" class="'+(P.bots===n?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<div class="tabs"><span>Niveau :</span>'+['Facile','Moyen','Fort'].map((n,i)=>'<button data-l="'+i+'" class="'+(P.lvl===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
+   '<div class="tabs"><span>Vitesse :</span>'+['Rapide','Normale','Lente','Très lente'].map((n,i)=>'<button data-s="'+i+'" class="'+(P.spd===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<div class="tabs"><span>Partie :</span>'+[[500,'500 points'],[0,'Une manche']].map(([v,n])=>'<button data-t="'+v+'" class="'+(P.target===v?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<button class="ob" id="solo">Jouer contre les robots</button>'+
    '<button class="ob alt" id="host">Créer une partie en ligne</button>'+
@@ -345,6 +346,7 @@ function showHome(){
   const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
   $('home').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.bots=+b.dataset.b;nm();saveP();showHome();});
   $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;nm();saveP();showHome();});
+  $('home').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{P.spd=+b.dataset.s;nm();saveP();showHome();});
   $('home').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{P.target=+b.dataset.t;nm();saveP();showHome();});
   $('solo').onclick=()=>startGame([nm()],P.bots);
   $('host').onclick=()=>hostOnline(nm());
@@ -425,7 +427,7 @@ function endDialog(){
   openOv('<h2>'+esc(e.names[e.w])+' a gagné la manche !</h2><table><tr><th></th><th>Manche</th><th>Total</th></tr>'+rows+'</table>'+(isHost?'<button class="ob" id="nx">Manche suivante</button>':'<button class="ob" id="nx">Prêt pour la suite</button>')+'<button class="ob alt" id="q">Quitter</button>');
   $('nx').onclick=()=>{if(isHost)nextRound();else{try{peer.conn.send({t:'next'});}catch(e){}$('nx').textContent='En attente de l’hôte…';}};$('q').onclick=showHome;
 }
-$('bmenu').onclick=()=>{if(V&&!V.over){openOv('<h2>Menu</h2><button class="ob alt" id="rl">📖 Règles</button><button class="ob" id="n">Reprendre</button><button class="ob alt" id="y">Quitter la partie</button>');$('n').onclick=closeOv;$('rl').onclick=rules;$('y').onclick=showHome;}else showHome();};
+$('bmenu').onclick=()=>{if(V&&!V.over){const spdH=()=>'<div class="tabs"><span>Vitesse des robots :</span>'+['Rapide','Normale','Lente','Très lente'].map((n,i)=>'<button data-s="'+i+'" class="'+(P.spd===i?'on':'')+'">'+n+'</button>').join('')+'</div>';const mh=()=>{openOv('<h2>Menu</h2>'+spdH()+'<button class="ob alt" id="rl2">📖 Règles</button><button class="ob" id="n">Reprendre</button><button class="ob alt" id="y">Quitter la partie</button>');$('n').onclick=closeOv;$('rl2').onclick=rules;$('y').onclick=showHome;$('ov').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{P.spd=+b.dataset.s;saveP();mh();});};mh();}else showHome();};
 gmUpdate();showHome();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 window.__l={get H(){return H;},get V(){return V;},act,botStep,startGame,playable};
