@@ -394,6 +394,7 @@ function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Tu ne p
 /* ================= affichage ================= */
 const cardH=(c,cls)=>'<div class="uc c'+c.c+' t'+c.t+' '+(cls||'')+'" data-id="'+c.id+'"><span class="ov"></span><i>'+(SYM[c.t]||c.t)+'</i><b'+((SYM[c.t]||c.t).length>2?' class="l"':'')+'>'+(SYM[c.t]||c.t)+'</b></div>';
 function onView(v){V=v;if(!v.endInfo)closeOv();render();if(v.endInfo)setTimeout(endDialog,700);}
+let ndSeen={id:null,t:0};
 function render(){
   const v=V;if(!v)return;const me=v.me,mine=v.turn===me,pl=v.pl[me];
   $('st').textContent='Manche '+v.round+' · '+(mine?(v.phase==='drawn'?'Pose ou passe':'À toi !'):'Tour de '+v.pl[v.turn].name);
@@ -407,8 +408,10 @@ function render(){
     h+=seat(v.pl[i],i,'','left:'+x+'%;top:'+y+'%');}
   h+='</div>'+seat(pl,me,' mine','');
   h+='<div id="ctr"><div id="cen"><button id="dk"><div class="uc bgc bk"><span class="ov"></span><b></b></div>Pioche</button><div style="text-align:center">'+cardH(v.top,'bgc')+'<div style="margin-top:6px"><span class="cdot" style="background:'+CC[v.col]+';--cc:'+CC[v.col]+'"></span> <span class="muted">'+(v.dir>0?'↻':'↺')+'</span></div></div></div>'+(v.log?'<div id="lg" class="bub">'+esc(v.log)+'</div>':'')+'</div></div>';
+  if(v.nd!==ndSeen.id){ndSeen={id:v.nd,t:Date.now()};if(v.nd!=null)setTimeout(()=>{if(V)render();},2050);}
+  const nwOn=v.nd!=null&&Date.now()-ndSeen.t<2000;
   const nh=hand.length,avail=sw-(land?170:16),rows=land?1:(avail/nh-4<40?2:1),per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?66:60,sh*(land?.2:.075),land?1e9:avail/per-4)),stp=(land&&nh>1)?Math.min(hw+4,(avail-hw-10)/(nh-1)):hw+4,ml=Math.round((stp-hw)*10)/10;
-  h+='<div id="hd" style="--hw:'+hw+'px;--ml:'+ml+'px">'+hand.map(c=>cardH(c,(can(c)?'pk':(mine?'no':''))+(c.id===v.nd?' nw':''))).join('')+'</div>';
+  h+='<div id="hd" style="--hw:'+hw+'px;--ml:'+ml+'px">'+hand.map(c=>cardH(c,(can(c)?'pk':(mine?'no':''))+(c.id===v.nd&&nwOn?' nw':''))).join('')+'</div>';
   h+='<div id="ac">'+(pl.n===2||pl.n===1?'<button class="ob" id="uno">Dernière carte !</button>':'')+(expo?'<button class="ob" id="ct" style="background:#e03c31!important;color:#fff!important">Contre !</button>':'')+(v.phase==='drawn'&&mine?'<button class="ob alt" id="ps2">Passer</button>':'')+'</div>';
   $('main').innerHTML=h;
   $('main').querySelectorAll('#hd .uc').forEach(el=>el.onclick=()=>{const id=+el.dataset.id,c=v.hand.find(x=>x.id===id);if(!mine)return toast('Pas ton tour.');if(!can(c))return toast(v.phase==='drawn'?'Pose la carte piochée ou passe.':c.t==='F'?'Le +4 se pose seulement sans carte de la couleur en cours.':'Cette carte ne va pas.');
