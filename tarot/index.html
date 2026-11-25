@@ -298,7 +298,7 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 #game .bidp{background:#0b240fee;border-color:#ffffff33;border-radius:16px}
 #game .vals button,#game .suits button{background:#16401e;border-color:#0006;color:#fff}
 #game .ct{top:calc(52px + env(safe-area-inset-top));left:10px;transform:none}
-#game .me{display:none!important}#game .hand .card i.cn{white-space:nowrap;display:flex;align-items:baseline;gap:1px;line-height:1}#game .hand .card i.cn b{margin:0;font-size:.7em}#game .hand .card i.cn.r2{display:none}#game .hand .card:last-child i.cn.r2{display:block}
+#game .me{display:none!important}#game .hand .card i.cn.r2{display:none}@media (orientation:landscape){#game .hand .card i.cn{white-space:nowrap;display:flex;align-items:baseline;gap:1px;line-height:1}#game .hand .card i.cn b{margin:0;font-size:.7em}}@media (orientation:portrait){#game .hand .card i.cn{font-size:calc(var(--cw)*.3);left:4%}#game .hand .card.at i,#game .hand .card.ex i{font-size:calc(var(--cw)*.3);left:4%}#game .hand .card:last-child i.cn.r2{display:none}}#game .hand .card:last-child i.cn.r2{display:block}
 @media (orientation:landscape){
 #game .bidp{left:21%;right:21%;bottom:8px!important;top:auto;border:0!important;border-radius:26px!important;background:#151515!important;box-shadow:0 8px 22px #000a;padding:12px 14px;gap:8px;max-height:calc(100% - 70px)}
 #game .bidp::after{content:"";position:absolute;left:50%;bottom:-11px;margin-left:-10px;border:10px solid transparent;border-top:12px solid #151515;border-bottom:0}
@@ -309,7 +309,7 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 #game .suits button{color:#151515}
 #game .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}#game .acts .ob{max-width:none;padding:9px;font-size:17px}
 }
-@media (orientation:portrait){#game .pl{top:calc(52px + env(safe-area-inset-top))}#game .tbl{margin-top:calc(50px + env(safe-area-inset-top))}}
+@media (orientation:portrait){#game .bidp{background:#151515!important;border:0!important;border-radius:22px!important;box-shadow:0 8px 22px #000a;bottom:30px}#game .bidp .hint{background:none;color:#cfcfcf;text-align:center}#game .bidp .ob,#game .vals button,#game .suits button{background:#e4e4e4!important;color:#151515!important;border:0!important;border-radius:999px!important;box-shadow:none!important;text-shadow:none;background-image:none!important;font-weight:500}#game .vals .on,#game .suits .on{background:#ffd84a!important}#game .pl{top:calc(52px + env(safe-area-inset-top))}#game .tbl{margin-top:calc(50px + env(safe-area-inset-top))}}
 </style>
 <script src="peerjs.min.js"></script>
 <script>
