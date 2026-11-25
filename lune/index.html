@@ -150,10 +150,15 @@ body{background:#14202e;padding:0}
  #ctr{position:static;grid-column:2;grid-row:2;width:auto;padding:0 8px;min-height:0}
  #ctr{margin-right:176px}
  #hist{display:none!important}
- #mid #dk .cd.bg{width:42px;height:62px}
 }
 @media (orientation:landscape) and (max-height:345px){.seat .cd.sm{width:42px!important;height:62px!important}.seat .cd.sm b{font-size:20px!important}.seat.mine{margin-top:-6px!important}}
 .seat .cd.sm.sel{transform:translateY(-2px)}.seat .srow{margin-top:5px}
+
+#mid{position:absolute;left:10px;bottom:calc(6px + env(safe-area-inset-bottom));z-index:6}
+#mid #dk{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:800}
+#mid #dk .cd.bg{width:44px;height:66px}
+@media (orientation:landscape) and (max-height:520px){#hd{margin-left:92px}.seat.mine{margin-left:78px!important}}
+@media (orientation:portrait){.seat.mine{margin-left:70px!important}}
 .seat .nmz{color:#dff1df;text-shadow:0 1px 3px #000a}
 @media (orientation:portrait){
  #req{top:calc(52px + env(safe-area-inset-top));max-width:92vw;width:max-content}
@@ -428,8 +433,8 @@ function render(){
   h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'<p class="muted">Aucune combinaison posée pour l’instant.</p>')+'</div></div>';
   h+='<div id="hist">'+(H6.length?H6.slice(0,3).map((e,k)=>'<div class="hl'+(k===0?' new':'')+'">'+hl(e)+'</div>').join(''):'<div class="hl">'+esc(v.log||'')+'</div>')+'</div>';
   h+='</div>';
-  const nh=hand.length,fit=(sw-(land?182:16))/nh-5,rows=fit<44?2:1,per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?74:64,sh*(land?.16:.075),(sw-(land?182:16))/per-5));
-  const avail=sw-(land?182:16)-12,stp=nh>1?Math.min(hw+4,(avail-hw)/(nh-1)):hw+4,ml=Math.round((stp-hw)*10)/10;
+  const nh=hand.length,fit=(sw-(land?274:16))/nh-5,rows=fit<44?2:1,per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?74:64,sh*(land?.16:.075),(sw-(land?274:16))/per-5));
+  const avail=sw-(land?274:16)-12,stp=nh>1?Math.min(hw+4,(avail-hw)/(nh-1)):hw+4,ml=Math.round((stp-hw)*10)/10;
   h+='<div id="hd" style="--hw:'+hw+'px;--ml:'+ml+'px">'+hand.map(c=>cardH(c,'bg'+(sel.has(c.id)?' sel':''))).join('')+'</div>';
   h+='<div id="ac"><button class="ob alt" id="so">'+(sortMode?'Trier 1-18':'Trier couleur')+'</button><button class="ob" id="lay"'+(v.phase==='play'&&mine&&!pl.laid?'':' disabled style="opacity:.4"')+'>Poser le palier</button><button class="ob" id="ds"'+(v.phase==='play'&&mine&&sel.size===1?'':' disabled style="opacity:.4"')+'>Défausser</button></div>';
   $('main').innerHTML=h;
