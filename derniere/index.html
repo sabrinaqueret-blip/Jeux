@@ -114,7 +114,7 @@ body{background-image:radial-gradient(circle at 50% 0,#2b2a5c,#101530 70%)}
 .uc.bgc b{font-size:44px}.uc.bgc.c4 b{font-size:36px}.uc.bgc.c4 b.l{font-size:26px}
 .uc.sm b{font-size:15px}
 .uc.no{filter:brightness(.5) saturate(.6) drop-shadow(0 2px 3px #000a)}
-.uc.pl{filter:drop-shadow(0 0 5px #f0c060) drop-shadow(0 2px 3px #000a)}
+.uc.pl{filter:drop-shadow(0 2px 3px #000a)}.uc.nw{animation:nwp 1s ease-in-out infinite;z-index:2}@keyframes nwp{0%,100%{transform:translateY(-14px)}50%{transform:translateY(-22px)}}#hd .uc.nw{transform:translateY(-14px)}
 .uc{width:56px;height:80px}.uc.bgc{width:88px;height:124px}.uc.sm{width:30px;height:44px}
 /*SKIN-LUNE*/
 body{background:#14202e;padding:0}
@@ -267,7 +267,7 @@ function newRound(){
   H.log='Manche '+H.round+' : à '+H.pl[H.turn].name+' de commencer.';
 }
 function view(p){const top=H.disc[H.disc.length-1];return {me:p,round:H.round,turn:H.turn,phase:H.phase,drawn:H.drawn,log:H.log,deckN:H.deck.length,top,col:H.col,dir:H.dir,over:H.over,win:H.win,target:H.target,
-  pl:H.pl.map(q=>({name:q.name,n:q.hand.length,pts:q.pts,exposed:q.exposed,bot:q.bot})),hand:H.pl[p].hand,endInfo:H.endInfo};}
+  pl:H.pl.map(q=>({name:q.name,n:q.hand.length,pts:q.pts,exposed:q.exposed,bot:q.bot})),hand:H.pl[p].hand,nd:(H.lastDraw&&H.lastDraw.p===p)?H.lastDraw.id:null,endInfo:H.endInfo};}
 function pushViews(){H.pl.forEach((q,i)=>{if(q.bot)return;const v=view(i);if(i===0)setTimeout(()=>onView(v),0);else{const c=conns.find(x=>x.p===i);if(c&&c.conn&&c.conn.open)try{c.conn.send({t:'view',v});}catch(e){}}});maybeBot();}
 function clearExp(){H.pl.forEach(q=>q.exposed=false);}
 function adv(p,steps){H.turn=mod(p+H.dir*steps,NP());H.phase='play';H.drawn=null;}
@@ -276,14 +276,14 @@ function act(p,m){
   if(m.a==='uno'){if(pl.hand.length<=2)pl.called=true;return pushViews();}
   if(m.a==='catch'){const t=H.pl[m.t];if(t&&m.t!==p&&t.exposed){t.exposed=false;drawN(m.t,2);hlog(pl.name+' surprend '+t.name+' : +2 cartes !');}return pushViews();}
   if(H.turn!==p)return;const top=H.disc[H.disc.length-1];
-  if(m.a==='draw'&&H.phase==='play'){clearExp();drawN(p,1);const c=pl.hand[pl.hand.length-1];hlog(pl.name+' pioche.');
+  if(m.a==='draw'&&H.phase==='play'){clearExp();drawN(p,1);const c=pl.hand[pl.hand.length-1];hlog(pl.name+' pioche.');if(!pl.bot){H.lastDraw={p,id:c&&c.id};if(!(c&&playable(c,top,H.col,pl.hand)))H.slow=1;}
     if(c&&playable(c,top,H.col,pl.hand)){H.phase='drawn';H.drawn=c.id;}else adv(p,1);
   }else if(m.a==='pass'&&H.phase==='drawn'){adv(p,1);hlog(pl.name+' passe.');
   }else if(m.a==='play'&&(H.phase==='play'||H.phase==='drawn')){
     const i=pl.hand.findIndex(x=>x.id===m.id);if(i<0)return 'invalid';const c=pl.hand[i];
     if(H.phase==='drawn'&&c.id!==H.drawn)return 'invalid';
     if(!playable(c,top,H.col,pl.hand))return 'invalid';
-    clearExp();pl.hand.splice(i,1);H.disc.push(c);
+    clearExp();if(H.lastDraw&&H.lastDraw.p===p)H.lastDraw=null;pl.hand.splice(i,1);H.disc.push(c);
     if(c.c===4){let nc=m.col;if(!(nc>=0&&nc<4)){const cnt=[0,0,0,0];pl.hand.forEach(x=>{if(x.c<4)cnt[x.c]++;});nc=cnt.indexOf(Math.max(...cnt));}H.col=nc;}else H.col=c.c;
     if(pl.hand.length===1&&!pl.called)pl.exposed=true;
     let steps=1;const nx=mod(p+H.dir,NP());
@@ -309,7 +309,7 @@ function endRound(w){
 }
 function nextRound(){if(!H||H.over)return;H.pause=false;H.endInfo=null;newRound();pushViews();}
 /* ---- robots ---- */
-function maybeBot(){if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);H.bt=setTimeout(botStep,1000);}
+function maybeBot(){if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);const d=H.slow?3600:2300;H.slow=0;H.bt=setTimeout(botStep,d);}
 function botStep(){
   if(!H||H.over||H.pause)return;const i=H.turn,p=H.pl[i];if(!p.bot)return;const lv=P.lvl;
   H.pl.forEach((q,k)=>{if(q.exposed&&k!==i&&Math.random()<[.25,.55,.9][lv])act(i,{a:'catch',t:k});});
@@ -403,7 +403,7 @@ function render(){
   h+='</div>'+seat(pl,me,' mine','');
   h+='<div id="ctr"><div id="cen"><button id="dk"><div class="uc bgc bk"><span class="ov"></span><b>'+v.deckN+'</b></div>Pioche</button><div style="text-align:center">'+cardH(v.top,'bgc')+'<div style="margin-top:6px"><span class="cdot" style="background:'+CC[v.col]+';--cc:'+CC[v.col]+'"></span> <span class="muted">'+(v.dir>0?'↻':'↺')+'</span></div></div></div>'+(v.log?'<div id="lg" class="bub">'+esc(v.log)+'</div>':'')+'</div></div>';
   const nh=hand.length,avail=sw-(land?170:16),rows=avail/nh-4<40?2:1,per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?66:60,sh*(land?.2:.075),avail/per-4));
-  h+='<div id="hd" style="--hw:'+hw+'px">'+hand.map(c=>cardH(c,(can(c)?'pl':(mine?'no':'')))).join('')+'</div>';
+  h+='<div id="hd" style="--hw:'+hw+'px">'+hand.map(c=>cardH(c,(can(c)?'pl':(mine?'no':''))+(c.id===v.nd?' nw':''))).join('')+'</div>';
   h+='<div id="ac">'+(pl.n===2||pl.n===1?'<button class="ob" id="uno">Dernière carte !</button>':'')+(expo?'<button class="ob" id="ct" style="background:#e03c31!important;color:#fff!important">Contre !</button>':'')+(v.phase==='drawn'&&mine?'<button class="ob alt" id="ps2">Passer</button>':'')+'</div>';
   $('main').innerHTML=h;
   $('main').querySelectorAll('#hd .uc').forEach(el=>el.onclick=()=>{const id=+el.dataset.id,c=v.hand.find(x=>x.id===id);if(!mine)return toast('Pas ton tour.');if(!can(c))return toast(v.phase==='drawn'?'Pose la carte piochée ou passe.':c.t==='F'?'Le +4 se pose seulement sans carte de la couleur en cours.':'Cette carte ne va pas.');
