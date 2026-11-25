@@ -92,7 +92,7 @@ body{background-image:radial-gradient(circle at 50% 0,#2b2a5c,#101530 70%)}
 .uc.sm{width:30px;height:44px;border-width:2px;border-radius:6px}.uc.sm b{font-size:15px}.uc.sm i{display:none}
 .uc.bk{--bg:#16181f;background:#16181f;border-color:#fff}.uc.bk .ov{background:#e03c31}.uc.bk b{color:#fff;font-size:15px;transform:rotate(-24deg)}
 .uc.no{filter:brightness(.45) saturate(.6)}
-.uc.pl{transform:translateY(-6px)}
+.uc.pk{transform:translateY(-6px)}
 #cen{display:flex;gap:18px;align-items:center;justify-content:center;margin:10px 0}
 #cen button{background:none;border:0;padding:0;color:var(--ink);font-weight:800;font-size:12px;text-align:center}
 .cdot{width:26px;height:26px;border-radius:50%;border:3px solid #fff;display:inline-block;vertical-align:middle;box-shadow:0 0 12px var(--cc)}
@@ -114,7 +114,7 @@ body{background-image:radial-gradient(circle at 50% 0,#2b2a5c,#101530 70%)}
 .uc.bgc b{font-size:44px}.uc.bgc.c4 b{font-size:36px}.uc.bgc.c4 b.l{font-size:26px}
 .uc.sm b{font-size:15px}
 .uc.no{filter:brightness(.5) saturate(.6) drop-shadow(0 2px 3px #000a)}
-.uc.pl{filter:drop-shadow(0 2px 3px #000a)}.uc.nw{animation:nwp 1s ease-in-out infinite;z-index:2}@keyframes nwp{0%,100%{transform:translateY(-14px)}50%{transform:translateY(-22px)}}#hd .uc.nw{transform:translateY(-14px)}
+.uc.pk{filter:drop-shadow(0 2px 3px #000a)}.uc.nw{animation:nwp 1s ease-in-out infinite;z-index:2}@keyframes nwp{0%,100%{transform:translateY(-14px)}50%{transform:translateY(-22px)}}#hd .uc.nw{transform:translateY(-14px)}
 .uc{width:56px;height:80px}.uc.bgc{width:88px;height:124px}.uc.sm{width:30px;height:44px}
 /*SKIN-LUNE*/
 body{background:#14202e;padding:0}
@@ -179,7 +179,7 @@ body{background:#14202e;padding:0}
 .mb{display:flex;padding-left:10px}.mb u{width:16px;height:24px;margin-left:-10px;border-radius:3px;background:url(img/u_dos.webp) center/100% 100% no-repeat,#16181f;border:1px solid #fff}
 .seat.x .nmz{color:#ffd84a}
 #hd .uc{width:var(--hw);height:calc(var(--hw)*1.5);border-radius:calc(var(--hw)*.14)}#hd .uc b{font-size:calc(var(--hw)*.5)}#hd .uc i{font-size:calc(var(--hw)*.2);top:5px;left:6px}
-#hd .uc.pl{transform:translateY(-10px)}
+#hd .uc.pk{transform:translateY(-10px)}
 #ac .ob{background:#e4e4e4;color:#151515}
 @media (orientation:portrait){#ctr{left:0;right:0;flex-direction:column}}
 </style>
@@ -309,7 +309,7 @@ function endRound(w){
 }
 function nextRound(){if(!H||H.over)return;H.pause=false;H.endInfo=null;newRound();pushViews();}
 /* ---- robots ---- */
-function maybeBot(){if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);const d=H.slow?3600:2300;H.slow=0;H.bt=setTimeout(botStep,d);}
+function maybeBot(){if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);const d=H.slow?4200:3000;H.slow=0;H.bt=setTimeout(botStep,d);}
 function botStep(){
   if(!H||H.over||H.pause)return;const i=H.turn,p=H.pl[i];if(!p.bot)return;const lv=P.lvl;
   H.pl.forEach((q,k)=>{if(q.exposed&&k!==i&&Math.random()<[.25,.55,.9][lv])act(i,{a:'catch',t:k});});
@@ -403,7 +403,7 @@ function render(){
   h+='</div>'+seat(pl,me,' mine','');
   h+='<div id="ctr"><div id="cen"><button id="dk"><div class="uc bgc bk"><span class="ov"></span><b>'+v.deckN+'</b></div>Pioche</button><div style="text-align:center">'+cardH(v.top,'bgc')+'<div style="margin-top:6px"><span class="cdot" style="background:'+CC[v.col]+';--cc:'+CC[v.col]+'"></span> <span class="muted">'+(v.dir>0?'↻':'↺')+'</span></div></div></div>'+(v.log?'<div id="lg" class="bub">'+esc(v.log)+'</div>':'')+'</div></div>';
   const nh=hand.length,avail=sw-(land?170:16),rows=avail/nh-4<40?2:1,per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?66:60,sh*(land?.2:.075),avail/per-4));
-  h+='<div id="hd" style="--hw:'+hw+'px">'+hand.map(c=>cardH(c,(can(c)?'pl':(mine?'no':''))+(c.id===v.nd?' nw':''))).join('')+'</div>';
+  h+='<div id="hd" style="--hw:'+hw+'px">'+hand.map(c=>cardH(c,(can(c)?'pk':(mine?'no':''))+(c.id===v.nd?' nw':''))).join('')+'</div>';
   h+='<div id="ac">'+(pl.n===2||pl.n===1?'<button class="ob" id="uno">Dernière carte !</button>':'')+(expo?'<button class="ob" id="ct" style="background:#e03c31!important;color:#fff!important">Contre !</button>':'')+(v.phase==='drawn'&&mine?'<button class="ob alt" id="ps2">Passer</button>':'')+'</div>';
   $('main').innerHTML=h;
   $('main').querySelectorAll('#hd .uc').forEach(el=>el.onclick=()=>{const id=+el.dataset.id,c=v.hand.find(x=>x.id===id);if(!mine)return toast('Pas ton tour.');if(!can(c))return toast(v.phase==='drawn'?'Pose la carte piochée ou passe.':c.t==='F'?'Le +4 se pose seulement sans carte de la couleur en cours.':'Cette carte ne va pas.');
