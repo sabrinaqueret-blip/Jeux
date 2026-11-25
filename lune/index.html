@@ -128,7 +128,7 @@ body{background:#14202e;padding:0}
 #ac .ob.alt{flex:.7}
 @media (orientation:landscape){
  #ac{position:absolute;right:10px;bottom:calc(6px + env(safe-area-inset-bottom));flex-direction:column;width:150px;padding:0}
- #hd{margin-right:176px;flex-wrap:nowrap}
+ #hd{margin-right:176px;flex-wrap:nowrap;gap:0}#hd .cd{margin-left:var(--ml,4px)}#hd .cd:first-child{margin-left:0}
 }
 .seat.mine .bub{position:absolute;bottom:100%;margin:0 0 6px}.seat.mine .bub::after{top:auto;bottom:-6px;border-top:7px solid #101010;border-bottom:0}
 
@@ -150,8 +150,8 @@ body{background:#14202e;padding:0}
  #ctr{position:static;grid-column:2;grid-row:2;width:auto;padding:0 8px;min-height:0}
  #hist{display:none!important}
  #mid #dk .cd.bg{width:42px;height:62px}
- .seat .cd.sm.sel{transform:translateY(-3px)}
 }
+.seat .cd.sm.sel{transform:translateY(-2px)}.seat .srow{margin-top:5px}
 .seat .nmz{color:#dff1df;text-shadow:0 1px 3px #000a}
 @media (orientation:portrait){
  #req{top:calc(52px + env(safe-area-inset-top));max-width:92%}
@@ -427,7 +427,8 @@ function render(){
   h+='<div id="hist">'+(H6.length?H6.slice(0,3).map((e,k)=>'<div class="hl'+(k===0?' new':'')+'">'+hl(e)+'</div>').join(''):'<div class="hl">'+esc(v.log||'')+'</div>')+'</div>';
   h+='</div>';
   const nh=hand.length,fit=(sw-(land?182:16))/nh-5,rows=fit<44?2:1,per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?74:64,sh*(land?.16:.075),(sw-(land?182:16))/per-5));
-  h+='<div id="hd" style="--hw:'+hw+'px">'+hand.map(c=>cardH(c,'bg'+(sel.has(c.id)?' sel':''))).join('')+'</div>';
+  const avail=sw-(land?182:16)-12,stp=nh>1?Math.min(hw+4,(avail-hw)/(nh-1)):hw+4,ml=Math.round((stp-hw)*10)/10;
+  h+='<div id="hd" style="--hw:'+hw+'px;--ml:'+ml+'px">'+hand.map(c=>cardH(c,'bg'+(sel.has(c.id)?' sel':''))).join('')+'</div>';
   h+='<div id="ac"><button class="ob alt" id="so">'+(sortMode?'Trier 1-18':'Trier couleur')+'</button><button class="ob" id="lay"'+(v.phase==='play'&&mine&&!pl.laid?'':' disabled style="opacity:.4"')+'>Poser le palier</button><button class="ob" id="ds"'+(v.phase==='play'&&mine&&sel.size===1?'':' disabled style="opacity:.4"')+'>Défausser</button></div>';
   $('main').innerHTML=h;
   if(fresh){flashSeq=last.id;const tgt=last.k==='draw'?$('dk'):(last.k==='take'?$('main').querySelector('[data-d="'+last.src+'"]'):(last.k==='disc'?$('main').querySelector('[data-d="'+last.p+'"]'):null));if(tgt){tgt.classList.add('flash');}const pe=$('main').querySelectorAll('#ps .pl')[last.p];if(pe)pe.classList.add('act');}
