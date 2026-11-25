@@ -225,7 +225,7 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 #game .vals button,#game .suits button{background:#16401e;border-color:#0006;color:#fff}
 #game .ct{top:calc(52px + env(safe-area-inset-top));left:10px;transform:none}
 #game .me{display:none!important}#game .hand .card i.cn{white-space:nowrap;display:flex;align-items:baseline;gap:1px;line-height:1}#game .hand .card i.cn b{margin:0;font-size:.7em}#game .hand .card i.cn.r2{display:none}#game .hand .card:last-child i.cn.r2{display:block}
-@media (orientation:landscape){
+@media all{
 #game .bidp{left:21%;right:21%;bottom:8px!important;top:auto;border:0!important;border-radius:26px!important;background:#151515!important;box-shadow:0 8px 22px #000a;padding:12px 14px;gap:8px;max-height:calc(100% - 70px)}
 #game .bidp::after{content:"";position:absolute;left:50%;bottom:-11px;margin-left:-10px;border:10px solid transparent;border-top:12px solid #151515;border-bottom:0}
 #game .bidp .hint{background:none;color:#cfcfcf;text-align:center;font-size:12px;padding:0}
@@ -245,6 +245,11 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 </style>
 <style>
 /*FONT-MAGUNTIA*/
+@media (orientation:portrait){#game .bidp{left:3%!important;right:3%!important;bottom:30px!important}#game .bidp::after{display:none}
+#game .hd{gap:5px!important;flex-wrap:nowrap}#game .hd .sc{gap:5px;padding:5px 8px;font-size:13px}#game .hd .sc b{font-size:18px}#game .hd .sl{display:none}#game .hd .gm{padding:5px 8px;font-size:14px}#game .hd button{padding:5px 9px!important;font-size:16px}}
+@media (orientation:landscape){#game .acts{grid-template-columns:repeat(3,1fr)}#game .acts .ob{font-size:14px!important;padding:5px!important}#game .seat.r1{top:52%}#game .seat.r3{top:52%}}
+@media (orientation:landscape) and (max-height:340px){#game .bidp .hint{display:none}#game .bidp{padding:6px 10px;gap:4px}#game .bidp select{padding:3px 8px;font-size:16px}#game .suits button{padding:0;font-size:24px}#game .suits button.wd{font-size:12px!important}#game .bidp .ob{padding:4px!important}#game .seat .bub{margin-bottom:2px;padding:2px 12px}}
+
 #game .card.dk,.ov-card .card.dk{background:none!important;box-shadow:0 1px 1px #0005,0 3px 8px #0006}#game .card.dk .dkf{position:absolute;inset:0;width:100%;height:100%;border-radius:inherit;display:block}.sgrid .pv .dkf{width:100%;height:100%;display:block}
 #game .suits button.rd,#game .suits button.rd *{color:#d11f2a!important}#game .suits button.bk{color:#151515!important}
 @media (orientation:landscape){#game .trick{top:54%;width:calc(var(--tcw)*4);height:calc(var(--tcw)*2.8)}}
