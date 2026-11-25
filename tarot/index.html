@@ -311,6 +311,18 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 }
 @media (orientation:portrait){#game .bidp{background:#151515!important;border:0!important;border-radius:22px!important;box-shadow:0 8px 22px #000a;bottom:30px}#game .bidp .hint{background:none;color:#cfcfcf;text-align:center}#game .bidp .ob,#game .vals button,#game .suits button{background:#e4e4e4!important;color:#151515!important;border:0!important;border-radius:999px!important;box-shadow:none!important;text-shadow:none;background-image:none!important;font-weight:500}#game .vals .on,#game .suits .on{background:#ffd84a!important}#game .pl{top:calc(52px + env(safe-area-inset-top))}#game .tbl{margin-top:calc(50px + env(safe-area-inset-top))}}
 </style>
+<style>
+/*ATOUTS-PLEIN*/
+#game .card.at,#game .card.ex{background:var(--paper)}
+#game .card.at .pic,#game .card.ex .pic{inset:calc(var(--cw)*.035);border-radius:calc(var(--cw)*.06)}
+#game .card.tc.at .pic,#game .card.tc.ex .pic{inset:calc(var(--tcw)*.035);border-radius:calc(var(--tcw)*.06)}
+#game .card.at::before,#game .card.ex::before{display:none}
+#game .card.at::after,#game .card.ex::after{content:"";position:absolute;left:calc(var(--cw)*.035);top:calc(var(--cw)*.035);width:62%;height:34%;background:radial-gradient(ellipse at 0 0,#000c 0,#0006 45%,#0000 75%);border-radius:calc(var(--cw)*.06) 0 0 0;z-index:1;pointer-events:none}
+#game .card.at i,#game .card.ex i{color:#fff;font-family:"Palatino Linotype",Palatino,"Book Antiqua","URW Palladio L",Georgia,"Times New Roman",serif;font-weight:700;font-style:normal;letter-spacing:-.5px;text-shadow:0 0 2px #000,0 0 4px #000,0 1px 3px #000;left:9%;top:4%;font-size:calc(var(--cw)*.4);z-index:2}
+#game .card.tc.at i,#game .card.tc.ex i{font-size:calc(var(--tcw)*.4)}
+#game .card.at.bout::after,#game .card.ex::after{border-radius:calc(var(--cw)*.06) 0 0 0}
+@media (orientation:portrait){#game .hrow+.hrow{margin-top:calc(var(--cw)*-.68)}#game .hand .card.at i,#game .hand .card.ex i{font-size:calc(var(--cw)*.34);left:7%}}
+</style>
 <script src="peerjs.min.js"></script>
 <script>
 const __pp=[];function keepAlive(p){__pp.push(p);setInterval(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},6000);p.on('disconnected',()=>{setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},600);});return p;}
