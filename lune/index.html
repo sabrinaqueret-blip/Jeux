@@ -133,43 +133,36 @@ body{background:#14202e;padding:0}
 .seat.mine .bub{position:absolute;bottom:100%;margin:0 0 6px}.seat.mine .bub::after{top:auto;bottom:-6px;border-top:7px solid #101010;border-bottom:0}
 
 
-#opps{display:contents}
-
-@media (orientation:landscape) and (max-height:520px){
- #req{max-width:46%;padding:3px 12px;font-size:clamp(11px,2.9vh,15px)}
- #tbl{margin-top:calc(46px + env(safe-area-inset-top));display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto 1fr}
- #opps{display:flex;grid-column:1/3;grid-row:1;flex-wrap:nowrap;justify-content:space-around;gap:6px;padding:0 6px}
- .seat{position:static;transform:none}
- .seat .nmz::before{display:none}
- .seat .nmz{max-width:none}
- .srow img.vt{display:none}
- .seat .cd.sm{width:52px;height:76px}.seat .cd.sm b{font-size:24px}.seat .cd.sm i{font-size:15px}
- .seat .bub{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin:0;z-index:6;white-space:nowrap;max-width:none}
- .seat.mine{position:static;grid-column:1;grid-row:2;align-self:start;margin:0 0 0 10px;transform:none}
- .seat.mine .bub{top:auto;bottom:100%;margin:0 0 4px}
- #ctr{position:static;grid-column:2;grid-row:2;width:auto;padding:0 8px;min-height:0}
- #ctr{margin-right:176px}
- #hist{display:none!important}
-}
-@media (orientation:landscape) and (max-height:345px){.seat .cd.sm{width:42px!important;height:62px!important}.seat .cd.sm b{font-size:20px!important}.seat.mine{margin-top:-6px!important}}
+/* mise en page unique (portrait + paysage) */
+#tbl{margin-top:calc(112px + env(safe-area-inset-top));display:flex;flex-direction:column}
+#opps{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;padding:0 8px}
+.seat{position:static;transform:none}
+.seat .nmz{color:#dff1df;text-shadow:0 1px 3px #000a}
+.srow img.vt{display:none}
 .seat .cd.sm.sel{transform:translateY(-2px)}.seat .srow{margin-top:5px}
-
-#mid{position:absolute;left:10px;bottom:calc(6px + env(safe-area-inset-bottom));z-index:6}
+#ctr{position:static;order:2;flex:1;width:100%;padding:0 8px;min-height:0}
+#mrow{order:3;display:flex;align-items:flex-end;gap:12px;padding:0 10px 4px;position:relative}
+#mrow .seat.mine{position:static;transform:none;margin:0;align-self:flex-end}
+#mrow .seat.mine .bub{position:absolute;bottom:100%;left:0;top:auto;margin:0 0 4px;transform:none}
+#mid{position:static;margin:0;flex:none}
 #mid #dk{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:800}
 #mid #dk .cd.bg{width:44px;height:66px}
-@media (orientation:landscape) and (max-height:520px){#hd{margin-left:92px}.seat.mine{margin-left:78px!important}}
-@media (orientation:portrait){.seat.mine{margin-left:70px!important}}
-.seat .nmz{color:#dff1df;text-shadow:0 1px 3px #000a}
-@media (orientation:portrait){
- #req{top:calc(52px + env(safe-area-inset-top));max-width:92vw;width:max-content}
- #tbl{margin-top:calc(112px + env(safe-area-inset-top));display:flex;flex-direction:column}
- #opps{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;padding:0 8px}
- .seat{position:static;transform:none}
- .seat.mine{position:static;left:auto;bottom:auto;transform:none;align-self:flex-start;margin:0 0 4px 10px;order:3}
- #ctr{position:static;order:2;flex:1;width:100%;padding:0 8px;min-height:0}
- .srow img.vt{display:none}
- #st{max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#st{max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#req{top:calc(52px + env(safe-area-inset-top));max-width:92vw;width:max-content}
+#hd .cd{touch-action:none}
+@media (orientation:landscape) and (max-height:520px){
+ #req{top:calc(8px + env(safe-area-inset-top));max-width:46%;padding:3px 12px;font-size:clamp(11px,2.9vh,15px)}
+ #tbl{margin-top:calc(46px + env(safe-area-inset-top))}
+ #opps{flex-wrap:nowrap;justify-content:space-around;gap:6px;padding:0 6px}
+ .seat .nmz::before{display:none}
+ .seat .nmz{max-width:none}
+ .seat .cd.sm{width:46px;height:68px}.seat .cd.sm b{font-size:21px}.seat .cd.sm i{font-size:13px}
+ .seat .bub{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin:0;z-index:6;white-space:nowrap;max-width:none}
+ #ctr{margin-right:176px;width:auto}
+ #hist{display:none!important}
+ #mrow{padding-bottom:2px}
 }
+@media (orientation:landscape) and (max-height:345px){.seat .cd.sm{width:40px!important;height:58px!important}.seat .cd.sm b{font-size:19px!important}#mid #dk .cd.bg{width:38px;height:56px}}
 </style>
 </head>
 <body>
@@ -407,10 +400,36 @@ function send(a){if(isHost){const r=act(myIdx,a);if(r==='invalid')toast('Cette p
 const cardH=(c,cls)=>'<div class="cd k'+c.c+' '+(cls||'')+'" style="--c:'+COL[c.c]+'" data-id="'+c.id+'"><b>'+c.v+'</b><i>'+SY[c.c]+'</i></div>';
 function onView(v){V=v;if(v.endInfo!==undefined&&!v.endInfo)closeOv();sel=new Set([...sel].filter(id=>v.hand.some(c=>c.id===id)));render();if(v.endInfo)setTimeout(endDialog,600);}
 let flashSeq=-1;
+let manual=null,dragging=false,justDragged=false,lastRound=-1;
+
+function setupDrag(){
+  const hd=$('hd');if(!hd)return;
+  hd.querySelectorAll('.cd').forEach(el=>{
+    el.addEventListener('pointerdown',e=>{
+      if(e.button>0)return;
+      const sx=e.clientX,sy=e.clientY,id=+el.dataset.id;let active=false;
+      const mv=ev=>{const dx=ev.clientX-sx,dy=ev.clientY-sy;
+        if(!active&&Math.hypot(dx,dy)>10){active=true;dragging=true;el.style.zIndex=50;el.style.transition='none';el.style.pointerEvents='none';}
+        if(active){el.style.transform='translate('+dx+'px,'+dy+'px) scale(1.1)';ev.preventDefault();}};
+      const up=ev=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);
+        if(!active)return;
+        justDragged=true;setTimeout(()=>{justDragged=false;},350);
+        const els=[...hd.querySelectorAll('.cd')].filter(x=>x!==el),cx=ev.clientX,cy=ev.clientY;
+        let idx=els.length;
+        for(let i=0;i<els.length;i++){const r=els[i].getBoundingClientRect();
+          if(cy<r.top-4||(cy>=r.top-4&&cy<=r.bottom+4&&cx<r.left+r.width/2)){idx=i;break;}}
+        const ids=els.map(x=>+x.dataset.id);ids.splice(idx,0,id);manual=ids;
+        dragging=false;render();};
+      window.addEventListener('pointermove',mv,{passive:false});window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+    });
+  });
+}
 function render(){
-  const v=V;if(!v)return;const me=v.me,mine=v.turn===me,pl=v.pl[me];
+  const v=V;if(!v)return;if(dragging)return;
+  if(v.round!==lastRound){lastRound=v.round;manual=null;}const me=v.me,mine=v.turn===me,pl=v.pl[me];
   $('st').textContent='Manche '+v.round+' · '+(mine?(v.phase==='draw'?'Pioche !':'À toi'):'Tour de '+v.pl[v.turn].name);
   const hand=v.hand.slice().sort((a,b)=>sortMode?(a.c-b.c||a.v-b.v):(a.v-b.v||a.c-b.c));
+  if(manual){const pos=new Map(manual.map((id,i)=>[id,i]));hand.sort((a,b)=>(pos.has(a.id)?pos.get(a.id):1e6+a.id)-(pos.has(b.id)?pos.get(b.id):1e6+b.id));}
   const canLay=v.phase==='play'&&mine&&!pl.laid&&findLay(v.hand,pl.lvl,false);
   const canDraw=mine&&v.phase==='draw';
   const n=v.pl.length,sw=innerWidth,sh=innerHeight,land=sw>sh;
@@ -431,21 +450,22 @@ function render(){
   for(let r=1;r<n;r++){const i=(me+r)%n,a=2*Math.PI*r/n,x=Math.min(88,Math.max(12,50-(n<=2?0:42)*Math.sin(a))),y=50+(n<=2?36:34)*Math.cos(a);
     h+=seat(v.pl[i],i,'','left:'+x+'%;top:'+y+'%');}
   h+='</div>';
-  h+=seat(pl,me,' mine','');
-  h+='<div id="ctr"><div id="mid"><button id="dk"><div class="cd bg back"><b></b></div>Pioche</button></div>';
+  h+='<div id="ctr">';
   h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'<p class="muted">Aucune combinaison posée pour l’instant.</p>')+'</div></div>';
+  h+='<div id="mrow"><div id="mid"><button id="dk"><div class="cd bg back"><b></b></div>Pioche</button></div>'+seat(pl,me,' mine','')+'</div>';
   h+='<div id="hist">'+(H6.length?H6.slice(0,3).map((e,k)=>'<div class="hl'+(k===0?' new':'')+'">'+hl(e)+'</div>').join(''):'<div class="hl">'+esc(v.log||'')+'</div>')+'</div>';
   h+='</div>';
-  const nh=hand.length,fit=(sw-(land?274:16))/nh-5,rows=fit<44?2:1,per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?74:64,sh*(land?.16:.075),(sw-(land?274:16))/per-5));
+  const nh=hand.length,fit=(sw-(land?182:16))/nh-5,rows=fit<44?2:1,per=Math.ceil(nh/rows),hw=Math.max(34,Math.min(land?74:64,sh*(land?.16:.075),(sw-(land?182:16))/per-5));
   const avail=sw-(land?274:16)-12,stp=nh>1?Math.min(hw+4,(avail-hw)/(nh-1)):hw+4,ml=Math.round((stp-hw)*10)/10;
   h+='<div id="hd" style="--hw:'+hw+'px;--ml:'+ml+'px">'+hand.map(c=>cardH(c,'bg'+(sel.has(c.id)?' sel':''))).join('')+'</div>';
   h+='<div id="ac"><button class="ob alt" id="so">'+(sortMode?'Trier 1-18':'Trier couleur')+'</button><button class="ob" id="lay"'+(v.phase==='play'&&mine&&!pl.laid?'':' disabled style="opacity:.4"')+'>Poser le palier</button><button class="ob" id="ds"'+(v.phase==='play'&&mine&&sel.size===1?'':' disabled style="opacity:.4"')+'>Défausser</button></div>';
   $('main').innerHTML=h;
   if(fresh){flashSeq=last.id;const tgt=last.k==='draw'?$('dk'):(last.k==='take'?$('main').querySelector('[data-d="'+last.src+'"]'):(last.k==='disc'?$('main').querySelector('[data-d="'+last.p+'"]'):null));if(tgt){tgt.classList.add('flash');}const pe=$('main').querySelectorAll('#ps .pl')[last.p];if(pe)pe.classList.add('act');}
-  $('main').querySelectorAll('#hd .cd').forEach(el=>el.onclick=()=>{const id=+el.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);render();});
+  $('main').querySelectorAll('#hd .cd').forEach(el=>el.onclick=()=>{if(justDragged)return;const id=+el.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);render();});
   $('main').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(!(mine&&v.phase==='draw'))return toast(mine?'Tu as déjà pioché.':'Pas ton tour.');send({a:'draw',src:+b.dataset.d});});
   $('dk').onclick=()=>{if(!(mine&&v.phase==='draw'))return toast(mine?'Tu as déjà pioché.':'Pas ton tour.');if(!v.deckN)return toast('La pioche est vide.');send({a:'draw',src:'deck'});};
-  $('so').onclick=()=>{sortMode=1-sortMode;render();};
+  $('so').onclick=()=>{sortMode=1-sortMode;manual=null;render();};
+  setupDrag();
   $('lay').onclick=()=>{if(!(mine&&v.phase==='play'))return;if(pl.laid)return;send({a:'lay',ids:[...sel]});sel=new Set();};
   $('ds').onclick=()=>{if(sel.size!==1)return;send({a:'disc',id:[...sel][0]});sel=new Set();};
   $('main').querySelectorAll('.ml').forEach(el=>el.onclick=()=>{if(!(mine&&v.phase==='play'))return;if(!pl.laid)return toast('Pose d’abord ton palier.');if(!sel.size)return toast('Sélectionne des cartes de ta main.');send({a:'add',meld:+el.dataset.m,ids:[...sel]});sel=new Set();});
