@@ -146,6 +146,103 @@ input#nm,input#cd,input.nm{width:100%;max-width:340px;padding:12px;font-size:18p
 <style>.slot .card{box-shadow:0 0 0 3px var(--pc,transparent),0 2px 5px #0008}.slot.win .card{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}.tkb{display:inline-block;margin-left:5px;padding:0 6px;font-size:12px}.annl{width:100%;background:var(--panel);border-radius:12px;padding:6px 8px}.annl span{display:block;color:var(--gold);font-weight:800;margin-bottom:3px}.annl .ac{display:flex;gap:3px;justify-content:center}.res.calc td{font-size:13px;text-align:left}.res.calc td:first-child{width:46px}.endbox{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}.res td:nth-child(n+2){text-align:center}</style>
 
 <style>#valS{width:100%;font-size:20px;font-weight:800;padding:9px 10px;background:var(--panel);color:var(--ink);border:2px solid var(--gold);border-radius:10px;appearance:auto}#valS option{background:#1d3a2c;color:#fff}</style>
+<style>
+/*SKIN-TABLE*/
+
+:root{--paper:#f3f2ec;--paper2:#e6e4da;--ink-d:#1a1a1a;--feltA:#23802f;--feltB:#17601f;--feltC:#0f4416}
+#game{background:radial-gradient(ellipse at 50% 45%,var(--feltA) 0,var(--feltB) 62%,var(--feltC) 100%)}
+#game::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.5;mix-blend-mode:multiply;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .25  0 0 0 0 .1  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#game::after{content:"";position:absolute;inset:2.4% 1.6%;border:2px solid #00000024;border-radius:18px;pointer-events:none;z-index:0}
+#game{position:relative}
+#game>*{position:relative;z-index:1}
+/* en-tête flottant */
+#game .hd{position:absolute;top:0;left:0;right:0;background:none!important;padding:calc(6px + env(safe-area-inset-top)) 10px 0;pointer-events:none;justify-content:flex-start;gap:8px!important;z-index:7}
+#game .hd>*{pointer-events:auto}
+#game .hd button{background:#0a2a10aa!important;border:0!important;border-radius:10px!important;color:#fff;padding:6px 12px!important;box-shadow:0 2px 6px #0006;font-size:18px}
+#game .hd .sc{background:#0a2a10aa;border-radius:10px;padding:6px 12px;color:#e8f4e8}
+#game .hd .gm{background:#0a2a10aa;border:0}
+#game .hd #lastB{margin-left:auto}
+#game .pl{position:absolute;top:calc(48px + env(safe-area-inset-top));right:10px;flex-direction:column;align-items:stretch;gap:3px;padding:0;z-index:6}
+#game .pl span{border-radius:8px;background:#0a2a10aa;font-size:13px;display:flex;justify-content:space-between;gap:14px;padding:3px 10px}
+#game .ct{position:absolute;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:6;pointer-events:none}
+#game .chip{background:#0a2a10aa;box-shadow:none;color:#e8f4e8}
+/* joueurs */
+#game .seat{background:none!important;box-shadow:none!important;gap:2px;padding:0;max-width:none}
+#game .seat .nmz{font-size:clamp(14px,min(2.9vh,4.4vw),24px);font-weight:900;color:#06300e99;letter-spacing:.2px;text-shadow:0 1px 0 #ffffff1a;overflow:visible}
+#game .seat .nmz::before{content:"";display:block;margin:0 auto 2px;width:0;height:0;border:7px solid transparent;border-top:10px solid #06300e99;border-bottom:0}
+#game .seat.on .nmz{color:#fff;text-shadow:0 1px 3px #000a}
+#game .seat.on .nmz::before{border-top-color:var(--gold);animation:bob 1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(3px)}}
+#game .seat small,#game .nmz small{color:inherit}
+#game .seat .mini{opacity:.9}
+#game .seat .tk2{background:#06300ecc;color:#fff}
+#game .dl{background:#fff;color:#c1272d;border:3px solid #c1272d;box-shadow:0 0 0 2px #fff inset;width:26px;height:26px;line-height:20px;font-size:14px;border-radius:50%;margin-right:6px;vertical-align:middle}
+#game .bub{position:relative;background:#101010;color:#fff;border-radius:999px;padding:6px 16px;font-size:clamp(13px,min(2.6vh,4vw),22px);font-weight:600;box-shadow:0 3px 8px #0007;margin-bottom:8px}
+#game .bub::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top:7px solid #101010;border-bottom:0}
+#game .bub .rd{color:#ff6b6b}#game .bub .bk{color:#fff}
+#game .bub.ann{background:#101010;color:#ffd84a}
+#game .bub.wh,#game .msg.you{background:#ececec;color:#101010;border:3px solid #121212;font-size:clamp(14px,min(3vh,4.6vw),26px);font-weight:500}
+#game .bub.wh::after,#game .msg.you::after{border-top-color:#121212}
+#game .msg{color:#e9f6e9;text-shadow:0 1px 3px #000a}
+#game .msg.you{position:absolute;left:50%;transform:translateX(-50%);top:auto!important;bottom:12px!important;border-radius:999px;padding:6px 26px;text-shadow:none;animation:none;white-space:nowrap;z-index:8}
+#game .msg.you::after{content:"";position:absolute;left:50%;bottom:-14px;margin-left:-9px;border:9px solid transparent;border-top:11px solid #121212;border-bottom:0;background:none}
+/* cartes */
+#game .card,.ov-card .card{background:var(--paper);background-image:linear-gradient(135deg,#ffffffaa,#0000 45%,#0000000d);border:0;border-radius:calc(var(--cw)*.085);box-shadow:0 1px 1px #0005,0 3px 8px #0006;font-family:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;font-weight:500}
+#game .card.tc{border-radius:calc(var(--tcw)*.085)}
+#game .card i.cn{position:absolute;display:block;left:6%;top:3%;font-style:normal;font-size:calc(var(--cw)*.36);line-height:.95;text-align:center;font-weight:600}
+#game .card i.cn b{display:block;font-weight:600;font-size:.62em;line-height:1;margin-top:1px}
+#game .card i.cn.r2{left:auto;right:6%}
+#game .card.tc i.cn{font-size:calc(var(--tcw)*.36)}
+#game .card:not(.at):not(.ex) i.cn.r2{transform:none}
+#game .card em.pp{position:absolute;left:0;right:0;top:34%;bottom:auto;text-align:center;font-style:normal;font-size:calc(var(--cw)*.78);line-height:1}
+#game .card.tc em.pp{font-size:calc(var(--tcw)*.78)}
+#game .card.red{color:#d11f2a}#game .card.blk{color:#141414}
+#game .card.ph{background:linear-gradient(#f3f2ec 0 62%,#e9e4d3 62%)}
+/* atouts */
+#game .card.at,#game .card.ex{background:var(--paper);border:0;--tier:#222}
+#game .card.at .pic,#game .card.ex .pic{inset:25% 0 0 0;border-radius:0 0 calc(var(--cw)*.085) calc(var(--cw)*.085)}
+#game .card.at.tc .pic,#game .card.ex.tc .pic{border-radius:0 0 calc(var(--tcw)*.085) calc(var(--tcw)*.085)}
+#game .card.at::before,#game .card.ex::before{display:block;content:"";position:absolute;left:34%;right:5%;top:6%;height:15%;inset:auto;border:0;border-radius:2px;
+ background:repeating-linear-gradient(45deg,#7c7c7c 0 2px,#e9e7de 2px 5px);opacity:.55;z-index:1;top:6%}
+#game .card.at i,#game .card.ex i{background:none;color:#141414;padding:0;left:6%;top:2%;font-size:calc(var(--cw)*.38);font-weight:600;z-index:2;text-shadow:none;line-height:1;border-radius:0}
+#game .card.at.tc i,#game .card.ex.tc i{font-size:calc(var(--tcw)*.38)}
+#game .card.at.bout,#game .card.ex{box-shadow:0 0 0 2px #e0a800,0 3px 8px #0007}
+#game .card .nm{display:none}
+/* main : deux rangées, cartes qui dépassent en bas */
+#game .hand{margin-bottom:calc(var(--cw)*-.62);padding:0 6px 0;min-height:0;position:relative;z-index:5}
+#game .hrow+.hrow{margin-top:calc(var(--cw)*-.86)}
+#game .hand .card.sel{transform:translateY(calc(var(--cw)*-.22))}
+#game .hand .card.no{filter:brightness(.6)}
+#game .me{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--cw)*1.4*.9 + 2px);background:none;color:#06300e99;font-size:clamp(14px,2.6vh,20px);font-weight:900;padding:0;z-index:4;display:none}
+#game .me.on{display:block;color:#fff}
+#game .aids{position:static;padding:0;height:0;overflow:visible}
+#game .tools{position:fixed;left:8px;bottom:8px;flex-direction:column;z-index:9}
+#game .tools button{background:#0a2a10cc;border:0;border-radius:14px;color:#fff;font-size:13px;padding:8px 10px}
+#game .info{position:fixed;right:8px;bottom:8px;width:auto;max-width:19%;z-index:9;background:#0a2a10cc;font-size:11px}
+#game .trick .card{box-shadow:0 2px 3px #0006,0 6px 14px #0006}
+#game .bidp{background:#0b240fee;border-color:#ffffff33;border-radius:16px}
+#game .vals button,#game .suits button{background:#16401e;border-color:#0006;color:#fff}
+#game .ct{top:calc(52px + env(safe-area-inset-top));left:10px;transform:none}
+#game .me{display:none!important}#game .hand .card i.cn{white-space:nowrap;display:flex;align-items:baseline;gap:1px;line-height:1}#game .hand .card i.cn b{margin:0;font-size:.7em}#game .hand .card i.cn.r2{display:none}#game .hand .card:last-child i.cn.r2{display:block}
+@media (orientation:landscape){
+#game .bidp{left:21%;right:21%;bottom:8px!important;top:auto;border:0!important;border-radius:26px!important;background:#151515!important;box-shadow:0 8px 22px #000a;padding:12px 14px;gap:8px;max-height:calc(100% - 70px)}
+#game .bidp::after{content:"";position:absolute;left:50%;bottom:-11px;margin-left:-10px;border:10px solid transparent;border-top:12px solid #151515;border-bottom:0}
+#game .bidp .hint{background:none;color:#cfcfcf;text-align:center;font-size:12px;padding:0}
+#game .bidp .ob,#game .vals button,#game .suits button{background:#e4e4e4!important;color:#151515!important;border:0!important;border-radius:999px!important;box-shadow:none!important;text-shadow:none;background-image:none!important;font-weight:500}
+#game .bidp .ob.alt{background:#e4e4e4!important}
+#game .bidp .vals .on,#game .bidp .suits .on{background:#ffd84a!important}
+#game .suits button{color:#151515}
+#game .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}#game .acts .ob{max-width:none;padding:9px;font-size:17px}
+}
+@media (orientation:portrait){#game .pl{top:calc(52px + env(safe-area-inset-top))}#game .tbl{margin-top:calc(50px + env(safe-area-inset-top))}}
+
+#game .seat.r1{left:7%}#game .seat.r3{right:7%}#game .nmz .bub.tkb{display:inline-block;margin:0 0 0 6px;padding:2px 10px;font-size:.78em;vertical-align:middle}#game .nmz .bub.tkb::after{display:none}
+#game .card em.fg{top:30%;font-size:calc(var(--cw)*.72);font-family:"Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif}
+#game .card.tc em.fg{font-size:calc(var(--tcw)*.72)}
+#game .card em.fg+em.sm,#game .card em.sm{position:absolute;left:0;right:0;bottom:6%;top:auto;text-align:center;font-style:normal;font-size:calc(var(--cw)*.3)}
+#game .card.tc em.sm{font-size:calc(var(--tcw)*.3)}
+</style>
 <script src="peerjs.min.js"></script>
 <script>
 const __pp=[];function keepAlive(p){__pp.push(p);setInterval(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},6000);p.on('disconnected',()=>{setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},600);});return p;}
@@ -512,10 +609,10 @@ function openOv(h){$('ov').innerHTML='<div class="box">'+h+'</div>';$('ov').hidd
 const closeOv=()=>{$('ov').hidden=true;$('ov').innerHTML='';};
 function size(){
   const W=innerWidth,H=innerHeight,land=W>H,head=land?70:150;
-  const cw=Math.max(44,Math.min(land?84:100,(W-14)/4.4,H*(land?.31:.25)/1.4));
+  const cw=land?Math.max(44,Math.min(W*.115,H*.27,(W-18)/(1+.72*7))):Math.max(44,Math.min(100,(W-14)/4.4,H*.25/1.4));
   const tableH=H-head-(cw*1.4+30);
-  const tcw=Math.max(36,Math.min(cw*.85,tableH/2.7));
-  const step=Math.min(cw*.62,(W-18-cw)/7);
+  const tcw=land?Math.max(36,Math.min(H*.2,W*.085)):Math.max(36,Math.min(cw*.85,tableH/2.7));
+  const step=Math.min(cw*(land?.72:.62),(W-18-cw)/7);
   const st=document.documentElement.style;
   st.setProperty('--cw',cw+'px');st.setProperty('--tcw',tcw+'px');st.setProperty('--ov',(cw-step)+'px');
 }
@@ -630,7 +727,7 @@ function leave(silent){
   G=null;peer=null;conn=null;seatConn=[null,null,null,null];view=null;sel=-1;bidSuit=-1;lastTurnKey='';
 }
 /* ---------- table ---------- */
-const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '+(s===1||s===2?'red':'blk')+' '+(cls||'')+'" data-id="'+id+'" '+(extra||'')+'><i>'+RANKS[r]+'<br>'+SUITS[s]+'</i><em>'+SUITS[s]+'</em></div>';};
+const cardEl=(id,cls,extra)=>{const s=cs(id),r=cr(id);return '<div class="card '+(s===1||s===2?'red':'blk')+' '+(cls||'')+'" data-id="'+id+'" '+(extra||'')+'><i class="cn">'+RANKS[r]+'<b>'+SUITS[s]+'</b></i><i class="cn r2">'+RANKS[r]+'<b>'+SUITS[s]+'</b></i>'+(r>=4&&r<=6?'<em class="pp fg">'+['\u265E','\u265B','\u265A'][r-4]+'\uFE0E</em><em class="sm">'+SUITS[s]+'</em>':'<em class="pp">'+SUITS[s]+'</em>')+'</div>';};
 const suitHtml=s=>'<span class="'+(s===1||s===2?'rd':'bk')+'">'+SUITS[s]+'</span>';
 function bidText(b){if(b.k==='pass')return 'Passe';if(b.k==='coinche')return 'Coinche !';if(b.k==='sur')return 'Surcoinche !';return (b.val===500?'Capot':b.val)+' '+suitHtml(b.suit);}
 const animSeen=new Set();const SC=['#ffd84a','#7fd4ff','#ff9ad5','#a6ff8a'];
@@ -664,7 +761,7 @@ function render(){
   h+='<div class="tbl">';
   for(const r of [1,2,3]){
     const s=(me+r)%4,bid=v.phase==='bidding'||v.phase==='redeal'?[...v.bids].reverse().find(b=>b.seat===s):null,on=(v.phase==='play'||v.phase==='bidding')&&v.turn===s;
-    h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+'<span style="color:'+SC[r]+'">'+esc(v.names[s])+'</span>'+(v.kinds[s]!=='human'?' 🤖':'')+tkBadge(v,s)+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub">'+bidText(bid)+'</div>':'')+(annB(v,s))+'</div>';
+    h+='<div class="seat r'+r+(on?' on':'')+'"><div class="nmz">'+(v.dealer===s?'<i class="dl">D</i>':'')+'<span style="color:'+SC[r]+'">'+esc(v.names[s])+'</span>'+(v.kinds[s]!=='human'?' 🤖':'')+tkBadge(v,s)+'</div><div class="mini">'+Array.from({length:v.counts[s]},()=>'<u></u>').join('')+'</div>'+(bid?'<div class="bub'+(/Passe/.test(bidText(bid))?' wh':'')+'">'+bidText(bid)+'</div>':'')+(annB(v,s))+'</div>';
   }
   h+='<div class="trick'+(v.phase==='trickEnd'?' end w'+rel(v.winner):'')+'">';
   for(const t of v.trick){const k=v.handNo+'.'+t.card,fresh=!animSeen.has(k);animSeen.add(k);h+='<div style="--pc:'+SC[rel(t.seat)]+'" class="slot q'+rel(t.seat)+(v.phase==='trickEnd'&&t.seat===v.winner?' win':'')+(fresh?' fly':'')+'">'+cardEl(t.card,'tc')+'</div>';}
@@ -673,7 +770,7 @@ function render(){
   if(mb)h+='<div class="bub mine">'+bidText(mb)+'</div>';
   {const am=annB(v,me);if(am)h+=am.replace('class="bub ann"','class="bub mine ann"');}
   if(v.msg)h+='<div class="msg">'+esc(v.msg)+'</div>';
-  if(v.phase==='play'&&v.turn===me)h+='<div class="msg mt">'+(sel>=0&&v.legal&&v.legal.includes(sel)?'Touche la table pour jouer cette carte':'À toi de jouer · glisse une carte sur la table')+'</div>';
+  if(v.phase==='play'&&v.turn===me)h+=(sel>=0&&v.legal&&v.legal.includes(sel)?'<div class="msg mt">Touche la table pour jouer cette carte</div>':'<div class="msg you">À vous de jouer</div>');
   else if(v.phase==='play'||v.phase==='bidding')h+='<div class="msg wt">'+(v.phase==='play'||v.phase==='bidding'?nC(v,v.turn):'')+' réfléchit…</div>';
   if(v.opts)h+=bidPanel(v);
   h+='</div>';
