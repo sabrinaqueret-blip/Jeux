@@ -451,7 +451,7 @@ function render(){
     h+=seat(v.pl[i],i,'','left:'+x+'%;top:'+y+'%');}
   h+='</div>';
   h+='<div id="ctr">';
-  h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'<p class="muted">Aucune combinaison posée pour l’instant.</p>')+'</div></div>';
+  h+='<div id="tb">'+(v.melds.length?v.melds.map(m=>'<div class="ml" data-m="'+m.id+'"><small>'+esc(v.pl[m.owner].name)+'</small>'+m.cards.map(c=>cardH(c,'sm')).join('')+'</div>').join(''):'')+'</div></div>';
   h+='<div id="mrow"><div id="mid"><button id="dk"><div class="cd bg back"><b></b></div>Pioche</button></div>'+seat(pl,me,' mine','')+'</div>';
   h+='<div id="hist">'+(H6.length?H6.slice(0,3).map((e,k)=>'<div class="hl'+(k===0?' new':'')+'">'+hl(e)+'</div>').join(''):'<div class="hl">'+esc(v.log||'')+'</div>')+'</div>';
   h+='</div>';
