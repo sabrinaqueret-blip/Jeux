@@ -225,7 +225,8 @@ const KEY='lune-v1',WK='cartes-v1';
 function wal(){let j=null;try{j=JSON.parse(localStorage.getItem(WK)||'null');}catch(e){}if(!j)j={v:1,gems:20,own:{back:[0],court:[0],bg:[0]},sel:{back:0,court:0,bg:0},st:{sol:{p:0,w:0,best:0},fc:{p:0,w:0,best:0}},opt:{draw:3,snd:true}};if(typeof j.gems!=='number')j.gems=20;return j;}
 function addGems(n){const j=wal();j.gems+=n;try{localStorage.setItem(WK,JSON.stringify(j));}catch(e){}gmUpdate();return j.gems;}
 function gmUpdate(){$('gm').textContent=wal().gems+' 💎';}
-let P={name:'',code:'',bots:2,lvl:1,w:0,l:0,veh:0};try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+let P={name:'',code:'',bots:2,lvl:1,w:0,l:0,veh:0,spd:1};
+const SPDM=[.5,1,1.6,2.4],SPDN=['Rapide','Normale','Lente','Très lente'];try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const saveP=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}};
 function toast(m,ms){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,ms||2400);}
 function openOv(h){$('ov').innerHTML='<div>'+h+'</div>';$('ov').hidden=false;}
@@ -322,7 +323,7 @@ function utility(c,hand,lvl){let u=0;const same=hand.filter(x=>x!==c&&x.v===c.v)
   return u;}
 function maybeBot(){
   if(!H||H.over||H.pause)return;const p=H.pl[H.turn];if(!p.bot)return;clearTimeout(H.bt);
-  H.bt=setTimeout(()=>botStep(),(window.__spd||1)*(H.phase==='draw'?1700:1600));
+  H.bt=setTimeout(()=>botStep(),(window.__spd||SPDM[P.spd==null?1:P.spd])*(H.phase==='draw'?1700:1600));
 }
 function botStep(){
   if(!H||H.over||H.pause)return;const i=H.turn,p=H.pl[i];if(!p.bot)return;const lv=P.lvl;
@@ -348,6 +349,7 @@ function showHome(){
    '<input id="nm" maxlength="12" placeholder="Ton prénom" value="'+esc(P.name)+'">'+
    '<div class="tabs"><span>Ton voyage :</span></div><div class="vch">'+[0,1,2,3,4,5].map(k=>'<button data-v="'+k+'" class="'+(P.veh===k?'on':'')+'"><img src="img/v'+k+'_1.webp" alt=""></button>').join('')+'</div>'+
    '<div class="tabs"><span>Robots :</span>'+[1,2,3,4,5].map(n=>'<button data-b="'+n+'" class="'+(P.bots===n?'on':'')+'">'+n+'</button>').join('')+'</div>'+
+   '<div class="tabs"><span>Vitesse :</span>'+SPDN.map((n,i)=>'<button data-s="'+i+'" class="'+(P.spd===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<div class="tabs"><span>Niveau :</span>'+['Facile','Moyen','Fort'].map((n,i)=>'<button data-l="'+i+'" class="'+(P.lvl===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
    '<button class="ob" id="solo">Jouer contre les robots</button>'+
    '<button class="ob alt" id="host">Créer une partie en ligne</button>'+
@@ -356,6 +358,7 @@ function showHome(){
   const nm=()=>{const v=$('nm').value.trim().slice(0,12)||'Joueur';P.name=v;saveP();return v;};
   $('home').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{P.veh=+b.dataset.v;nm();saveP();showHome();});
   $('home').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{P.bots=+b.dataset.b;nm();saveP();showHome();});
+  $('home').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{P.spd=+b.dataset.s;nm();saveP();showHome();});
   $('home').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;nm();saveP();showHome();});
   $('solo').onclick=()=>startGame([nm()],P.bots);
   $('host').onclick=()=>hostOnline(nm());
@@ -455,7 +458,7 @@ function endDialog(){
   openOv('<h2>'+(e.deckOut?'Pioche épuisée':esc(e.names[e.w])+' a vidé sa main !')+'</h2><table><tr><th></th><th>Manche</th><th>Palier</th></tr>'+rows+'</table>'+(isHost?'<button class="ob" id="nx">Manche suivante</button>':'<button class="ob" id="nx">Prêt pour la suite</button>')+'<button class="ob alt" id="q">Quitter</button>');
   $('nx').onclick=()=>{if(isHost)nextRound();else{try{peer.conn.send({t:'next'});}catch(e){}$('nx').textContent='En attente de l’hôte…';}};$('q').onclick=showHome;
 }
-$('bmenu').onclick=()=>{if(V&&!V.over){openOv('<h2>Menu</h2><button class="ob alt" id="rl2">📖 Règles</button><button class="ob" id="n">Reprendre</button><button class="ob alt" id="y">Quitter la partie</button>');$('n').onclick=closeOv;$('rl2').onclick=rules;$('y').onclick=showHome;}else showHome();};
+$('bmenu').onclick=()=>{if(V&&!V.over){const mh=()=>{openOv('<h2>Menu</h2><div class="tabs"><span>Vitesse des robots :</span>'+SPDN.map((n,i)=>'<button data-s="'+i+'" class="'+(P.spd===i?'on':'')+'">'+n+'</button>').join('')+'</div><button class="ob alt" id="rl2">📖 Règles</button><button class="ob" id="n">Reprendre</button><button class="ob alt" id="y">Quitter la partie</button>');$('n').onclick=closeOv;$('rl2').onclick=rules;$('y').onclick=showHome;$('ov').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{P.spd=+b.dataset.s;saveP();mh();});};mh();}else showHome();};
 gmUpdate();showHome();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 window.__l={get H(){return H;},get V(){return V;},act,findLay,REQ,newRound,startGame,botStep,canAdd};

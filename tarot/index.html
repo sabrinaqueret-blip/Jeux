@@ -732,11 +732,11 @@ function showRules(){
 }
 /* ---------- solo ---------- */
 function startSolo(name){
-  leave(true);G=new Game(P.n,P.nh);G.pace=P.pace||.6;G.names[0]=name;G.sink[0]=onView;me=0;show('game');G.start();
+  leave(true);G=new Game(P.n,P.nh);G.pace=P.pace||1;G.names[0]=name;G.sink[0]=onView;me=0;show('game');G.start();
 }
 /* ---------- hôte en ligne ---------- */
 function hostOnline(name){
-  leave(true);G=new Game(P.n,P.nh);G.pace=P.pace||.6;G.names[0]=name;G.sink[0]=onView;me=0;seatConn=[];
+  leave(true);G=new Game(P.n,P.nh);G.pace=P.pace||1;G.names[0]=name;G.sink[0]=onView;me=0;seatConn=[];
   roomCode=genCode();show('lobby');$('lobby').innerHTML='<h2>Création de la partie…</h2>';
   const open=(tries)=>{
     try{peer=mkPeer('tarot-'+roomCode);}catch(e){toast(e.message,5000);return showHome();}
@@ -951,11 +951,12 @@ function showLast(){
   openOv('<h2>Dernier pli</h2><div class="pl">'+l.cards.map(t=>'<div style="text-align:center"><small>'+esc(view.names[t.seat])+(l.winner===t.seat?' ✔':'')+'</small><br>'+cardEl(t.card,'tc')+'</div>').join('')+'</div><button class="ob" id="x">Fermer</button>');
   $('x').onclick=closeOv;
 }
+const PACES=[.3,.6,1,1.6,2.4],PACEN=['Éclair','Rapide','Normal','Lent','Très lent'];
 function showMenu(){
-  openOv('<h2>Menu</h2><button class="sw" id="snd"><span>Sons</span><span>'+(P.mute?'🔇 Coupés':'🔊 Activés')+'</span></button><button class="sw" id="aid"><span>Aides de jeu</span><span>'+(P.aids?'💡 Activées':'Désactivées')+'</span></button><button class="sw" id="aut"><span>Jouer seul la carte obligatoire</span><span>'+(P.auto===false?'Non':'✓ Oui')+'</span></button>'+(G?'<button class="sw" id="pc"><span>Rythme des robots</span><span>'+((P.pace||.6)>.7?'Normal':(P.pace||.6)>.4?'Rapide':'Éclair')+'</span></button>':'')+'<button class="ob alt" id="ru">Règles et points</button><button class="ob alt" id="q">Quitter la partie</button><button class="ob" id="x">Retour au jeu</button>');
+  openOv('<h2>Menu</h2><button class="sw" id="snd"><span>Sons</span><span>'+(P.mute?'🔇 Coupés':'🔊 Activés')+'</span></button><button class="sw" id="aid"><span>Aides de jeu</span><span>'+(P.aids?'💡 Activées':'Désactivées')+'</span></button><button class="sw" id="aut"><span>Jouer seul la carte obligatoire</span><span>'+(P.auto===false?'Non':'✓ Oui')+'</span></button>'+(G?'<button class="sw" id="pc"><span>Rythme des robots</span><span>'+PACEN[PACES.findIndex(x=>x>=(P.pace||1)-.01)<0?2:PACES.findIndex(x=>x>=(P.pace||1)-.01)]+'</span></button>':'')+'<button class="ob alt" id="ru">Règles et points</button><button class="ob alt" id="q">Quitter la partie</button><button class="ob" id="x">Retour au jeu</button>');
   $('x').onclick=closeOv;$('ru').onclick=()=>{showRules();$('x').onclick=showMenu;};
   $('snd').onclick=()=>{P.mute=!P.mute;saveP();showMenu();};
-  if($('pc'))$('pc').onclick=()=>{const c=P.pace||.6;P.pace=c>.7?.6:c>.4?.3:1;if(G)G.pace=P.pace;saveP();showMenu();};
+  if($('pc'))$('pc').onclick=()=>{const c=P.pace||1;let i=PACES.findIndex(x=>x>=c-.01);if(i<0)i=2;P.pace=PACES[(i+1)%PACES.length];if(G)G.pace=P.pace;saveP();showMenu();};
   $('aut').onclick=()=>{P.auto=P.auto===false;saveP();showMenu();};
   $('aid').onclick=()=>{P.aids=!P.aids;advice=null;saveP();showMenu();render();};
   $('q').onclick=()=>{openOv('<h2>Quitter ?</h2><p>'+(G&&seatConn.some(Boolean)?'Les joueurs en ligne seront déconnectés.':'La partie sera perdue.')+'</p><button class="ob" id="y">Oui, quitter</button><button class="ob alt" id="n">Non</button>');$('y').onclick=showHome;$('n').onclick=closeOv;};
